@@ -26,6 +26,9 @@ jobs:
 
       - name: Deploy Main App to vehiscan
         run: |
+          echo "Starting deployment to Hostinger..."
+          sleep 3
+
           rsync -avz --delete \
             --exclude=".git" \
             --exclude=".github" \
@@ -37,16 +40,32 @@ jobs:
             ./ \
             u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/
 
+          echo "Main app uploaded successfully."
+          sleep 3
+
       - name: Copy Assets to public_html
         run: |
+          echo "Preparing assets folder..."
+          sleep 2
+
           ssh -i ~/.ssh/private_key -p 65002 u321426185@145.79.28.1 "
             mkdir -p /home/u321426185/domains/mysamplesystem.site/public_html/assets
           "
+
+          echo "Uploading assets..."
+          sleep 2
 
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/private_key -p 65002" \
             ./assets/ \
             u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/public_html/assets/
 
+          echo "Assets uploaded successfully."
+          sleep 3
+
       - name: Deployment Complete
-        run: echo "Website deployed successfully."
+        run: |
+          echo "Hostinger website updated successfully."
+          echo "Waiting 10 seconds before finishing..."
+          sleep 10
+          echo "Deployment finished."
