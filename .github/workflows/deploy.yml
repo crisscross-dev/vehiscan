@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,6 +21,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/private_key
           chmod 600 ~/.ssh/private_key
+
           ssh-keyscan -p 65002 145.79.28.1 >> ~/.ssh/known_hosts
 
       - name: Deploy Main App to vehiscan
@@ -33,12 +37,16 @@ jobs:
             ./ \
             u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/
 
-      - name: Copy Assets to public_html_assets
+      - name: Copy Assets to public_html
         run: |
+          ssh -i ~/.ssh/private_key -p 65002 u321426185@145.79.28.1 "
+            mkdir -p /home/u321426185/domains/mysamplesystem.site/public_html/assets
+          "
+
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/private_key -p 65002" \
             ./assets/ \
-            u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/public_html_assets/assets/
+            u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/public_html/assets/
 
       - name: Deployment Complete
         run: echo "Website deployed successfully."
