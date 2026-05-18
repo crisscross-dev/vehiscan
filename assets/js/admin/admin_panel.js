@@ -1409,7 +1409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.rfidBindingSessionActive = false; // Ensure interceptor is released
   }
 
-  /* ---------- RFID Simulator Controls ---------- */
+  
 
   /* ---------- Visitors Page Controls ---------- */
   function attachVisitorsControls() {

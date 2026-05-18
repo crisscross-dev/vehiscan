@@ -1,0 +1,8 @@
+git remote set-url origin git@github.com:crisscross-dev/vehiscan.git
+
+git fetch origin
+git reset --hard origin/main
+git clean -fd
+
+
+
