@@ -33,7 +33,7 @@ class InputValidator {
      * @param int $minLength
      * @return array ['valid' => bool, 'message' => string]
      */
-    public static function validatePassword($password, $minLength = 12) {
+    public static function validatePassword($password, $minLength = 12, $requireSymbol = false) {
         if (empty($password)) {
             return ['valid' => false, 'message' => 'Password is required'];
         }
@@ -48,6 +48,10 @@ class InputValidator {
         
         if (!preg_match('/[0-9]/', $password)) {
             return ['valid' => false, 'message' => 'Password must contain at least one number'];
+        }
+
+        if ($requireSymbol && !preg_match('/[^a-zA-Z0-9]/', $password)) {
+            return ['valid' => false, 'message' => 'Password must contain at least one symbol (special character)'];
         }
         
         return ['valid' => true, 'message' => 'Valid'];
@@ -65,8 +69,8 @@ class InputValidator {
         
         $plate = strtoupper(trim($plate));
         
-        if (strlen($plate) < 3 || strlen($plate) > 15) {
-            return ['valid' => false, 'message' => 'Plate number must be 3-15 characters'];
+        if (strlen($plate) < 3 || strlen($plate) > 7) {
+            return ['valid' => false, 'message' => 'Plate number must be 3-7 characters'];
         }
         
         if (!preg_match('/^[A-Z0-9\-]+$/', $plate)) {

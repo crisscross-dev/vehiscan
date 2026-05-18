@@ -100,6 +100,9 @@ function saveFixedSizeImage(string $tmpPath, string $destination, string $ext): 
 }
 
   function syncPrimaryVehicleRecord(PDO $pdo, int $homeownerId, string $plateNumber, string $vehicleType, string $color, ?string $vehicleImage = null): void {
+    // Whitelist of allowed columns for validation
+    $allowedColumns = ['id', 'vehicle_id', 'homeowner_id', 'plate_number', 'vehicle_type', 'color', 'vehicle_img', 'is_primary', 'is_active', 'registered_at', 'created_at'];
+    
     $vehicleColumns = [];
     try {
       $vehicleColumns = $pdo->query("SHOW COLUMNS FROM vehicles")->fetchAll(PDO::FETCH_COLUMN);
@@ -111,6 +114,10 @@ function saveFixedSizeImage(string $tmpPath, string $destination, string $ext): 
       return;
     }
 
+    // Only use columns that exist in table AND are in whitelist
+    $vehicleColumns = array_intersect($vehicleColumns, $allowedColumns);
+    
+    // Determine which columns are available
     $idColumn = in_array('id', $vehicleColumns, true) ? 'id' : (in_array('vehicle_id', $vehicleColumns, true) ? 'vehicle_id' : null);
     if ($idColumn === null) {
       return;
@@ -346,27 +353,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mkdir($dir, 0755, true);
         }
     }
-    
-    $allowed = ['jpg','jpeg','png','webp','heic'];
-    $allowed_mimes = ['image/jpeg','image/png','image/webp','image/heic','image/heif'];
-    $max_upload_size = 5 * 1024 * 1024;
 
     foreach (['owner_img','car_img'] as $field) {
         if (!empty($_FILES[$field]['name']) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
-        if (($_FILES[$field]['size'] ?? 0) > $max_upload_size) {
-          echo json_encode(['success'=>false,'message'=>'Image too large. Maximum 5MB.']); exit;
-        }
-            $ext = strtolower(pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION));
-            if (!in_array($ext, $allowed)) continue;
-
-            // MIME validation via finfo
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mime = $finfo->file($_FILES[$field]['tmp_name']);
-            if (!in_array($mime, $allowed_mimes)) {
-                error_log("[HOMEOWNER_EDIT] Rejected upload: MIME $mime for field $field");
-                continue;
+            $validation = InputValidator::validateImageUpload($_FILES[$field], 5 * 1024 * 1024);
+            if (!$validation['valid']) {
+                echo json_encode(['success'=>false,'message'=>ucfirst($field) . ': ' . $validation['message']]); exit;
             }
 
+            $ext = strtolower(pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION));
             $filename = date('Ymd_His_') . $field . '_' . time() . '.' . $ext;
             $upload_dir = $field === 'owner_img' ? $owners_upload_dir : $vehicles_upload_dir;
             $relative_path = $field === 'owner_img' ? 'homeowners/' : 'vehicles/';
@@ -383,15 +378,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       foreach (['car_img_front', 'car_img_left', 'car_img_right', 'car_img_rear'] as $angleField) {
         if (!empty($_FILES[$angleField]['name']) && $_FILES[$angleField]['error'] === UPLOAD_ERR_OK) {
-          if (($_FILES[$angleField]['size'] ?? 0) > $max_upload_size) {
-            echo json_encode(['success'=>false,'message'=>'Vehicle angle image too large. Maximum 5MB.']); exit;
+          $validation = InputValidator::validateImageUpload($_FILES[$angleField], 5 * 1024 * 1024);
+          if (!$validation['valid']) {
+            echo json_encode(['success'=>false,'message'=>ucfirst(str_replace('_', ' ', $angleField)) . ': ' . $validation['message']]); exit;
           }
           $ext = strtolower(pathinfo($_FILES[$angleField]['name'], PATHINFO_EXTENSION));
-          if (!in_array($ext, $allowed)) continue;
-          $finfo = new finfo(FILEINFO_MIME_TYPE);
-          $mime = $finfo->file($_FILES[$angleField]['tmp_name']);
-          if (!in_array($mime, $allowed_mimes)) continue;
-
           $filename = date('Ymd_His_') . $angleField . '_' . time() . '.' . $ext;
           if (saveFixedSizeImage($_FILES[$angleField]['tmp_name'], $vehicles_upload_dir . $filename, $ext)) {
             $$angleField = 'vehicles/' . $filename;

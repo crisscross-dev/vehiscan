@@ -32,7 +32,8 @@ if (empty($apiKey)) {
 
 if (empty($apiKey)) {
     http_response_code(400);
-    exit(json_encode(['success' => false, 'message' => 'API key is required']));
+    echo json_encode(['success' => false, 'message' => 'API key is required']);
+    exit;
 }
 
 try {
@@ -46,12 +47,14 @@ try {
 
     if (!$key) {
         http_response_code(401);
-        exit(json_encode(['success' => false, 'message' => 'Invalid API key']));
+        echo json_encode(['success' => false, 'message' => 'Invalid API key']);
+        exit;
     }
 
     if (!$key['is_active']) {
         http_response_code(403);
-        exit(json_encode(['success' => false, 'message' => 'API key is deactivated']));
+        echo json_encode(['success' => false, 'message' => 'API key is deactivated']);
+        exit;
     }
 
     // Update last used
@@ -66,7 +69,7 @@ try {
     ");
     $activeBinding = $bindStmt->fetch();
 
-    exit(json_encode([
+    echo json_encode([
         'success' => true,
         'message' => 'API key valid',
         'data' => [
@@ -75,10 +78,12 @@ try {
             'active_binding_session' => $activeBinding ? true : false,
             'scan_endpoint' => '/api/rfid/scan.php'
         ]
-    ]));
+    ]);
+    exit;
 
 } catch (PDOException $e) {
     error_log('[RFID_VALIDATE] Error: ' . $e->getMessage());
     http_response_code(500);
-    exit(json_encode(['success' => false, 'message' => 'Server error']));
+    echo json_encode(['success' => false, 'message' => 'Server error']);
+    exit;
 }

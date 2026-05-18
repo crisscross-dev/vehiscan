@@ -18,6 +18,8 @@ require_once __DIR__ . '/../../db.php';
 
 $page = max(1, (int)($_GET['page'] ?? 1));
 $search = trim((string)($_GET['search'] ?? ''));
+$dateFromRaw = trim((string)($_GET['date_from'] ?? ''));
+$dateToRaw = trim((string)($_GET['date_to'] ?? ''));
 $allowedPerPage = [10, 25, 50, 100];
 $perPage = (int)($_GET['per_page'] ?? 25);
 if (!in_array($perPage, $allowedPerPage, true)) {
@@ -71,6 +73,18 @@ try {
   $rfidCounts['unbound'] = (int)($stats['unbound_count'] ?? 0);
 } catch (Exception $e) {
   error_log('[MANAGE] RFID stats error: ' . $e->getMessage());
+}
+
+if (!function_exists('ta_sentence_case')) {
+  function ta_sentence_case($value)
+  {
+    $value = trim((string)$value);
+    if ($value === '') {
+      return '';
+    }
+
+    return ucwords(strtolower($value));
+  }
 }
 ?>
 <!-- Page Header -->
@@ -146,37 +160,28 @@ try {
     </svg>
     Add New
   </button>
-  <div x-data="{ open: false }" class="relative inline-block text-left">
-    <button @click="open = !open" @click.away="open = false" type="button" class="ta-btn ta-btn-secondary">
-      More Actions
-      <svg class="ml-1 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">More Actions</span>
+    <button id="exportManageBtn" class="ta-btn ta-btn-secondary">
+      <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+        </path>
       </svg>
+      Export CSV
     </button>
-    <div x-show="open" x-transition class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 z-[100]" style="display: none;">
-      <div class="py-1">
-        <button id="exportManageBtn" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
-          <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-          </svg>
-          Export CSV
-        </button>
-        <button id="qrRegistrationBtn" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
-          <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm2 2v3h3V5h-3zM5 5v3h3V5H5zm0 11v3h3v-3H5zm9 1h1v1h-1v-1zm2 0h1v1h-1v-1zm-2 2h1v1h-1v-1zm2 0h1v1h-1v-1zm2-2h1v1h-1v-1zm0 2h1v1h-1v-1z">
-            </path>
-          </svg>
-          QR Registration
-        </button>
-      </div>
-    </div>
+    <button id="qrRegistrationBtn" class="ta-btn ta-btn-secondary">
+      <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm2 2v3h3V5h-3zM5 5v3h3V5H5zm0 11v3h3v-3H5zm9 1h1v1h-1v-1zm2 0h1v1h-1v-1zm-2 2h1v1h-1v-1zm2 0h1v1h-1v-1zm2-2h1v1h-1v-1zm0 2h1v1h-1v-1z">
+        </path>
+      </svg>
+      QR Registration
+    </button>
   </div>
   <div class="flex items-center gap-2 ml-auto">
     <div class="relative flex items-center">
-      <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor"
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor"
         viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -191,6 +196,11 @@ try {
         <option value="<?php echo $opt; ?>" <?php echo $perPage === $opt ? 'selected' : ''; ?>><?php echo $opt; ?> / page</option>
       <?php endforeach; ?>
     </select>
+
+    <div class="flex items-center gap-2">
+      <input id="manageDateFrom" type="date" class="ta-input" value="<?php echo htmlspecialchars($dateFromRaw); ?>" title="From" />
+      <input id="manageDateTo" type="date" class="ta-input" value="<?php echo htmlspecialchars($dateToRaw); ?>" title="To" />
+    </div>
 
     <span id="searchCount" class="text-sm text-gray-600 font-medium whitespace-nowrap"></span>
   </div>
@@ -221,6 +231,24 @@ try {
     if ($hasSplitNames) {
       $params[':search_first_name'] = $searchLike;
       $params[':search_last_name'] = $searchLike;
+    }
+  }
+
+  // Date range filter (created_at) - expect YYYY-MM-DD values from date inputs
+  if ($dateFromRaw !== '') {
+    $d = DateTime::createFromFormat('Y-m-d', $dateFromRaw);
+    if ($d !== false) {
+      $params[':date_from'] = $d->format('Y-m-d') . ' 00:00:00';
+      $where .= " AND h.created_at >= :date_from";
+    }
+  }
+
+  if ($dateToRaw !== '') {
+    $d2 = DateTime::createFromFormat('Y-m-d', $dateToRaw);
+    if ($d2 !== false) {
+      // include end of day
+      $params[':date_to'] = $d2->format('Y-m-d') . ' 23:59:59';
+      $where .= " AND h.created_at <= :date_to";
     }
   }
 
@@ -296,7 +324,7 @@ try {
       <?php endif; ?>
       <?php foreach ($rows as $r): ?>
         <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
-          <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?php echo htmlspecialchars($r['name'] ?? ''); ?></td>
+          <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?php echo htmlspecialchars(ta_sentence_case($r['name'] ?? '')); ?></td>
           <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?php echo htmlspecialchars($r['plate_number'] ?? ''); ?></td>
           <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo htmlspecialchars($r['vehicle_type'] ?? ''); ?></td>
           <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo !empty($r['created_at']) ? htmlspecialchars(date('M d, Y', strtotime($r['created_at']))) : '-'; ?></td>
@@ -342,6 +370,13 @@ try {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"></path></svg>
                     View Profile
                   </button>
+                  <?php if ($isSuperAdmin): ?>
+                    <div class="ta-action-divider"></div>
+                    <button type="button" role="menuitem" class="ta-action-menu-item red btn-delete" data-id="<?php echo $r['id']; ?>" data-name="<?php echo htmlspecialchars(ta_sentence_case($r['name'] ?? '')); ?>">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-6 0h8"></path></svg>
+                      Delete
+                    </button>
+                  <?php endif; ?>
                   <div class="ta-action-divider"></div>
                   <button type="button" role="menuitem" class="ta-action-menu-item btn-edit" data-id="<?php echo $r['id']; ?>">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>

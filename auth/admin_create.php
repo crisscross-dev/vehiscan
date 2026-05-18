@@ -100,26 +100,8 @@ button:hover{background:#2980b9;}
         <input type="email" name="email" placeholder="Email (Super Admin only)">
     </div>
   <button type="submit">Create</button>
-  <button type="button" onclick="location.href='../admin/admin_panel.php'">Cancel</button>
+    <a class="button" href="../admin/admin_panel.php" style="display:inline-block;text-align:center;text-decoration:none;padding:10px;margin-top:10px;border-radius:6px;border:1px solid #ccc;background:#e0e0e0;color:#333;">Cancel</a>
 </form>
 </div>
-<script>
-    (function () {
-        var roleSelect = document.querySelector('select[name="role"]');
-        var superAdminFields = document.getElementById('superAdminFields');
-        if (!roleSelect || !superAdminFields) return;
-
-        function syncSuperAdminFields() {
-            var isSuperAdmin = roleSelect.value === 'super_admin';
-            superAdminFields.style.display = isSuperAdmin ? 'block' : 'none';
-            var fullNameInput = superAdminFields.querySelector('input[name="full_name"]');
-            var emailInput = superAdminFields.querySelector('input[name="email"]');
-            if (fullNameInput) fullNameInput.required = isSuperAdmin;
-            if (emailInput) emailInput.required = isSuperAdmin;
-        }
-
-        roleSelect.addEventListener('change', syncSuperAdminFields);
-        syncSuperAdminFields();
-    })();
-</script>
+<script src="../assets/js/auth/admin-create.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/auth/admin-create.js'); ?>"></script>
 </body></html>

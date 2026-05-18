@@ -14,7 +14,7 @@ function initializeVehiscanSessionPath(): void
     ini_set('session.cookie_httponly', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.cookie_samesite', 'Lax');
-    ini_set('session.cookie_secure', '0');
+    ini_set('session.cookie_secure', vehiscanIsHttpsRequest() ? '1' : '0');
     ini_set('session.use_strict_mode', '1');
 }
 
@@ -23,10 +23,15 @@ function vehiscanIsHttpsRequest(): bool
     $https = strtolower((string)($_SERVER['HTTPS'] ?? ''));
     $serverPort = (string)($_SERVER['SERVER_PORT'] ?? '');
     $forwardedProto = strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    $remoteAddr = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+
+    $trustedProxyCsv = (string)(getenv('TRUSTED_PROXIES') ?: '');
+    $trustedProxies = array_values(array_filter(array_map('trim', explode(',', $trustedProxyCsv))));
+    $isTrustedProxy = in_array($remoteAddr, $trustedProxies, true);
 
     return ($https !== '' && $https !== 'off')
         || $serverPort === '443'
-        || $forwardedProto === 'https';
+        || ($isTrustedProxy && $forwardedProto === 'https');
 }
 
 function vehiscanStartNamedSession(string $name): void
@@ -83,4 +88,25 @@ function vehiscanExpireSessionCookie(?string $name = null): void
 function vehiscanGenerateCsrfToken(): string
 {
     return bin2hex(random_bytes(32));
+}
+
+function vehiscanAppBasePath(): string
+{
+    $scriptName = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+    $basePath = dirname($scriptName);
+    $basePath = preg_replace('#/(admin|guard|visitor|homeowners|auth|api|pages|utilities|includes).*$#', '', (string)$basePath);
+    $basePath = rtrim((string)$basePath, '/');
+
+    return $basePath === '' ? '' : $basePath;
+}
+
+function vehiscanLoginPath(string $query = ''): string
+{
+    $path = vehiscanAppBasePath() . '/auth/login.php';
+    if ($query !== '') {
+        $separator = strpos($path, '?') === false ? '?' : '&';
+        $path .= $separator . ltrim($query, '?&');
+    }
+
+    return $path;
 }

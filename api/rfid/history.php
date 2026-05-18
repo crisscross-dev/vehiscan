@@ -27,7 +27,8 @@ if (isset($_COOKIE['vehiscan_guard']) && !$hasAdminCookie) {
 // Auth check
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin', 'guard'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 $limit = min(100, max(1, (int)($_GET['limit'] ?? 50)));
@@ -83,15 +84,17 @@ try {
         WHERE scanned_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
     ")->fetch();
 
-    exit(json_encode([
+    echo json_encode([
         'success' => true,
         'data' => $logs,
         'stats' => $stats,
         'count' => count($logs)
-    ]));
+    ]);
+    exit;
 
 } catch (PDOException $e) {
     error_log('[RFID_HISTORY] Error: ' . $e->getMessage());
     http_response_code(500);
-    exit(json_encode(['success' => false, 'message' => 'Database error']));
+    echo json_encode(['success' => false, 'message' => 'Database error']);
+    exit;
 }

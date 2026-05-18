@@ -48,11 +48,37 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
         vehiscanJsonExit(401, ['success' => false, 'error' => 'Session expired after shift timeout']);
     }
     
-    header('Location: /Vehiscan-RFID/auth/login.php?timeout=1');
+    header('Location: ' . vehiscanLoginPath('timeout=1'));
     exit();
 }
 
+// Inactivity timeout: 30 minutes of no activity (even within shift)
+// This prevents abandoned sessions from being used
+$guard_inactivity_timeout = 1800; // 30 minutes
+if (isset($_SESSION['created_at'])) {
+    $session_age = time() - $_SESSION['created_at'];
+    if (isset($_SESSION['last_activity'])) {
+        $inactivity_duration = time() - $_SESSION['last_activity'];
+        if ($inactivity_duration > $guard_inactivity_timeout) {
+            // Inactivity timeout triggered
+            vehiscanClearSessionAndCookie();
+            
+            if (vehiscanIsAjaxRequest()) {
+                vehiscanJsonExit(401, ['success' => false, 'error' => 'Session expired due to inactivity']);
+            }
+            
+            header('Location: ' . vehiscanLoginPath('timeout=1'));
+            exit();
+        }
+    }
+}
+
+// Update last activity timestamp for next inactivity check
 $_SESSION['last_activity'] = time();
+// Track session creation time (used for debugging and audit)
+if (!isset($_SESSION['created_at'])) {
+    $_SESSION['created_at'] = time();
+}
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = vehiscanGenerateCsrfToken();
@@ -65,7 +91,7 @@ if (($_SESSION['role'] ?? '') !== 'guard') {
         vehiscanJsonExit(401, ['success' => false, 'error' => 'Unauthorized']);
     }
 
-    header('Location: /Vehiscan-RFID/auth/login.php');
+    header('Location: ' . vehiscanLoginPath());
     exit();
 }
 

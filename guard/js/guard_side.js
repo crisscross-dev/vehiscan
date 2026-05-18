@@ -8,6 +8,12 @@ const guardLog = (...args) => {
   }
 };
 
+  // Secure CSRF Token Retrieval - Get from meta tag instead of window scope
+  window.getCsrfToken = function() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : '';
+  };
+
 // SweetAlert2 Fallback - Must be defined before any Swal usage
 if (typeof Swal === 'undefined') {
   console.warn('[GUARD] SweetAlert2 not loaded, using fallback alert/confirm');
@@ -30,6 +36,21 @@ if (typeof Swal === 'undefined') {
 const hasKeyboardRegistry = !!(window.keyboardShortcuts && typeof window.keyboardShortcuts.register === 'function');
 const FILTER_ACTIVE_CLASS = 'toggle-active';
 const GUARD_DEFAULT_DASHBOARD_TITLE = 'VehiScan';
+
+const resolveGuardBaseUrl = () => {
+  const configuredBase = window.vehiscanConfig?.baseUrl || window.baseUrl;
+  if (configuredBase) {
+    if (/^https?:\/\//i.test(configuredBase)) return configuredBase;
+    return configuredBase.startsWith('/')
+      ? window.location.origin + configuredBase
+      : window.location.origin + '/' + configuredBase.replace(/^\/+/, '');
+  }
+
+  const path = window.location.pathname || '';
+  const idx = path.indexOf('/guard/');
+  const appBasePath = idx >= 0 ? path.slice(0, idx) : '';
+  return window.location.origin + appBasePath + '/';
+};
 
 /* ---------- Global Session Expiration Handler ---------- */
 if (!window.__fetchPatched) {
@@ -232,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
-        csrf_token: window.csrfToken || '',
+        csrf_token: getCsrfToken(),
         ...payload
       })
     });
@@ -387,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
       relativePath = `uploads/${relativePath}`;
     }
 
-    const base = window.location.origin + (window.vehiscanConfig?.baseUrl || '/Vehiscan-RFID');
+    const base = resolveGuardBaseUrl();
     return `${base.replace(/\/$/, '')}/${relativePath}`;
   }
 
@@ -746,7 +767,13 @@ document.addEventListener('DOMContentLoaded', function () {
     applyGuardDetailMinimizedState(getStoredGuardDetailMinimized(), { persist: false });
   });
 
-  const initialPage = document.querySelector('.page-content.active')?.id === 'page-logs' ? 'logs' : '';
+  // Determine initial page from URL state (with fallback to server-rendered active state)
+  const initialPage = (() => {
+    const page = (new URLSearchParams(window.location.search).get('gpage') || '').trim().toLowerCase();
+    const allowedPages = new Set(['logs', 'vehicles', 'camera', 'visitor']);
+    return allowedPages.has(page) ? page : 'logs';
+  })();
+  
   setGuardDetailRailVisibility(initialPage);
 
   // ====== PAGE SWITCHING ======
@@ -832,6 +859,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.switchPage = function (pageName) {
     __vsLog('[GUARD] Switching to page:', pageName);
+
+    // Preserve URL state for reload
+    const url = new URL(window.location.href);
+    url.searchParams.set('gpage', pageName);
+    history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}`);
 
     // Get all pages
     const allPages = document.querySelectorAll('.page-content');
@@ -1082,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ====== DARK MODE ======
-  // Dark mode is now handled by guard-dark-mode.js (separate dedicated file)
+  // Dark mode is now handled by guard-dark.js (separate dedicated file)
   // This keeps guard panel dark mode independent from admin panel
 
   // ====== SEARCH HISTORY ======
@@ -1225,11 +1257,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const search = (document.getElementById('logsSearch')?.value || '').trim();
     const perPage = (document.getElementById('logsPerPage')?.value || '').trim();
     const plate = (window.activeUserFilter || '').trim();
+    const dateFrom = (document.getElementById('logsDateFrom')?.value || '').trim();
+    const dateTo = (document.getElementById('logsDateTo')?.value || '').trim();
     return {
       search,
       perPage,
       filter: currentFilter || '',
-      plate
+      plate,
+      dateFrom,
+      dateTo
     };
   }
 
@@ -1242,6 +1278,27 @@ document.addEventListener('DOMContentLoaded', function () {
     clearTimeout(logsFilterDebounceTimer);
     loadLogs(page);
   }
+
+  // Date filter button handler
+  const applyLogsDateFilterBtn = document.getElementById('applyLogsDateFilter');
+  if (applyLogsDateFilterBtn) {
+    applyLogsDateFilterBtn.addEventListener('click', () => {
+      requestLogsReload(1);
+    });
+  }
+
+  // Also reload on Enter key in date inputs
+  const logsDateFromInput = document.getElementById('logsDateFrom');
+  const logsDateToInput = document.getElementById('logsDateTo');
+  [logsDateFromInput, logsDateToInput].forEach((input) => {
+    if (input) {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          requestLogsReload(1);
+        }
+      });
+    }
+  });
 
   // Track the last seen log ID to detect NEW logs
   let lastSeenLogId = parseInt(localStorage.getItem('lastSeenLogId')) || 0;
@@ -1285,6 +1342,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (filters.filter) params.set('filter', filters.filter);
       if (filters.plate) params.set('plate', filters.plate);
       if (filters.perPage) params.set('per_page', filters.perPage);
+      if (filters.dateFrom) params.set('date_from', filters.dateFrom);
+      if (filters.dateTo) params.set('date_to', filters.dateTo);
 
       // Fetch HTML from server (matching admin pattern)
       const res = await fetch(`../fetch/fetch_logs.php?${params.toString()}`, {
@@ -1350,12 +1409,8 @@ document.addEventListener('DOMContentLoaded', function () {
       __vsLog('[GUARD] Fetching homeowners...');
       populateGuardVisitorHomeowners('loading');
       // Use configured endpoint or fallback and build absolute URL
-      const endpoint = window.vehiscanConfig?.apiEndpoints?.homeowners || '/Vehiscan-RFID/guard/fetch/fetch_homeowners.php';
-      const base = window.vehiscanConfig?.baseUrl || window.baseUrl || window.location.origin;
-      let baseResolved = base;
-      if (baseResolved.startsWith('/')) baseResolved = window.location.origin + baseResolved;
-      else if (!/^https?:\/\//i.test(baseResolved)) baseResolved = window.location.origin + '/' + baseResolved.replace(/^\/+/, '');
-      const endpointUrl = new URL(endpoint, baseResolved).toString();
+      const endpoint = window.vehiscanConfig?.apiEndpoints?.homeowners || 'guard/fetch/fetch_homeowners.php';
+      const endpointUrl = new URL(endpoint, resolveGuardBaseUrl()).toString();
       __vsLog('[GUARD] Fetching homeowners from:', endpointUrl);
 
       const res = await fetch(endpointUrl, { credentials: 'same-origin' });
@@ -2002,7 +2057,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!validateDateRange()) return;
 
       const payload = new FormData(form);
-      payload.append('csrf_token', window.csrfToken || '');
+      payload.append('csrf_token', getCsrfToken());
 
       setBusy(true);
       try {
@@ -2027,6 +2082,120 @@ document.addEventListener('DOMContentLoaded', function () {
       } finally {
         setBusy(false);
       }
+    });
+  }
+
+  window.showGuardVisitorModal = function () {
+    const modal = document.getElementById('guardVisitorModal');
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    populateGuardVisitorHomeowners(allHomeowners.length > 0 ? 'ready' : 'loading');
+    if (allHomeowners.length === 0 && typeof loadHomeowners === 'function') {
+      loadHomeowners(true);
+    }
+
+    const homeownerSearchInput = document.getElementById('guardVisitorHomeownerSearch');
+    if (homeownerSearchInput && !homeownerSearchInput.disabled) {
+      setTimeout(() => homeownerSearchInput.focus(), 80);
+    }
+  };
+
+  window.closeGuardVisitorModal = function () {
+    const modal = document.getElementById('guardVisitorModal');
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = 'auto';
+  };
+
+  function bindGuardActionButtons() {
+    const openVisitorBtn = document.getElementById('openVisitorModalBtn');
+    if (openVisitorBtn && openVisitorBtn.dataset.bound !== '1') {
+      openVisitorBtn.dataset.bound = '1';
+      openVisitorBtn.addEventListener('click', showGuardVisitorModal);
+    }
+
+    const closeVisitorBackdropBtn = document.getElementById('guardVisitorModalBackdrop');
+    if (closeVisitorBackdropBtn && closeVisitorBackdropBtn.dataset.bound !== '1') {
+      closeVisitorBackdropBtn.dataset.bound = '1';
+      closeVisitorBackdropBtn.addEventListener('click', closeGuardVisitorModal);
+    }
+
+    const closeVisitorCancelBtn = document.getElementById('guardVisitorModalCancelBtn');
+    if (closeVisitorCancelBtn && closeVisitorCancelBtn.dataset.bound !== '1') {
+      closeVisitorCancelBtn.dataset.bound = '1';
+      closeVisitorCancelBtn.addEventListener('click', closeGuardVisitorModal);
+    }
+
+    const openQrScannerBtn = document.getElementById('openQrScannerBtn');
+    if (openQrScannerBtn && openQrScannerBtn.dataset.bound !== '1') {
+      openQrScannerBtn.dataset.bound = '1';
+      openQrScannerBtn.addEventListener('click', showQRScannerModal);
+    }
+
+    const openManualLogBtn = document.getElementById('openManualLogBtn');
+    if (openManualLogBtn && openManualLogBtn.dataset.bound !== '1') {
+      openManualLogBtn.dataset.bound = '1';
+      openManualLogBtn.addEventListener('click', showManualLogModal);
+    }
+
+    // QR scanner modal close button
+    const qrScannerCloseBtn = document.getElementById('qrScannerModalCloseBtn');
+    if (qrScannerCloseBtn && qrScannerCloseBtn.dataset.bound !== '1') {
+      qrScannerCloseBtn.dataset.bound = '1';
+      qrScannerCloseBtn.addEventListener('click', (e) => { e.preventDefault(); closeQRScannerModal(); });
+    }
+
+    // Manual log modal close button and form submit binding
+    const manualLogCloseBtn = document.getElementById('manualLogModalCloseBtn');
+    if (manualLogCloseBtn && manualLogCloseBtn.dataset.bound !== '1') {
+      manualLogCloseBtn.dataset.bound = '1';
+      manualLogCloseBtn.addEventListener('click', (e) => { e.preventDefault(); closeManualLogModal(); });
+    }
+
+    const manualLogForm = document.getElementById('manual-log-form');
+    if (manualLogForm && manualLogForm.dataset.bound !== '1') {
+      manualLogForm.dataset.bound = '1';
+      manualLogForm.addEventListener('submit', submitManualLog);
+    }
+
+    // Image zoom modal: backdrop click to close and close button
+    const imageZoomModal = document.getElementById('imageZoomModal');
+    if (imageZoomModal && imageZoomModal.dataset.bound !== '1') {
+      imageZoomModal.dataset.bound = '1';
+      imageZoomModal.addEventListener('click', (e) => {
+        if (e.target === imageZoomModal) closeImageZoom();
+      });
+    }
+
+    const imageZoomCloseBtn = document.getElementById('imageZoomCloseBtn');
+    if (imageZoomCloseBtn && imageZoomCloseBtn.dataset.bound !== '1') {
+      imageZoomCloseBtn.dataset.bound = '1';
+      imageZoomCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); closeImageZoom(); });
+    }
+
+    // Bind image zoom openers
+    document.querySelectorAll('.open-image-zoom-btn').forEach((btn) => {
+      if (btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', (e) => {
+        try {
+          const targetId = btn.getAttribute('data-image-target');
+          const img = document.getElementById(targetId);
+          if (img && img.src) {
+            openImageZoom(img.src);
+          } else {
+            if (window.toast) window.toast.info('Image not available');
+          }
+        } catch (err) {
+          console.error('[ImageZoom] open error', err);
+        }
+      });
     });
   }
 
@@ -2284,12 +2453,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!current || !current.plate_number) return;
 
       // Request single homeowner by plate (tolerant) to get updated image flags/urls
-      const endpoint = window.vehiscanConfig?.apiEndpoints?.homeowners || '/Vehiscan-RFID/guard/fetch/fetch_homeowners.php';
-      const base = window.vehiscanConfig?.baseUrl || window.baseUrl || window.location.origin;
-      let baseResolved = base;
-      if (baseResolved.startsWith('/')) baseResolved = window.location.origin + baseResolved;
-      else if (!/^https?:\/\//i.test(baseResolved)) baseResolved = window.location.origin + '/' + baseResolved.replace(/^\/+/, '');
-      const url = new URL(endpoint, baseResolved);
+      const endpoint = window.vehiscanConfig?.apiEndpoints?.homeowners || 'guard/fetch/fetch_homeowners.php';
+      const url = new URL(endpoint, resolveGuardBaseUrl());
       url.searchParams.set('plate', current.plate_number);
 
       const res = await fetch(url.toString(), { credentials: 'same-origin' });
@@ -2833,7 +2998,13 @@ document.addEventListener('DOMContentLoaded', function () {
         throw new Error(`Server error: ${res.status}`);
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        console.error('[VISITOR] JSON parse error:', parseError);
+        throw new Error('Invalid response format from server');
+      }
 
       if (!data.success || !data.passes || data.passes.length === 0) {
         container.innerHTML = '<div class="col-span-full ta-empty-state"><div class="ta-empty-icon"><svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg></div><p class="ta-empty-title">No visitor passes found</p><p class="ta-empty-desc">There are no active visitor passes at this time.</p></div>';
@@ -3486,7 +3657,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const res = await fetch(`../fetch/fetch_visitor_scan_logs.php?${queryParams.toString()}`, {
         credentials: 'same-origin'
       });
-      const json = await res.json();
+      
+      let json;
+      try {
+        json = await res.json();
+      } catch (parseError) {
+        console.error('[VISITOR-SCANS] JSON parse error:', parseError);
+        throw new Error('Invalid response format from server');
+      }
+      
       if (!res.ok || !json.success) {
         throw new Error(json.message || 'Failed to fetch scan history');
       }
@@ -4279,7 +4458,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const formData = new URLSearchParams();
             formData.append('rfid_uid', uid);
-            formData.append('csrf_token', window.csrfToken || '');
+              formData.append('csrf_token', getCsrfToken());
             formData.append('session_type', 'guard');
 
             const response = await fetch('../../api/rfid/scan.php', {
@@ -4319,6 +4498,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let lastLogTime = null;
     let pollTimer     = null;
+    let pollAbortController = null;
     let initialPoll   = true;   // suppress overlay on first load
 
     function show(data) {
@@ -4340,11 +4520,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function poll() {
       try {
+        // Cancel previous request if still pending (prevents duplicate in-flight requests)
+        if (pollAbortController) {
+          pollAbortController.abort();
+        }
+        pollAbortController = new AbortController();
+
         const res = await fetch('../fetch/fetch_rfid_scan.php?_=' + Date.now(), {
-          credentials: 'same-origin'
+          credentials: 'same-origin',
+          signal: pollAbortController.signal
         });
         if (!res.ok) { initialPoll = false; return; }
-        const json = await res.json();
+        
+        let json;
+        try {
+          json = await res.json();
+        } catch (parseError) {
+          __vsLog('[RFID-POLL] JSON parse error:', parseError.message);
+          initialPoll = false;
+          return;
+        }
+        
         if (!json.success || !json.data) { initialPoll = false; return; }
 
         const d = json.data;
@@ -4383,15 +4579,326 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         clearInterval(pollTimer); pollTimer = null;
+        if (pollAbortController) {
+          pollAbortController.abort();
+          pollAbortController = null;
+        }
       } else {
         if (!pollTimer) { poll(); pollTimer = setInterval(poll, POLL_INTERVAL); }
       }
     });
 
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (pollTimer) clearInterval(pollTimer);
+      if (pollAbortController) pollAbortController.abort();
+    });
+
     __vsLog('[RFID-POLL] Scan poller initialized (interval: ' + POLL_INTERVAL + 'ms)');
   })();
 
+  // ====== QR SCANNER MODAL FUNCTIONS ======
+  let qrScanner = null;
+
+  window.showQRScannerModal = function () {
+    const modal = document.getElementById('qrScannerModal');
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!window.isSecureContext && !isLocalHost) {
+      if (window.toast) window.toast.error('Camera scanning requires HTTPS in hosted environments.');
+      closeQRScannerModal();
+      return;
+    }
+
+    // Initialize or resume QR scanner
+    setTimeout(() => {
+      if (typeof Html5Qrcode === 'undefined') {
+        if (window.toast) window.toast.error('QR Scanner library not loaded');
+        closeQRScannerModal();
+        return;
+      }
+
+      const qrReaderDiv = document.getElementById('qr-reader');
+      const resultsDiv = document.getElementById('qr-reader-results');
+
+      if (!qrReaderDiv) return;
+
+      try {
+        // Create new scanner instance if needed
+        if (!qrScanner) {
+          qrScanner = new Html5Qrcode('qr-reader');
+        }
+
+        // Start camera
+        qrScanner.start(
+          { facingMode: 'environment' },
+          { fps: 30, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            handleQRScan(decodedText, resultsDiv);
+          },
+          (errorMessage) => {
+            // Silent error handling - just continue scanning
+          }
+        ).catch((err) => {
+          console.warn('[QR Scanner] Failed to start:', err);
+          if (window.toast) window.toast.error('Failed to access camera');
+          closeQRScannerModal();
+        });
+      } catch (err) {
+        console.warn('[QR Scanner] Error initializing:', err);
+        if (window.toast) window.toast.error('QR Scanner initialization failed');
+        closeQRScannerModal();
+      }
+    }, 100);
+  };
+
+  window.closeQRScannerModal = function () {
+    const modal = document.getElementById('qrScannerModal');
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+
+    // Stop scanner
+    if (qrScanner && qrScanner.isScanning) {
+      qrScanner.stop().catch(() => {});
+    }
+
+    // Clear results
+    const resultsDiv = document.getElementById('qr-reader-results');
+    if (resultsDiv) {
+      resultsDiv.classList.add('hidden');
+      resultsDiv.innerHTML = '';
+    }
+  };
+
+  window.handleQRScan = async function (qrToken, resultsDiv) {
+    if (!resultsDiv) return;
+
+    // Stop scanning to prevent duplicate scans
+    if (qrScanner && qrScanner.isScanning) {
+      qrScanner.stop().catch(() => {});
+    }
+
+    // Disable scanner temporarily
+    const qrReaderDiv = document.getElementById('qr-reader');
+    if (qrReaderDiv) {
+      qrReaderDiv.style.opacity = '0.5';
+      qrReaderDiv.style.pointerEvents = 'none';
+    }
+
+    // Show processing state
+    resultsDiv.innerHTML = '<span class="text-gray-600 dark:text-gray-300">Processing...</span>';
+    resultsDiv.classList.remove('hidden');
+
+    try {
+      // Determine direction
+      const directionSelect = document.getElementById('qr-direction-select');
+      const direction = directionSelect ? directionSelect.value : 'in';
+
+      // Submit to API
+      const response = await fetch('../../guard/api/validate_qr.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token: qrToken,
+          direction: direction,
+          csrf_token: getCsrfToken()
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Show success message
+        resultsDiv.innerHTML = `
+          <div class="bg-green-100 dark:bg-green-900/30 border border-green-500 rounded p-3">
+            <p class="font-semibold text-green-800 dark:text-green-300">Access Granted!</p>
+            <p class="text-sm text-green-700 dark:text-green-400">${escapeHtml(data.visitor_name)}</p>
+            <p class="text-xs text-green-600 dark:text-green-500">${escapeHtml(data.purpose || 'No purpose specified')}</p>
+          </div>
+        `;
+        resultsDiv.classList.remove('hidden');
+
+        if (window.toast) window.toast.success(data.message);
+
+        // Auto-close after 2 seconds and refresh logs
+        setTimeout(() => {
+          closeQRScannerModal();
+          requestLogsReload(1);
+        }, 2000);
+      } else {
+        resultsDiv.innerHTML = `
+          <div class="bg-red-100 dark:bg-red-900/30 border border-red-500 rounded p-3">
+            <p class="font-semibold text-red-800 dark:text-red-300">Access Denied</p>
+            <p class="text-sm text-red-700 dark:text-red-400">${escapeHtml(data.message || 'Unknown error')}</p>
+          </div>
+        `;
+        resultsDiv.classList.remove('hidden');
+
+        if (window.toast) window.toast.error(data.message);
+
+        // Re-enable scanner after delay
+        setTimeout(() => {
+          if (qrReaderDiv) {
+            qrReaderDiv.style.opacity = '1';
+            qrReaderDiv.style.pointerEvents = 'auto';
+          }
+          const qrModal = document.getElementById('qrScannerModal');
+          const latestResultsDiv = document.getElementById('qr-reader-results');
+          if (qrModal && qrModal.classList.contains('hidden')) return;
+          // Restart scanner
+          if (qrScanner && !qrScanner.isScanning) {
+            qrScanner.start(
+              { facingMode: 'environment' },
+              { fps: 30, qrbox: { width: 250, height: 250 } },
+              (decodedText) => handleQRScan(decodedText, latestResultsDiv),
+              () => {}
+            ).catch(() => {});
+          }
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('[QR Scanner] API Error:', err);
+      resultsDiv.innerHTML = `
+        <div class="bg-red-100 dark:bg-red-900/30 border border-red-500 rounded p-3">
+          <p class="font-semibold text-red-800 dark:text-red-300">Error</p>
+          <p class="text-sm text-red-700 dark:text-red-400">Failed to process QR code</p>
+        </div>
+      `;
+      resultsDiv.classList.remove('hidden');
+
+      if (window.toast) window.toast.error('Failed to process QR code');
+
+      // Re-enable scanner after delay
+      setTimeout(() => {
+        if (qrReaderDiv) {
+          qrReaderDiv.style.opacity = '1';
+          qrReaderDiv.style.pointerEvents = 'auto';
+        }
+        const qrModal = document.getElementById('qrScannerModal');
+        const latestResultsDiv = document.getElementById('qr-reader-results');
+        if (qrModal && qrModal.classList.contains('hidden')) return;
+        // Restart scanner
+        if (qrScanner && !qrScanner.isScanning) {
+          qrScanner.start(
+            { facingMode: 'environment' },
+            { fps: 30, qrbox: { width: 250, height: 250 } },
+            (decodedText) => handleQRScan(decodedText, latestResultsDiv),
+            () => {}
+          ).catch(() => {});
+        }
+      }, 2000);
+    }
+  };
+
+  // ====== MANUAL LOG MODAL FUNCTIONS ======
+  window.showManualLogModal = function () {
+    const modal = document.getElementById('manualLogModal');
+    if (!modal) {
+      if (window.toast) window.toast.error('Manual log modal not found');
+      return;
+    }
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    // Focus on plate number input
+    const plateInput = document.getElementById('manual-plate-input');
+    if (plateInput) {
+      setTimeout(() => plateInput.focus(), 100);
+    }
+  };
+
+  window.closeManualLogModal = function () {
+    const modal = document.getElementById('manualLogModal');
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+
+    // Clear form
+    const form = document.getElementById('manual-log-form');
+    if (form) form.reset();
+  };
+
+  window.submitManualLog = async function (e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const plateInput = document.getElementById('manual-plate-input');
+    const directionSelect = document.getElementById('manual-direction-select');
+    const submitBtn = document.querySelector('#manual-log-form button[type="submit"]');
+
+    if (!plateInput || !plateInput.value.trim()) {
+      if (window.toast) window.toast.error('Please enter a plate number');
+      return;
+    }
+
+    const plateNumber = plateInput.value.trim().toUpperCase();
+    const direction = directionSelect ? directionSelect.value : 'in';
+
+    // Disable button during submission
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+    }
+
+    try {
+      const response = await fetch('../../guard/api/manual_log.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          plate_number: plateNumber,
+          direction: direction,
+          csrf_token: getCsrfToken()
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (window.toast) window.toast.success(data.message);
+
+        // Close modal and refresh logs
+        setTimeout(() => {
+          closeManualLogModal();
+          requestLogsReload(1);
+        }, 500);
+      } else {
+        if (window.toast) window.toast.error(data.message);
+      }
+    } catch (err) {
+      console.error('[Manual Log] API Error:', err);
+      if (window.toast) window.toast.error('Failed to submit manual log entry');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Entry';
+      }
+    }
+  };
+
+  // Close modals with ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeQRScannerModal();
+      closeManualLogModal();
+      closeGuardVisitorModal();
+    }
+  });
+
   // Initial load
+  bindGuardActionButtons();
   initGuardAddVisitorForm();
   initGuardVehiclesControls();
   loadLogs();

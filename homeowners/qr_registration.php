@@ -61,21 +61,9 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homeowner Registration QR | VehiScan</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: #f8f9fa;
-      color: #09090b;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    
+  </script>
+  <script src="../assets/js/homeowner/qr-registration.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/homeowner/qr-registration.js'); ?>"></script>
       padding: 2rem 1rem;
       position: relative;
       overflow-x: hidden;
@@ -344,7 +332,7 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
       <span aria-hidden="true">↗</span>
     </a>
 
-    <button class="action-btn print-btn" type="button" onclick="window.print()" style="background:#3b82f6;">
+    <button class="action-btn print-btn" type="button" data-action="print" style="background:#3b82f6;">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm0-16h6v4H9V3z"/></svg>
       <span>Print</span>
     </button>

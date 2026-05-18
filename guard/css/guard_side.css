@@ -1,6 +1,22 @@
+:root {
+  --guard-bg: #F5F5F5;
+  --guard-card-bg: #FFFFFF;
+  --guard-border: #E5E7EB;
+  --guard-text: #0F172A;
+  --guard-text-muted: #64748B;
+}
+
+body.dark {
+  --guard-bg: #0F172A;
+  --guard-card-bg: #1E293B;
+  --guard-border: #334155;
+  --guard-text: #F8FAFC;
+  --guard-text-muted: #94A3B8;
+}
+
 /* Guard Panel Custom Background Utilities */
 .bg-guard-bg {
-  background: var(--bg, #F5F5F5) !important;
+  background: var(--guard-bg);
 }
 
 /* Page content transitions for smooth navigation */
@@ -315,18 +331,18 @@
 }
 
 body.dark .guard-detail-rail,
-body.dark-mode .guard-detail-rail {
+body.dark .guard-detail-rail {
   background: #0f172a;
   border-right-color: #334155;
 }
 
 body.dark .guard-detail-header,
-body.dark-mode .guard-detail-header {
+body.dark .guard-detail-header {
   border-bottom-color: #334155;
 }
 
 body.dark .guard-detail-toggle-btn,
-body.dark-mode .guard-detail-toggle-btn {
+body.dark .guard-detail-toggle-btn {
   background: #0f172a;
   color: #cbd5e1;
   border-color: #334155;
@@ -335,22 +351,22 @@ body.dark-mode .guard-detail-toggle-btn {
 body.dark .guard-detail-title,
 body.dark .guard-detail-name,
 body.dark .guard-detail-value,
-body.dark-mode .guard-detail-title,
-body.dark-mode .guard-detail-name,
-body.dark-mode .guard-detail-value {
+body.dark .guard-detail-title,
+body.dark .guard-detail-name,
+body.dark .guard-detail-value {
   color: #e2e8f0;
 }
 
 body.dark .guard-detail-item-plate,
 body.dark .guard-detail-item-homeowner,
-body.dark-mode .guard-detail-item-plate,
-body.dark-mode .guard-detail-item-homeowner {
+body.dark .guard-detail-item-plate,
+body.dark .guard-detail-item-homeowner {
   background: #111827;
   border-color: #334155;
 }
 
 body.dark .guard-detail-plate-badge,
-body.dark-mode .guard-detail-plate-badge {
+body.dark .guard-detail-plate-badge {
   border-color: #3b82f6;
   background: linear-gradient(180deg, rgba(37, 99, 235, 0.35) 0%, rgba(30, 64, 175, 0.5) 100%);
   color: #eff6ff;
@@ -360,68 +376,68 @@ body.dark-mode .guard-detail-plate-badge {
 
 body.dark .guard-detail-subtitle,
 body.dark .guard-detail-label,
-body.dark-mode .guard-detail-subtitle,
-body.dark-mode .guard-detail-label {
+body.dark .guard-detail-subtitle,
+body.dark .guard-detail-label {
   color: #94a3b8;
 }
 
 body.dark .guard-detail-empty > svg,
-body.dark-mode .guard-detail-empty > svg {
+body.dark .guard-detail-empty > svg {
   color: #64748b;
 }
 
 body.dark .guard-detail-empty,
-body.dark-mode .guard-detail-empty {
+body.dark .guard-detail-empty {
   background: #111827;
   border-bottom-color: #334155;
 }
 
 body.dark .guard-detail-empty-title,
-body.dark-mode .guard-detail-empty-title {
+body.dark .guard-detail-empty-title {
   color: #cbd5e1;
 }
 
 body.dark .guard-detail-empty-message,
-body.dark-mode .guard-detail-empty-message {
+body.dark .guard-detail-empty-message {
   color: #94a3b8;
 }
 
 body.dark .guard-detail-empty-icon,
-body.dark-mode .guard-detail-empty-icon {
+body.dark .guard-detail-empty-icon {
   color: #64748b;
 }
 
 body.dark .guard-detail-item,
-body.dark-mode .guard-detail-item {
+body.dark .guard-detail-item {
   background: #1e293b;
   border-color: #334155;
 }
 
 body.dark .guard-detail-media-card,
-body.dark-mode .guard-detail-media-card {
+body.dark .guard-detail-media-card {
   background: #1e293b;
   border-color: #334155;
 }
 
 body.dark .guard-detail-media-label,
-body.dark-mode .guard-detail-media-label {
+body.dark .guard-detail-media-label {
   color: #94a3b8;
 }
 
 body.dark .guard-detail-status.status-in,
-body.dark-mode .guard-detail-status.status-in {
+body.dark .guard-detail-status.status-in {
   color: #6ee7b7;
   background: rgba(16, 185, 129, 0.18);
 }
 
 body.dark .guard-detail-status.status-out,
-body.dark-mode .guard-detail-status.status-out {
+body.dark .guard-detail-status.status-out {
   color: #fda4af;
   background: rgba(239, 68, 68, 0.18);
 }
 
 body.dark .log-row.log-row-selected,
-body.dark-mode .log-row.log-row-selected {
+body.dark .log-row.log-row-selected {
   background: rgba(56, 189, 248, 0.12) !important;
 }
 

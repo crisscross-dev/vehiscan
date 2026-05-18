@@ -1,7 +1,7 @@
 # Error document handlers
-ErrorDocument 404 /Vehiscan-RFID/error_pages/404.php
-ErrorDocument 403 /Vehiscan-RFID/error_pages/403.php
-ErrorDocument 500 /Vehiscan-RFID/error_pages/500.php
+ErrorDocument 404 error_pages/404.php
+ErrorDocument 403 error_pages/403.php
+ErrorDocument 500 error_pages/500.php
 
 # Disable directory listing
 Options -Indexes

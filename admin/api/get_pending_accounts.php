@@ -15,7 +15,8 @@ requireRequestMethod('GET');
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
     http_response_code(403);
-    exit(json_encode(['error' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 try {
@@ -32,6 +33,10 @@ try {
             h.contact_number,
             h.address,
             h.plate_number,
+            h.vehicle_type,
+            h.color,
+            h.owner_img,
+            h.car_img,
             h.created_at,
             COALESCE(ha.username, h.username) AS username,
             'homeowner' AS role,
@@ -54,6 +59,10 @@ try {
             NULL AS contact_number,
             NULL AS address,
             NULL AS plate_number,
+            NULL AS vehicle_type,
+            NULL AS color,
+            NULL AS owner_img,
+            NULL AS car_img,
             u.created_at,
             u.username,
             COALESCE(NULLIF(u.role, ''), 'user') AS role,
@@ -75,5 +84,5 @@ try {
 } catch (PDOException $e) {
     error_log('Error loading pending accounts: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to load pending accounts']);
+    echo json_encode(['success' => false, 'message' => 'Failed to load pending accounts']);
 }

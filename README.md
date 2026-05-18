@@ -1,4 +1,4 @@
-﻿# VehiScan RFID Access Control System
+# VehiScan RFID Access Control System
 
  **Modern Access Control System** for residential subdivisions using RFID technology and QR codes.
 
@@ -207,5 +207,5 @@ Proprietary - All rights reserved
 ---
 
 **Version:** 1.0.0 
-**Last Updated:** December 14, 2025 
+**Last Updated:** May 10, 2026 
 **Status:** Production Ready 

@@ -12,7 +12,8 @@ requireRequestMethod('GET');
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'error' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 require_once __DIR__ . '/../../db.php';
@@ -51,6 +52,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => 'Failed to check logs'
+        'message' => 'Failed to check logs'
     ]);
 }

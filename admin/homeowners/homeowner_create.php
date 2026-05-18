@@ -98,108 +98,21 @@ function saveFixedSizeImage(string $tmpPath, string $destination, string $ext): 
 }
 
   function syncPrimaryVehicleRecord(PDO $pdo, int $homeownerId, string $plateNumber, string $vehicleType, string $color, ?string $vehicleImage = null): void {
-    $vehicleColumns = [];
-    try {
-      $vehicleColumns = $pdo->query("SHOW COLUMNS FROM vehicles")->fetchAll(PDO::FETCH_COLUMN);
-    } catch (Exception $e) {
-      return;
-    }
-
-    if (empty($vehicleColumns) || !in_array('homeowner_id', $vehicleColumns, true) || !in_array('plate_number', $vehicleColumns, true)) {
-      return;
-    }
-
-    $idColumn = in_array('id', $vehicleColumns, true) ? 'id' : (in_array('vehicle_id', $vehicleColumns, true) ? 'vehicle_id' : null);
-    if ($idColumn === null) {
-      return;
-    }
-
-    $hasVehicleType = in_array('vehicle_type', $vehicleColumns, true);
-    $hasColor = in_array('color', $vehicleColumns, true);
-    $hasVehicleImg = in_array('vehicle_img', $vehicleColumns, true);
-    $hasIsPrimary = in_array('is_primary', $vehicleColumns, true);
-    $hasIsActive = in_array('is_active', $vehicleColumns, true);
-    $hasRegisteredAt = in_array('registered_at', $vehicleColumns, true);
-    $hasCreatedAt = in_array('created_at', $vehicleColumns, true);
-
-    $orderParts = [];
-    if ($hasIsPrimary) {
-      $orderParts[] = 'is_primary DESC';
-    }
-    if ($hasRegisteredAt) {
-      $orderParts[] = 'registered_at DESC';
-    } elseif ($hasCreatedAt) {
-      $orderParts[] = 'created_at DESC';
-    }
-    $orderParts[] = $idColumn . ' DESC';
-
-    $where = 'homeowner_id = ?';
-    if ($hasIsActive) {
-      $where .= ' AND is_active = 1';
-    }
-
-    $stmt = $pdo->prepare("SELECT {$idColumn} FROM vehicles WHERE {$where} ORDER BY " . implode(', ', $orderParts) . " LIMIT 1");
+    // Check if a primary vehicle exists
+    $stmt = $pdo->prepare("SELECT id FROM vehicles WHERE homeowner_id = ? ORDER BY is_primary DESC, registered_at DESC, id DESC LIMIT 1");
     $stmt->execute([$homeownerId]);
     $existingVehicleId = $stmt->fetchColumn();
 
     if ($existingVehicleId !== false) {
-      $setClauses = ['plate_number = ?'];
-      $params = [$plateNumber];
-
-      if ($hasVehicleType) {
-        $setClauses[] = 'vehicle_type = ?';
-        $params[] = $vehicleType;
-      }
-      if ($hasColor) {
-        $setClauses[] = 'color = ?';
-        $params[] = $color;
-      }
-      if ($hasVehicleImg && $vehicleImage !== null && trim((string)$vehicleImage) !== '') {
-        $setClauses[] = 'vehicle_img = ?';
-        $params[] = $vehicleImage;
-      }
-
-      $params[] = $existingVehicleId;
-      $updateStmt = $pdo->prepare("UPDATE vehicles SET " . implode(', ', $setClauses) . " WHERE {$idColumn} = ? AND homeowner_id = ?");
-      $params[] = $homeownerId;
-      $updateStmt->execute($params);
+      // Update existing
+      $updateStmt = $pdo->prepare("UPDATE vehicles SET plate_number = ?, vehicle_type = ?, color = ? WHERE id = ? AND homeowner_id = ?");
+      $updateStmt->execute([$plateNumber, $vehicleType, $color, $existingVehicleId, $homeownerId]);
       return;
     }
 
-    $insertColumns = ['homeowner_id', 'plate_number'];
-    $insertValues = [$homeownerId, $plateNumber];
-
-    if ($hasVehicleType) {
-      $insertColumns[] = 'vehicle_type';
-      $insertValues[] = $vehicleType;
-    }
-    if ($hasColor) {
-      $insertColumns[] = 'color';
-      $insertValues[] = $color;
-    }
-    if ($hasVehicleImg && $vehicleImage !== null && trim((string)$vehicleImage) !== '') {
-      $insertColumns[] = 'vehicle_img';
-      $insertValues[] = $vehicleImage;
-    }
-    if ($hasIsPrimary) {
-      $insertColumns[] = 'is_primary';
-      $insertValues[] = 1;
-    }
-    if ($hasIsActive) {
-      $insertColumns[] = 'is_active';
-      $insertValues[] = 1;
-    }
-    if ($hasRegisteredAt) {
-      $insertColumns[] = 'registered_at';
-      $insertValues[] = date('Y-m-d H:i:s');
-    } elseif ($hasCreatedAt) {
-      $insertColumns[] = 'created_at';
-      $insertValues[] = date('Y-m-d H:i:s');
-    }
-
-    $placeholders = implode(',', array_fill(0, count($insertColumns), '?'));
-    $insertStmt = $pdo->prepare("INSERT INTO vehicles (" . implode(',', $insertColumns) . ") VALUES (" . $placeholders . ")");
-    $insertStmt->execute($insertValues);
+    // Insert new
+    $insertStmt = $pdo->prepare("INSERT INTO vehicles (homeowner_id, plate_number, vehicle_type, color, is_primary, is_active, registered_at) VALUES (?, ?, ?, ?, 1, 1, NOW())");
+    $insertStmt->execute([$homeownerId, $plateNumber, $vehicleType, $color]);
   }
 
 // POST create (AJAX)
@@ -266,7 +179,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dupStmt->execute([$plate]);
     $duplicate = $dupStmt->fetch(PDO::FETCH_ASSOC);
     if ($duplicate) {
-      echo json_encode(['success' => false, 'message' => 'Plate number already linked to homeowner: ' . ($duplicate['name'] ?? 'Unknown')]);
+      $dupName = htmlspecialchars($duplicate['name'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+      echo json_encode(['success' => false, 'message' => 'Plate number already linked to homeowner: ' . $dupName]);
       exit;
     }
 
@@ -302,100 +216,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    $allowed = ['jpg','jpeg','png','webp','heic'];
-    $allowed_mimes = ['image/jpeg','image/png','image/webp','image/heic','image/heif'];
-    
     // Handle owner image upload
     if (!empty($_FILES['owner_img']['name']) && $_FILES['owner_img']['error'] === UPLOAD_ERR_OK) {
-        if ($_FILES['owner_img']['size'] > 5 * 1024 * 1024) {
-            echo json_encode(['success'=>false,'message'=>'Owner image too large. Maximum 5MB.']); exit;
+        $validation = InputValidator::validateImageUpload($_FILES['owner_img'], 5 * 1024 * 1024);
+        if (!$validation['valid']) {
+            echo json_encode(['success'=>false,'message'=>'Owner image: ' . $validation['message']]); exit;
         }
         $ext = strtolower(pathinfo($_FILES['owner_img']['name'], PATHINFO_EXTENSION));
-        if (in_array($ext, $allowed)) {
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mime = $finfo->file($_FILES['owner_img']['tmp_name']);
-            if (in_array($mime, $allowed_mimes)) {
-                $filename = date('Ymd_His_') . 'owner_' . uniqid() . '.' . $ext;
-                if (saveFixedSizeImage($_FILES['owner_img']['tmp_name'], $owners_upload_dir . $filename, $ext)) {
-                    $owner_img = 'homeowners/' . $filename;
-                }
-            } else {
-                error_log("[HOMEOWNER_CREATE] Rejected upload: MIME $mime for owner_img");
-            }
+        $filename = date('Ymd_His_') . 'owner_' . uniqid() . '.' . $ext;
+        if (saveFixedSizeImage($_FILES['owner_img']['tmp_name'], $owners_upload_dir . $filename, $ext)) {
+            $owner_img = 'homeowners/' . $filename;
         }
     }
     
     // Handle car image upload
     if (!empty($_FILES['car_img']['name']) && $_FILES['car_img']['error'] === UPLOAD_ERR_OK) {
-        if ($_FILES['car_img']['size'] > 5 * 1024 * 1024) {
-            echo json_encode(['success'=>false,'message'=>'Vehicle image too large. Maximum 5MB.']); exit;
+        $validation = InputValidator::validateImageUpload($_FILES['car_img'], 5 * 1024 * 1024);
+        if (!$validation['valid']) {
+            echo json_encode(['success'=>false,'message'=>'Vehicle image: ' . $validation['message']]); exit;
         }
         $ext = strtolower(pathinfo($_FILES['car_img']['name'], PATHINFO_EXTENSION));
-        if (in_array($ext, $allowed)) {
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mime = $finfo->file($_FILES['car_img']['tmp_name']);
-            if (in_array($mime, $allowed_mimes)) {
-                $filename = date('Ymd_His_') . 'car_' . uniqid() . '.' . $ext;
-                if (saveFixedSizeImage($_FILES['car_img']['tmp_name'], $vehicles_upload_dir . $filename, $ext)) {
-                    $car_img = 'vehicles/' . $filename;
-                }
-            } else {
-                error_log("[HOMEOWNER_CREATE] Rejected upload: MIME $mime for car_img");
-            }
+        $filename = date('Ymd_His_') . 'car_' . uniqid() . '.' . $ext;
+        if (saveFixedSizeImage($_FILES['car_img']['tmp_name'], $vehicles_upload_dir . $filename, $ext)) {
+            $car_img = 'vehicles/' . $filename;
         }
     }
 
       // Optional vehicle angle uploads
       foreach (['car_img_front', 'car_img_left', 'car_img_right', 'car_img_rear'] as $angleField) {
         if (!empty($_FILES[$angleField]['name']) && $_FILES[$angleField]['error'] === UPLOAD_ERR_OK) {
-          if ($_FILES[$angleField]['size'] > 5 * 1024 * 1024) {
-            echo json_encode(['success'=>false,'message'=>'Vehicle angle image too large. Maximum 5MB.']); exit;
+          $validation = InputValidator::validateImageUpload($_FILES[$angleField], 5 * 1024 * 1024);
+          if (!$validation['valid']) {
+            echo json_encode(['success'=>false,'message'=>ucfirst(str_replace('_', ' ', $angleField)) . ': ' . $validation['message']]); exit;
           }
           $ext = strtolower(pathinfo($_FILES[$angleField]['name'], PATHINFO_EXTENSION));
-          if (in_array($ext, $allowed)) {
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mime = $finfo->file($_FILES[$angleField]['tmp_name']);
-            if (in_array($mime, $allowed_mimes)) {
-              $filename = date('Ymd_His_') . $angleField . '_' . uniqid() . '.' . $ext;
-              if (saveFixedSizeImage($_FILES[$angleField]['tmp_name'], $vehicles_upload_dir . $filename, $ext)) {
-                $$angleField = 'vehicles/' . $filename;
-              }
-            }
+          $filename = date('Ymd_His_') . $angleField . '_' . uniqid() . '.' . $ext;
+          if (saveFixedSizeImage($_FILES[$angleField]['tmp_name'], $vehicles_upload_dir . $filename, $ext)) {
+            $$angleField = 'vehicles/' . $filename;
           }
         }
       }
     
     try {
-        $cols = $pdo->query("SHOW COLUMNS FROM homeowners")->fetchAll(PDO::FETCH_COLUMN);
-        $hasAngles = in_array('car_img_front', $cols, true) && in_array('car_img_left', $cols, true)
-          && in_array('car_img_right', $cols, true) && in_array('car_img_rear', $cols, true);
-
-        $hasSplitNames = in_array('first_name', $cols, true) && in_array('last_name', $cols, true);
-
-        $insertColumns = ['name', 'plate_number', 'vehicle_type', 'contact_number', 'address', 'color', 'owner_img', 'car_img'];
-        $insertValues = [$name, $plate, $vehicle, $contact, $address, $color, $owner_img, $car_img];
-
-        if ($hasSplitNames) {
-            $insertColumns[] = 'first_name';
-            $insertColumns[] = 'last_name';
-            $insertValues[] = $firstName;
-            $insertValues[] = $lastName;
-        }
-
-        if ($hasAngles) {
-            $insertColumns[] = 'car_img_front';
-            $insertColumns[] = 'car_img_left';
-            $insertColumns[] = 'car_img_right';
-            $insertColumns[] = 'car_img_rear';
-            $insertValues[] = $car_img_front;
-            $insertValues[] = $car_img_left;
-            $insertValues[] = $car_img_right;
-            $insertValues[] = $car_img_rear;
-        }
-
-        $placeholders = implode(',', array_fill(0, count($insertColumns), '?'));
-        $stmt = $pdo->prepare("INSERT INTO homeowners (" . implode(',', $insertColumns) . ") VALUES (" . $placeholders . ")");
-        $stmt->execute($insertValues);
+        $stmt = $pdo->prepare("
+            INSERT INTO homeowners 
+            (name, first_name, last_name, plate_number, vehicle_type, contact_number, address, color, owner_img, car_img) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $name, $firstName, $lastName, $plate, $vehicle, $contact, $address, $color, $owner_img, $car_img
+        ]);
 
         $homeownerId = (int)$pdo->lastInsertId();
         if ($homeownerId > 0) {

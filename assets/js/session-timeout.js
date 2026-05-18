@@ -16,8 +16,32 @@
         sessionLifetime: 1800, // 30 minutes in seconds
         warningTime: 300,      // Show warning 5 minutes before timeout
         checkInterval: 30000,  // Check every 30 seconds
-        logoutUrl: '../auth/logout.php'
+        logoutUrl: '../auth/logout.php',
+        keepAliveUrl: ''
     };
+
+    const getAppBasePath = () => {
+        const path = window.location.pathname || '';
+        const markers = ['/admin/', '/guard/', '/homeowners/', '/auth/', '/api/', '/visitor/'];
+        let cutIndex = -1;
+
+        markers.forEach((marker) => {
+            const idx = path.indexOf(marker);
+            if (idx >= 0 && (cutIndex === -1 || idx < cutIndex)) {
+                cutIndex = idx;
+            }
+        });
+
+        return cutIndex >= 0 ? path.slice(0, cutIndex) : '';
+    };
+
+    const toAppPath = (relative) => {
+        const base = getAppBasePath();
+        const clean = String(relative || '').replace(/^\/+/, '');
+        return `${base}/${clean}`;
+    };
+
+    CONFIG.keepAliveUrl = toAppPath('api/keep_alive.php');
     
     let lastActivity = Date.now();
     let warningShown = false;
@@ -180,36 +204,99 @@
     /**
      * Extend session by sending keep-alive request
      */
-    function extendSession() {
-        sendKeepAlive();
-        lastActivity = Date.now();
-        warningShown = false;
-        
-        if (typeof Swal !== 'undefined') {
-            Swal.close();
+    async function extendSession() {
+        try {
+            const keepAliveResult = await sendKeepAlive();
+            if (!keepAliveResult.ok) {
+                throw new Error(keepAliveResult.message || 'Keep-alive failed');
+            }
+
+            lastActivity = Date.now();
+            warningShown = false;
+
+            if (typeof Swal !== 'undefined') {
+                Swal.close();
+            }
+
+            // Show success toast if available
+            if (window.toast && typeof window.toast.success === 'function') {
+                window.toast.success('Session extended');
+            }
+
+            debugLog('[Session Monitor] Session extended');
+        } catch (error) {
+            console.error('[Session Monitor] Unable to extend session:', error);
+            warningShown = false;
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Session Extension Failed',
+                    text: 'The session could not be extended. Please sign in again.',
+                    icon: 'error',
+                    confirmButtonText: 'Sign In Again',
+                    confirmButtonColor: '#3b82f6',
+                    allowOutsideClick: false,
+                    heightAuto: false
+                }).then(() => {
+                    window.location.href = CONFIG.logoutUrl + '?timeout=1';
+                });
+            } else {
+                alert('The session could not be extended. Please sign in again.');
+                window.location.href = CONFIG.logoutUrl + '?timeout=1';
+            }
         }
-        
-        // Show success toast if available
-        if (window.toast && typeof window.toast.success === 'function') {
-            window.toast.success('Session extended');
-        }
-        
-        debugLog('[Session Monitor] Session extended');
     }
     
     /**
+     * Determine the current role for keep-alive requests.
+     */
+    function getKeepAliveRole() {
+        const path = window.location.pathname.toLowerCase();
+        if (path.includes('/admin/')) return 'admin';
+        if (path.includes('/guard/')) return 'guard';
+        if (path.includes('/homeowners/')) return 'homeowner';
+        return null;
+    }
+
+    /**
      * Send keep-alive ping to server
      */
-    function sendKeepAlive() {
-        fetch(CONFIG.logoutUrl.replace('logout.php', 'keep_alive.php'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ action: 'keep_alive' })
-        }).catch(err => {
-            console.error('[Session Monitor] Keep-alive failed:', err);
-        });
+    async function sendKeepAlive() {
+        try {
+            const role = getKeepAliveRole();
+            const payload = { action: 'keep_alive' };
+            if (role) {
+                payload.role = role;
+            }
+
+            const response = await fetch(CONFIG.keepAliveUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            let data = {};
+            try {
+                data = await response.clone().json();
+            } catch (error) {
+                data = {};
+            }
+
+            return {
+                ok: response.ok && data.success !== false,
+                status: response.status,
+                message: data.message || ''
+            };
+        } catch (error) {
+            console.error('[Session Monitor] Keep-alive failed:', error);
+            return {
+                ok: false,
+                status: 0,
+                message: error instanceof Error ? error.message : 'Keep-alive failed'
+            };
+        }
     }
     
     /**

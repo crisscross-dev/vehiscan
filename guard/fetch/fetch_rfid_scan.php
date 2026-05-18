@@ -11,7 +11,7 @@ requireRequestMethod('GET');
 
 // Security: Only guards can access
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
-    http_response_code(403);
+    http_response_code(401);
     exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
 }
 
@@ -202,9 +202,18 @@ try {
 
 } catch (PDOException $e) {
     error_log('RFID fetch error: ' . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'success' => false, 
         'message' => 'Database error',
+        'data' => null
+    ]);
+} catch (Throwable $e) {
+    error_log('RFID fetch unexpected error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to fetch scan data',
         'data' => null
     ]);
 }

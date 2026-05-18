@@ -17,7 +17,8 @@ requireRequestMethod('GET');
 // Authorization check
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 try {
@@ -35,5 +36,5 @@ try {
 } catch (PDOException $e) {
     error_log('Get homeowner stats error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to fetch stats']);
+    echo json_encode(['success' => false, 'message' => 'Failed to fetch stats']);
 }

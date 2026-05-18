@@ -9,7 +9,7 @@ requireRequestMethod('GET');
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 require_once __DIR__ . '/../../db.php';
@@ -64,6 +64,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => 'Failed to fetch visitor passes'
+        'message' => 'Failed to fetch visitor passes'
     ]);
 }

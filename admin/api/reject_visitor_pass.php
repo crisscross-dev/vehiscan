@@ -5,7 +5,8 @@ require_once __DIR__ . '/../../includes/request_method_helper.php';
 requireRequestMethod('POST');
 if (!in_array($_SESSION['role'] ?? '', ['super_admin', 'admin'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../includes/input_sanitizer.php';
@@ -35,6 +36,7 @@ $pass_id = isset($data['pass_id']) ? InputSanitizer::sanitizeInt($data['pass_id'
 $reason = isset($data['reason']) ? InputSanitizer::sanitizeString($data['reason']) : '';
 
 if (!$pass_id || !$reason) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid data']);
     exit();
 }
@@ -42,6 +44,7 @@ if (!$pass_id || !$reason) {
 try {
     $approverId = (int)($_SESSION['user_id'] ?? $_SESSION['admin_id'] ?? 0);
     if ($approverId <= 0) {
+        http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Missing approver session. Please log in again.']);
         exit();
     }
@@ -102,10 +105,12 @@ try {
 
         echo json_encode(['success' => true]);
     } else {
+        http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Pass not found or already processed']);
     }
 
 } catch (PDOException $e) {
     error_log("Reject pass error: " . $e->getMessage());
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error']);
 }

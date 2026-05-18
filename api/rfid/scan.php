@@ -43,13 +43,15 @@ if (!empty($apiKey)) {
 
         if (!$key || !$key['is_active']) {
             http_response_code(401);
-            exit(json_encode(['success' => false, 'message' => 'Invalid or inactive API key']));
+            echo json_encode(['success' => false, 'message' => 'Invalid or inactive API key']);
+            exit;
         }
 
         // Verify reader ID matches if provided
         if (!empty($readerId) && $key['reader_id'] !== $readerId) {
             http_response_code(401);
-            exit(json_encode(['success' => false, 'message' => 'Reader ID mismatch']));
+            echo json_encode(['success' => false, 'message' => 'Reader ID mismatch']);
+            exit;
         }
 
         $apiKeyId = $key['id'];
@@ -61,7 +63,8 @@ if (!empty($apiKey)) {
     } catch (PDOException $e) {
         error_log('[RFID_SCAN] API key validation error: ' . $e->getMessage());
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Authentication error']));
+        echo json_encode(['success' => false, 'message' => 'Authentication error']);
+        exit;
     }
 } else {
     // Session-based authentication (simulator or admin)
@@ -77,7 +80,8 @@ if (!empty($apiKey)) {
     
     if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin', 'guard'])) {
         http_response_code(403);
-        exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
     }
 
     // CSRF validation for session-based requests (never accept token from query string)
@@ -95,7 +99,8 @@ if (!empty($apiKey)) {
             . ', has_session_token=' . (isset($_SESSION['csrf_token']) ? 'yes' : 'no')
             . ', has_provided_token=' . (!empty($postedToken) ? 'yes' : 'no'));
         http_response_code(403);
-        exit(json_encode(['success' => false, 'message' => 'Invalid security token']));
+        echo json_encode(['success' => false, 'message' => 'Invalid security token']);
+        exit;
     }
 
     $inputSource = 'session';
@@ -114,14 +119,16 @@ if (strpos($contentType, 'application/json') !== false) {
 
 if (empty($rfidUid)) {
     http_response_code(400);
-    exit(json_encode(['success' => false, 'message' => 'RFID UID is required']));
+    echo json_encode(['success' => false, 'message' => 'RFID UID is required']);
+    exit;
 }
 
 // Sanitize RFID UID (alphanumeric only, max 32 chars)
 $rfidUid = strtoupper(preg_replace('/[^A-Z0-9]/', '', $rfidUid));
 if (strlen($rfidUid) > 32 || strlen($rfidUid) < 4) {
     http_response_code(400);
-    exit(json_encode(['success' => false, 'message' => 'Invalid RFID UID format']));
+    echo json_encode(['success' => false, 'message' => 'Invalid RFID UID format']);
+    exit;
 }
 
 try {
@@ -172,11 +179,12 @@ try {
 
             $pdo->commit();
             http_response_code(409);
-            exit(json_encode([
+            echo json_encode([
                 'success' => false,
                 'scan_result' => 'binding_failed',
                 'message' => "This RFID tag is already bound to vehicle {$duplicate['plate_number']}"
-            ]));
+            ]);
+            exit;
         }
 
         // Bind the RFID UID to the vehicle
@@ -197,7 +205,7 @@ try {
 
         $pdo->commit();
 
-        exit(json_encode([
+        echo json_encode([
             'success' => true,
             'scan_result' => 'uid_bound',
             'message' => "RFID tag bound to {$vehicleInfo['plate_number']} ({$vehicleInfo['name']})",
@@ -207,7 +215,8 @@ try {
                 'vehicle_type' => $vehicleInfo['vehicle_type'],
                 'owner_name' => $vehicleInfo['name']
             ]
-        ]));
+        ]);
+        exit;
     }
 
     // Check 2: Is this UID bound to a vehicle? (Normal access scan)
@@ -229,13 +238,13 @@ try {
         // Fallback path is opt-in to avoid accidental approval bypass.
         $allowSharedFallback = (getenv('ALLOW_SHARED_RFID_FALLBACK') === '1');
         if (!$hasAuthorizedAccess && $allowSharedFallback && tableExists($pdo, 'vehicle_shared_access')) {
-            $sharedStmt = $pdo->prepare("\
-                SELECT h.id, h.name\
-                FROM vehicle_shared_access vsa\
-                INNER JOIN homeowners h ON h.id = vsa.homeowner_id\
-                WHERE vsa.vehicle_id = ? AND vsa.is_active = 1 AND h.account_status = 'approved'\
-                ORDER BY vsa.id ASC\
-                LIMIT 1\
+            $sharedStmt = $pdo->prepare("
+                SELECT h.id, h.name
+                FROM vehicle_shared_access vsa
+                INNER JOIN homeowners h ON h.id = vsa.homeowner_id
+                WHERE vsa.vehicle_id = ? AND vsa.is_active = 1 AND h.account_status = 'approved'
+                ORDER BY vsa.id ASC
+                LIMIT 1
             ");
             $sharedStmt->execute([$vehicle['id']]);
             $sharedAccess = $sharedStmt->fetch();
@@ -252,7 +261,7 @@ try {
 
             $pdo->commit();
             http_response_code(403);
-            exit(json_encode([
+            echo json_encode([
                 'success' => false,
                 'scan_result' => 'access_denied',
                 'message' => 'Access denied - account not approved',
@@ -260,7 +269,8 @@ try {
                     'plate_number' => $vehicle['plate_number'],
                     'name' => $vehicle['name']
                 ]
-            ]));
+            ]);
+            exit;
         }
 
 
@@ -275,7 +285,7 @@ try {
                 logScan($pdo, $rfidUid, $readerId, $apiKeyId, 'access_denied', $inputSource, $vehicle['id'], null, 'Anti-passback cooldown active');
                 $pdo->commit();
                 http_response_code(429);
-                exit(json_encode([
+                echo json_encode([
                     'success' => false,
                     'scan_result' => 'cooldown',
                     'message' => 'Anti-passback: Please wait a moment before scanning again.',
@@ -283,7 +293,8 @@ try {
                         'plate_number' => $vehicle['plate_number'],
                         'name' => $authorizedOwnerName
                     ]
-                ]));
+                ]);
+                exit;
             }
         }
 
@@ -303,7 +314,7 @@ try {
 
         $pdo->commit();
 
-        exit(json_encode([
+        echo json_encode([
             'success' => true,
             'scan_result' => 'access_granted',
             'message' => "Vehicle {$vehicle['plate_number']} - $newStatus",
@@ -320,7 +331,8 @@ try {
                 'status' => $newStatus,
                 'direction' => $newStatus === 'IN' ? 'Entering' : 'Exiting'
             ]
-        ]));
+        ]);
+        exit;
     }
 
     // Check 3: Is this UID already in the system but INACTIVE?
@@ -331,30 +343,33 @@ try {
     if ($inactiveVehicle) {
         logScan($pdo, $rfidUid, $readerId, $apiKeyId, 'unknown_uid', $inputSource, null, null, "UID bound to inactive record ({$inactiveVehicle['plate_number']})");
         $pdo->commit();
-        exit(json_encode([
+        echo json_encode([
             'success' => true,
             'scan_result' => 'unknown_uid',
             'inactive_uid' => true,
             'message' => "This RFID tag belongs to an inactive account ({$inactiveVehicle['plate_number']}). Please re-bind it."
-        ]));
+        ]);
+        exit;
     }
 
     logScan($pdo, $rfidUid, $readerId, $apiKeyId, 'unknown_uid', $inputSource, null, null, 'No vehicle bound to this UID');
 
     $pdo->commit();
 
-    exit(json_encode([
+    echo json_encode([
         'success' => true,
         'scan_result' => 'unknown_uid',
         'unknown_uid' => true,
         'message' => 'New RFID tag - not bound to any vehicle.'
-    ]));
+    ]);
+    exit;
 
 } catch (PDOException $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log('[RFID_SCAN] Database error: ' . $e->getMessage());
     http_response_code(500);
-    exit(json_encode(['success' => false, 'message' => 'Database error']));
+    echo json_encode(['success' => false, 'message' => 'Database error']);
+    exit;
 }
 
 /**

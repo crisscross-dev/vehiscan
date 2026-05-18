@@ -28,6 +28,7 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Panel — VehiScan</title>
+  <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
 
   <!-- CSS Files - Load in Order -->
   <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
@@ -37,21 +38,29 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
   <link rel="stylesheet" href="../assets/css/button-system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/button-system.css'); ?>">
   <link rel="stylesheet" href="css/visitor-passes.css?v=<?php echo filemtime(__DIR__ . '/css/visitor-passes.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
 
   <!-- External Libraries - CDN (Must load before custom scripts) -->
   <script src="../assets/js/libs/jquery-3.7.1.min.js"></script>
   <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
   <script src="../assets/js/libs/chart.umd.min.js"></script>
-  <script src="../assets/js/libs/alpine.min.js"></script>
-
   <!-- Core Utilities - Load before main scripts -->
   <script src="../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
   <script src="../assets/js/session-timeout.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
+  <script src="../assets/js/admin/inline-actions.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/inline-actions.js'); ?>"></script>
 
   <style>
     /* Session timeout warning modal styling */
     .swal2-popup {
       font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* Ensure SweetAlert previews sit above native edit modal */
+    .swal2-container {
+      z-index: 1001 !important;
+    }
+    .swal2-popup {
+      z-index: 1002 !important;
     }
 
     #sessionCountdown {
@@ -105,6 +114,19 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
     }
 
     /* Visitor pass modal gets a wider shell and independent spacing rules */
+    #editModal {
+      z-index: 1000 !important;
+    }
+
+    #editModalBackdrop {
+      z-index: 1000 !important;
+    }
+
+    #editModal [role="document"] {
+      position: relative;
+      z-index: 1001;
+    }
+
     #editModal.modal-visitor-pass [role="document"] {
       max-width: min(1120px, 96vw) !important;
     }
@@ -113,14 +135,14 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
       padding: 1.25rem 1.25rem 1rem;
     }
 
-    /* Homeowner profile modal: wider detail view with room for cards/photos */
+    /* Homeowner profile modal: compact preview sheet */
     #editModal.modal-homeowner-profile [role="document"] {
-      max-width: min(1200px, 97vw) !important;
+      max-width: min(760px, 94vw) !important;
       max-height: 92vh;
     }
 
     #editModal.modal-homeowner-profile #modal-body {
-      padding: 1rem 1rem 0.85rem;
+      padding: 1.1rem 1.1rem 0.95rem;
     }
 
     /* Unified modal form styling across input-heavy forms */
@@ -231,15 +253,15 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
       </div>
 
       <!-- Navigation Menu -->
-      <div class="flex-1 overflow-y-auto hide-scrollbar py-2" x-data="{ openGroup: 'main' }">
+      <div class="flex-1 overflow-y-auto hide-scrollbar py-2">
         
         <!-- MAIN MENU GROUP -->
         <div class="mb-4 px-3">
-          <button data-sidebar-group="main" :aria-expanded="openGroup === 'main'" @click="openGroup = openGroup === 'main' ? '' : 'main'" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
+          <button data-sidebar-group="main" aria-expanded="true" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
             <span>MAIN MENU</span>
-            <svg class="w-3 h-3 transition-transform" :class="{'rotate-180': openGroup === 'main'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <svg class="w-3 h-3 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
-          <div data-sidebar-group-panel="main" x-show="openGroup === 'main'" x-transition class="space-y-1 mt-1" :aria-hidden="openGroup !== 'main'">
+          <div data-sidebar-group-panel="main" class="space-y-1 mt-1" style="display:block;" aria-hidden="false">
             <a href="#"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 active"
               data-page="dashboard">
@@ -266,11 +288,11 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
 
         <!-- MANAGEMENT GROUP -->
         <div class="mb-4 px-3">
-          <button data-sidebar-group="management" :aria-expanded="openGroup === 'management'" @click="openGroup = openGroup === 'management' ? '' : 'management'" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
+          <button data-sidebar-group="management" aria-expanded="false" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
             <span>MANAGEMENT</span>
-            <svg class="w-3 h-3 transition-transform" :class="{'rotate-180': openGroup === 'management'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
-          <div data-sidebar-group-panel="management" x-show="openGroup === 'management'" x-transition class="space-y-1 mt-1" :aria-hidden="openGroup !== 'management'">
+          <div data-sidebar-group-panel="management" class="space-y-1 mt-1" style="display:none;" aria-hidden="true">
             <a href="#"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               data-page="visitors">
@@ -332,11 +354,11 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
 
         <!-- LOGS & SYSTEM GROUP -->
         <div class="px-3">
-          <button data-sidebar-group="system" :aria-expanded="openGroup === 'system'" @click="openGroup = openGroup === 'system' ? '' : 'system'" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
+          <button data-sidebar-group="system" aria-expanded="false" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
             <span>LOGS & SYSTEM</span>
-            <svg class="w-3 h-3 transition-transform" :class="{'rotate-180': openGroup === 'system'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
-          <div data-sidebar-group-panel="system" x-show="openGroup === 'system'" x-transition class="space-y-1 mt-1" :aria-hidden="openGroup !== 'system'">
+          <div data-sidebar-group-panel="system" class="space-y-1 mt-1" style="display:none;" aria-hidden="true">
             <a href="#"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               data-page="logs">
@@ -359,28 +381,10 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
               <span class="sidebar-text">Audit Logs</span>
             </a>
 
-            <a href="#"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
-              data-page="simulator">
-              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                </path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <span class="sidebar-text">RFID Simulator</span>
-            </a>
-
             <?php if ($isSuperAdmin): ?>
             <a href="#"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               data-page="settings">
-              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <span class="sidebar-text">System Settings</span>
             </a>
             <?php endif; ?>
 
@@ -432,7 +436,7 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
     <main class="flex-1 flex flex-col overflow-hidden bg-transparent">
       <!-- Header -->
       <header
-        class="flex h-14 items-center gap-4 border-b border-gray-300 dark:border-slate-700 px-6 bg-white dark:bg-slate-900">
+        class="sticky top-0 z-[100] flex h-14 items-center gap-4 border-b border-gray-300 dark:border-slate-700 px-6 bg-white dark:bg-slate-900">
         <!-- Mobile Menu Button -->
         <button id="mobile-menu-btn" type="button"
           class="flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors md:hidden"
@@ -503,7 +507,7 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <div id="editModal" class="hidden fixed inset-0 z-[10050]" role="dialog" aria-modal="true"
     aria-label="Edit dialog">
     <!-- Backdrop -->
-    <div id="editModalBackdrop" class="absolute inset-0 bg-slate-950/95" aria-hidden="true"></div>
+    <div id="editModalBackdrop" class="absolute inset-0 bg-slate-950/80" aria-hidden="true" style="backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);"></div>
 
     <!-- Modal Content -->
     <div class="relative h-full w-full flex items-center justify-center p-4 md:p-6">
@@ -518,7 +522,7 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   </div>
 
   <!-- Global Variables -->
-  <script>window.__ADMIN_CSRF__ = <?php echo json_encode($csrf); ?>;</script>
+  <!-- CSRF token exposed via meta tag; JS reads from meta using assets/js/admin/csrf-init.js -->
 
   <!-- Main Application Scripts - Load in order: core -> handlers -> features -->
   <script src="../assets/js/utils/html-escape.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
@@ -531,120 +535,9 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <script src="js/qr-modal.js?v=<?php echo filemtime(__DIR__ . '/js/qr-modal.js'); ?>"></script>
   <script src="js/admin-dark-mode.js?v=<?php echo filemtime(__DIR__ . '/js/admin-dark-mode.js'); ?>"></script>
 
-  <!-- TailAdmin Action Dropdown Handler -->
-  <script>
-  (function(){
-    const OPEN_DROPDOWN_SELECTOR = '.ta-action-dropdown.open';
+  <script src="../assets/js/admin/csrf-init.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/csrf-init.js'); ?>"></script>
 
-    function closeDropdown(dd) {
-      dd.classList.remove('open');
-      const trigger = dd.querySelector('.ta-action-btn');
-      const menu = dd.querySelector('.ta-action-menu');
-      if (menu) {
-        menu.removeAttribute('style');
-        menu.setAttribute('aria-hidden', 'true');
-      }
-      if (trigger) trigger.setAttribute('aria-expanded', 'false');
-    }
-    function closeAllDropdowns(except) {
-      document.querySelectorAll(OPEN_DROPDOWN_SELECTOR).forEach(function(d) {
-        if (d !== except) closeDropdown(d);
-      });
-    }
-    window.__vsAdminCloseActionDropdowns = function() {
-      closeAllDropdowns(null);
-    };
-    function positionDrop(dd) {
-      const menu = dd.querySelector('.ta-action-menu');
-      const trigger = dd.querySelector('.ta-action-btn');
-      if (!menu || !trigger) return;
-      // Measure actual menu width by temporarily showing it off-screen
-      menu.style.cssText = 'position:fixed;visibility:hidden;display:block;right:auto;width:auto;left:-9999px;top:0;';
-      const menuWidth = Math.max(menu.offsetWidth, 160);
-      const rect = trigger.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      const dropUp = spaceBelow < 180 && rect.top > 180;
-      let leftPos = rect.right - menuWidth;
-      if (leftPos < 4) leftPos = 4;
-      if (leftPos + menuWidth > window.innerWidth - 4) leftPos = window.innerWidth - menuWidth - 4;
-      menu.style.cssText = [
-        'position:fixed',
-        'z-index:9980',
-        'width:' + menuWidth + 'px',
-        'right:auto',
-        'margin:0',
-        'left:' + leftPos + 'px',
-        dropUp
-          ? 'top:auto;bottom:' + (window.innerHeight - rect.top + 4) + 'px'
-          : 'top:' + (rect.bottom + 4) + 'px;bottom:auto'
-      ].join(';');
-      dd.classList.toggle('drop-up', dropUp);
-    }
-    document.addEventListener('click', function(e) {
-      const btn = e.target.closest('.ta-action-btn');
-      if (btn) {
-        e.stopPropagation();
-        const dd = btn.closest('.ta-action-dropdown');
-        const wasOpen = dd.classList.contains('open');
-        closeAllDropdowns(dd);
-        if (wasOpen) {
-          closeDropdown(dd);
-        } else {
-          if (typeof window.__vsAdminCloseShellPopovers === 'function') {
-            window.__vsAdminCloseShellPopovers();
-          }
-          dd.classList.add('open');
-          btn.setAttribute('aria-expanded', 'true');
-          const menu = dd.querySelector('.ta-action-menu');
-          if (menu) menu.setAttribute('aria-hidden', 'false');
-          positionDrop(dd);
-        }
-        return;
-      }
-      const item = e.target.closest('.ta-action-menu-item');
-      if (item) {
-        closeDropdown(item.closest('.ta-action-dropdown'));
-        return;
-      }
-      closeAllDropdowns(null);
-    });
-    const useSharedKeyboardShortcuts = !!(window.keyboardShortcuts && typeof window.keyboardShortcuts.register === 'function');
-    if (useSharedKeyboardShortcuts) {
-      window.keyboardShortcuts.register('escape', function() {
-        const hasOpenDropdown = !!document.querySelector(OPEN_DROPDOWN_SELECTOR);
-        if (hasOpenDropdown) {
-          closeAllDropdowns(null);
-          return true;
-        }
-        return false;
-      }, {
-        id: 'admin.actionDropdown.escape',
-        description: 'Close admin action dropdowns',
-        preventDefault: false,
-        allowWhileTyping: true
-      });
-    } else {
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          closeAllDropdowns(null);
-        }
-      });
-    }
-    // Reposition on scroll/resize so fixed menu tracks the trigger
-    ['scroll', 'resize'].forEach(function(ev) {
-      window.addEventListener(ev, function() {
-        const open = document.querySelector(OPEN_DROPDOWN_SELECTOR);
-        if (open) positionDrop(open);
-      }, { passive: true });
-    });
-    // Close dropdowns when content-area scrolls (fixed menu won't track)
-    const contentArea = document.getElementById('content-area');
-    if (contentArea) {
-      contentArea.addEventListener('scroll', function() {
-        closeAllDropdowns(null);
-      }, { passive: true });
-    }
-  })();
-  </script>
+  <!-- TailAdmin Action Dropdown Handler (migrated to external file) -->
+  <script src="../assets/js/admin/action-dropdown.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/action-dropdown.js'); ?>"></script>
 </body>
 </html>

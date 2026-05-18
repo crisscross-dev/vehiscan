@@ -23,7 +23,7 @@
 | File | Purpose | Status | Recommendation |
 |------|---------|--------|----------------|
 | `includes/session_admin_unified.php` | Unified admin/super_admin sessions | ACTIVE | **KEEP - Primary** |
-| `includes/session_admin.php` | Old admin-only session | LEGACY | **DEPRECATE** |
+| `includes/session_admin_unified.php` | Unified admin/super-admin session | ACTIVE | **KEEP** |
 | `includes/session_super_admin.php` | Old super admin session | LEGACY | **DEPRECATE** |
 | `includes/session_guard.php` | Guard session | ACTIVE | **KEEP** |
 | `includes/session_config.php` | Session constants | ACTIVE | **KEEP** |
@@ -86,19 +86,19 @@
 | `guard/keep_alive.php` | Guard panel | DUPLICATE |
 | `admin/fetch/keep_alive.php` | Admin panel | DUPLICATE |
 
-**Action:** Create single `api/keep_alive.php` and redirect others
+**Action:** Keep `api/keep_alive.php` as a compatibility wrapper for `auth/keep_alive.php`
 
 ---
 
 ## 2. ORPHANED FILES (SAFE TO DELETE)
 
-### 2.1 Uncalled PHP Files
-Files that are NOT referenced anywhere in the codebase:
+### 2.1 Compatibility Wrappers
+Files that preserve legacy links while routing users to the unified flow:
 
 ```
- guard/fetch_notification.php - Not called (old notification system)
- homeowners/login.php - NOT USED (users login via auth/login.php)
- homeowners/logout.php - NOT USED (uses auth/logout.php)
+ homeowners/login.php - Legacy login wrapper redirecting to auth/login.php
+ homeowners/logout.php - Legacy logout wrapper redirecting to auth/logout.php
+ api/keep_alive.php - Legacy keep-alive wrapper including auth/keep_alive.php
  phpqrcode/qr_registration.php - DUPLICATE of homeowners/qr_registration.php
  includes/check_admin_session.php - REPLACED by session_admin_unified.php
 ```
@@ -132,9 +132,9 @@ _testing/ (3 migration scripts) - KEEP for reference
 ### 3.1 Login/Logout Systems
 **Current State:**
 - `auth/login.php` - MAIN login (handles all roles)
-- `homeowners/login.php` - ORPHANED (not used)
+- `homeowners/login.php` - Compatibility wrapper (redirects to auth/login.php)
 - `auth/logout.php` - MAIN logout (handles all roles)
-- `homeowners/logout.php` - ORPHANED (not used)
+- `homeowners/logout.php` - Compatibility wrapper (redirects to auth/logout.php)
 
 **Analysis:** Homeowner login files are legacy and not linked anywhere
 
@@ -173,7 +173,7 @@ _testing/ (3 migration scripts) - KEEP for reference
 
 **Old Pattern:**
 ```php
-require_once '../includes/session_admin.php';
+require_once '../includes/session_admin_unified.php';
 require_once '../includes/check_admin_session.php';
 ```
 
@@ -271,8 +271,6 @@ Indexes on:
 ```bash
 # Orphaned files
 rm guard/fetch_notification.php
-rm homeowners/login.php
-rm homeowners/logout.php
 rm phpqrcode/qr_registration.php
 rm includes/check_admin_session.php
 ```
@@ -289,9 +287,7 @@ rm includes/check_admin_session.php
    - Update to use `InputValidator` class
 
 3. **Keep-Alive:**
-   - Create `api/keep_alive.php`
-   - Redirect from guard/keep_alive.php
-   - Redirect from admin/fetch/keep_alive.php
+   - Keep `api/keep_alive.php` as a compatibility include for `auth/keep_alive.php`
 
 ### Phase 3: Architecture Cleanup (High Risk) 
 **Requires careful testing**
@@ -301,7 +297,7 @@ rm includes/check_admin_session.php
    - Update JavaScript paths
 
 2. **Session Files:**
-   - Deprecate `session_admin.php`
+   - Use `session_admin_unified.php` in active code
    - Deprecate `session_super_admin.php`
    - Update all includes to `session_admin_unified.php`
 

@@ -103,7 +103,7 @@ foreach ($roleStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
   </button>
   <div class="flex items-center gap-2 ml-auto">
     <div class="relative flex items-center">
-      <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
       <input type="text" id="employeeSearchInput" class="ta-input pl-10 min-w-[280px]" placeholder="Search employees..." value="<?= htmlspecialchars($search) ?>">
@@ -130,16 +130,16 @@ foreach ($roleStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         <span class="text-sm font-medium">Employees Selected</span>
     </div>
     <div class="flex items-center gap-3">
-        <button type="button" onclick="processBulkAction('suspend')" class="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 rounded-lg text-sm font-semibold transition-colors">
+      <button type="button" data-action="processBulkAction" data-action-arg="suspend" class="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 rounded-lg text-sm font-semibold transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
             Suspend
         </button>
-        <button type="button" onclick="processBulkAction('active')" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-lg text-sm font-semibold transition-colors">
+        <button type="button" data-action="processBulkAction" data-action-arg="active" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-lg text-sm font-semibold transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             Activate
         </button>
     </div>
-    <button type="button" onclick="clearSelection()" class="text-slate-400 hover:text-white transition-colors">
+    <button type="button" data-action="clearSelection" class="text-slate-400 hover:text-white transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 </div>
@@ -150,7 +150,7 @@ foreach ($roleStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     <thead>
       <tr>
         <th class="w-10">
-            <input type="checkbox" id="selectAllEmployees" onchange="window.toggleAllEmployees(this)" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+            <input type="checkbox" id="selectAllEmployees" data-action="toggleAllEmployees" data-action-arg="this" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
         </th>
         <th>Username</th>
         <th>Role</th>
@@ -171,7 +171,7 @@ foreach ($roleStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         <?php foreach ($employees as $employee): ?>
           <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
             <td class="px-4 py-3">
-              <input type="checkbox" class="employee-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4" data-id="<?= $employee['id'] ?>" onchange="window.updateEmployeeBulkBar()">
+              <input type="checkbox" data-action="updateEmployeeBulkBar" class="employee-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4" data-id="<?= $employee['id'] ?>">
             </td>
             <td><?= htmlspecialchars($employee['username'] ?? '') ?></td>
             <td>

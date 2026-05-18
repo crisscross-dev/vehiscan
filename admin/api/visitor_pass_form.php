@@ -13,14 +13,16 @@ if (!in_array($method, ['GET', 'POST'], true)) {
   http_response_code(405);
   header('Allow: GET, POST');
   header('Content-Type: application/json');
-  exit(json_encode(['success' => false, 'message' => 'Method not allowed']));
+  echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+  exit;
 }
 
 // Authorization check
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'], true)) {
     http_response_code(403);
     header('Content-Type: application/json');
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+  echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+  exit;
 }
 
 // Ensure CSRF token
@@ -395,24 +397,4 @@ $submitLabel = $editPass ? 'Update Pass' : 'Create Pass';
     <button type="submit" class="ta-btn ta-btn-primary"><?php echo htmlspecialchars($submitLabel); ?></button>
   </div>
 </form>
-<script>
-(function () {
-  const fromInput = document.getElementById('valid_from');
-  const untilInput = document.getElementById('valid_until');
-  if (!fromInput || !untilInput) return;
-
-  const syncValidUntil = () => {
-    const value = fromInput.value;
-    if (!value) return;
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return;
-    date.setHours(23, 59, 59, 0);
-    const pad = (n) => String(n).padStart(2, '0');
-    untilInput.value = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  };
-
-  fromInput.addEventListener('change', syncValidUntil);
-  fromInput.addEventListener('input', syncValidUntil);
-  syncValidUntil();
-})();
-</script>
+<script src="../../assets/js/admin/visitor-pass-form.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/admin/visitor-pass-form.js'); ?>"></script>

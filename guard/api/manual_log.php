@@ -8,8 +8,9 @@ require_once __DIR__ . '/../../includes/input_sanitizer.php';
 
 // Check role
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['guard', 'admin', 'super_admin'])) {
-    http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 $jsonInput = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -17,7 +18,8 @@ $csrf = InputSanitizer::post('csrf_token', 'string') ?: ($jsonInput['csrf_token'
 
 if (!InputSanitizer::validateCsrf($csrf)) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Invalid CSRF token']));
+    echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+    exit;
 }
 
 $plateNumber = strtoupper(InputSanitizer::post('plate_number', 'string') ?: ($jsonInput['plate_number'] ?? ''));
@@ -26,7 +28,8 @@ $notes = InputSanitizer::post('notes', 'string') ?: ($jsonInput['notes'] ?? 'Man
 
 if (empty($plateNumber)) {
     http_response_code(400);
-    exit(json_encode(['success' => false, 'message' => 'Plate number is required']));
+    echo json_encode(['success' => false, 'message' => 'Plate number is required']);
+    exit;
 }
 
 if (!in_array($direction, ['in', 'out'])) {

@@ -7,14 +7,12 @@ ob_start();
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/security_headers.php';
 require_once __DIR__ . '/../includes/input_sanitizer.php';
+require_once __DIR__ . '/../includes/session_helpers.php';
+require_once __DIR__ . '/../includes/rate_limiter.php';
 
 // Start session with default name first
 if (session_status() === PHP_SESSION_NONE) {
-    // Isolate from other XAMPP apps to prevent cross-app GC
-    $appSavePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'vehiscan_sessions';
-    if (!is_dir($appSavePath)) { mkdir($appSavePath, 0700, true); }
-    ini_set('session.save_path', $appSavePath);
-    ini_set('session.gc_maxlifetime', 3600);
+    initializeVehiscanSessionPath();
     session_start();
 }
 
@@ -35,6 +33,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
     $identifier = trim((string)($_POST['email'] ?? ''));
     $password = $_POST['password'] ?? '';
+    $rateLimiter = new RateLimiter($pdo);
+
+    // Check rate limit for this identifier and IP
+    $limitCheck = $rateLimiter->check($identifier, 'login', 5, 15);
+    if (!$limitCheck['allowed']) {
+        $error = "Too many failed login attempts. Try again after {$limitCheck['reset_time']}";
+        // Small delay to slow down automated attempts
+        sleep(1);
+    }
     
     $authenticated = false;
     $redirectUrl = '';
@@ -52,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->execute([$identifier, $identifier]);
     $result = $stmt->fetch();
     
-    if ($result) {
+        if ($result) {
         $passwordMatch = password_verify($password, $result['password_hash']);
         
         if ($passwordMatch) {
@@ -61,6 +68,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $userId = $result['id'];
             $sessionUsername = (string)($result['username'] ?? $identifier);
             $redirectUrl = '../admin/admin_panel.php';
+            // Reset rate limiter on successful login
+            $rateLimiter->reset($identifier, 'login');
+        } else {
+            // Record failed attempt
+            $rateLimiter->recordAttempt($identifier, 'login');
+            sleep(1);
         }
     }
     
@@ -87,6 +100,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 } elseif ($userRole === 'homeowner') {
                     $redirectUrl = '../homeowners/portal.php';
                 }
+                // Reset rate limiter on successful login
+                $rateLimiter->reset($identifier, 'login');
+            } else {
+                // Record failed attempt
+                $rateLimiter->recordAttempt($identifier, 'login');
+                sleep(1);
+                
             }
         }
     }
@@ -116,46 +136,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 
                 // Update last_login
                 $pdo->prepare("UPDATE homeowner_auth SET last_login = NOW(), failed_login_attempts = 0 WHERE id = ?")->execute([$result['id']]);
+                // Reset rate limiter on successful login
+                $rateLimiter->reset($identifier, 'login');
             } else {
                 // Track failed login
                 $pdo->prepare("UPDATE homeowner_auth SET failed_login_attempts = failed_login_attempts + 1, last_failed_login = NOW() WHERE id = ?")->execute([$result['id']]);
+                $rateLimiter->recordAttempt($identifier, 'login');
+                sleep(1);
             }
         }
     }
     
     // Perform redirect if authenticated
     if ($authenticated && $redirectUrl) {
-        // Destroy current session
-        session_destroy();
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-        
-        // Clear ALL role-specific session cookies to prevent session collision
-        // This is critical: stale cookies from a previous role login will cause
-        // session_admin_unified.php to pick up the wrong session
-        $allSessionNames = ['vehiscan_superadmin', 'vehiscan_admin', 'vehiscan_guard', 'vehiscan_homeowner', 'vehiscan_session'];
-        foreach ($allSessionNames as $sName) {
-            if (isset($_COOKIE[$sName])) {
-                if (session_status() === PHP_SESSION_ACTIVE) {
-                    session_write_close();
-                }
-                // Destroy the session data on disk
-                session_name($sName);
-                session_id($_COOKIE[$sName]);
-                session_start();
-                $_SESSION = [];
-                session_destroy();
-                if (session_status() === PHP_SESSION_ACTIVE) {
-                    session_write_close();
-                }
-                // Expire the cookie
-                setcookie($sName, '', time() - 3600, '/');
-                unset($_COOKIE[$sName]);
-            }
-        }
-        
-        // Start new session with role-specific name
+        // Safely switch to the role-specific session
+        // First, determine the correct session name for this role
         $sessionName = 'vehiscan_session'; // Default
         if ($userRole === 'super_admin') {
             $sessionName = 'vehiscan_superadmin';
@@ -167,19 +162,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $sessionName = 'vehiscan_homeowner';
         }
         
-        // Start new session with correct name and secure cookie params
+        // Close current session before switching session names
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_write_close();
         }
+        
+        // Configure session security settings
         session_name($sessionName);
         ini_set('session.cookie_httponly', 1);
         ini_set('session.cookie_samesite', 'Lax');
         ini_set('session.use_strict_mode', 1);
-        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-                   (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+        
+        // Use vehiscanIsHttpsRequest() helper for HTTPS detection (respects trusted proxies)
+        $isHttps = vehiscanIsHttpsRequest();
         ini_set('session.cookie_secure', $isHttps ? 1 : 0);
+        
+        // Start session and regenerate ID atomically (prevents session fixation)
         session_start();
-        session_regenerate_id(true); // Prevent session fixation
+        session_regenerate_id(true);
         
         // Set session variables
         $_SESSION['user_id'] = $userId;
@@ -217,6 +217,10 @@ if (isset($_GET['error'])) {
     if ($_GET['error'] === 'timeout') {
         $error = "Session expired. Please login again.";
     }
+}
+
+if (isset($_GET['timeout']) && (string)$_GET['timeout'] === '1' && $error === '') {
+    $error = "Session expired. Please login again.";
 }
 
 if (isset($_GET['setup']) && $_GET['setup'] === 'complete') {

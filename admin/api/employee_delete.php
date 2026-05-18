@@ -1,20 +1,10 @@
 <?php
 /**
  * ============================================================================
- * TODO [REVIEW]: STALE ENDPOINT — DELETE UI REMOVED
- * ============================================================================
- * The "Delete" button was intentionally removed from the employee list UI
- * (admin/fetch/fetch_employees.php). This backend endpoint still accepts
- * POST requests and performs hard deletes on the users table.
+ * Canonical employee delete endpoint.
  *
- * Decide whether to:
- *   1. DELETE this file entirely (recommended if delete is permanently disabled)
- *   2. DISABLE by returning 403 early (keeps audit trail)
- *   3. RE-ENABLE by restoring the Delete button in the UI
- *
- * Role hierarchy: super_admin > admin > guard > homeowner
- * Currently restricted to: super_admin only
- * Last reviewed: 2026-04-25
+ * Compatibility wrapper: admin/employee_delete.php now forwards here so there
+ * is a single maintained delete implementation.
  * ============================================================================
  */
 require_once __DIR__ . '/../../includes/security_headers.php';
@@ -29,12 +19,14 @@ requireRequestMethod('POST');
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'], true)) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 if (($_SESSION['role'] ?? '') !== 'super_admin') {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Only Super Admin can delete employee accounts']));
+    echo json_encode(['success' => false, 'message' => 'Only Super Admin can delete employee accounts']);
+    exit;
 }
 
 try {
@@ -92,10 +84,14 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'A database error occurred. Please try again later.']);
 } catch (Exception $e) {
+    error_log('Employee delete error: ' . $e->getMessage());
     $code = (int)$e->getCode();
     if ($code < 400 || $code > 599) {
         $code = 400;
     }
     http_response_code($code);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    $safeMessage = $code >= 500
+        ? 'An unexpected server error occurred. Please try again later.'
+        : 'The request could not be processed. Please verify your input and try again.';
+    echo json_encode(['success' => false, 'message' => $safeMessage]);
 }

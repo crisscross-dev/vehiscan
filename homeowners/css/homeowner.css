@@ -15,6 +15,32 @@ body.dark {
     --sidebar-accent-foreground: #f9fafb;
 }
 
+#page-title {
+    color: #111827 !important; /* text-gray-900 */
+}
+
+body.dark #page-title {
+    color: #ffffff !important;
+}
+
+#hoNotifBellBtn svg,
+#homeownerDarkModeToggle svg {
+    color: #4b5563 !important; /* text-gray-600 */
+}
+
+body.dark #hoNotifBellBtn svg,
+body.dark #homeownerDarkModeToggle svg {
+    color: #cbd5e1 !important; /* text-gray-300 */
+}
+
+#liveTime {
+    color: #374151 !important; /* text-gray-700 */
+}
+
+body.dark #liveTime {
+    color: #d1d5db !important;
+}
+
 body.dark .stat-card {
     background: #1e293b;
     border-color: #334155;
@@ -67,6 +93,11 @@ body {
     background-color: var(--sidebar-bg);
     transition: width 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 0 0 0 transparent;
+    border-right: 1px solid #e5e7eb !important;
+}
+
+body.dark #sidebar {
+    border-right-color: #1e293b !important;
 }
 
 #sidebar.mobile-open {
@@ -193,6 +224,13 @@ body.dark .homeowner-qa-btn-secondary {
     border-radius: 1rem;
     background: #eff6ff;
     border: 1px solid #bfdbfe;
+    transition: all 0.3s ease;
+}
+
+body.dark .homeowner-welcome-avatar {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.2);
+    color: #60a5fa;
 }
 
 .homeowner-welcome-title {
@@ -202,6 +240,11 @@ body.dark .homeowner-qa-btn-secondary {
     font-weight: 700;
     color: #0f172a;
     letter-spacing: -0.01em;
+    transition: color 0.3s ease;
+}
+
+body.dark .homeowner-welcome-title {
+    color: #f8fafc;
 }
 
 .homeowner-welcome-subtitle {
@@ -210,6 +253,11 @@ body.dark .homeowner-qa-btn-secondary {
     color: #475569;
     font-size: 1rem;
     line-height: 1.45;
+    transition: color 0.3s ease;
+}
+
+body.dark .homeowner-welcome-subtitle {
+    color: #94a3b8;
 }
 
 /* Welcome card content wrapper */
@@ -223,17 +271,48 @@ body.dark .homeowner-qa-btn-secondary {
 
 .homeowner-welcome-card {
     position: relative;
-    border: 1px solid #dbe3ee;
-    border-radius: 0.95rem;
-    background: #ffffff;
-    box-shadow: 0 6px 18px -14px rgba(15, 23, 42, 0.42);
+    border: none;
+    border-radius: 1rem;
+    background: #2563eb; /* Fallback solid blue */
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+    overflow: hidden;
+    color: #ffffff;
 }
 
-.homeowner-welcome-accent {
+.homeowner-welcome-card .welcome-gradient-overlay {
     position: absolute;
-    inset: 0 auto 0 0;
-    width: 5px;
-    background: linear-gradient(180deg, #2563eb, #3b82f6);
+    inset: 0;
+    background: linear-gradient(to right, rgba(37, 99, 235, 0.9), rgba(30, 64, 175, 0.9));
+    z-index: 1;
+}
+
+.homeowner-welcome-card .welcome-content-wrapper {
+    position: relative;
+    z-index: 10;
+    padding: 2rem;
+}
+
+.homeowner-welcome-card h2 {
+    color: #ffffff !important;
+    font-weight: 700;
+    margin: 0;
+}
+
+.homeowner-welcome-card p {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.homeowner-welcome-card .status-pill {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .homeowner-welcome-title-row {
@@ -894,7 +973,7 @@ body.dark .btn-secondary:active {
 }
 
 /* Dark Mode Toggle */
-.dark-mode-toggle {
+.dark-toggle {
     position: relative;
     display: inline-flex;
     height: 1.5rem;
@@ -906,11 +985,11 @@ body.dark .btn-secondary:active {
     cursor: pointer;
 }
 
-.dark-mode-toggle.active {
+.dark-toggle.active {
     background-color: #3b82f6;
 }
 
-.dark-mode-thumb {
+.dark-thumb {
     display: inline-block;
     height: 1.25rem;
     width: 1.25rem;
@@ -921,7 +1000,7 @@ body.dark .btn-secondary:active {
     transition: transform 0.2s;
 }
 
-.dark-mode-toggle.active .dark-mode-thumb {
+.dark-toggle.active .dark-thumb {
     transform: translateX(1.375rem);
 }
 
@@ -939,11 +1018,13 @@ body.dark .btn-secondary:active {
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 #mobile-overlay.active {
     display: block;
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* Responsive */

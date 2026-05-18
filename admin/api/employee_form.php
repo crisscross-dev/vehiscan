@@ -6,7 +6,8 @@ requireRequestMethod('GET');
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 require_once __DIR__ . '/../../db.php';
@@ -109,7 +110,7 @@ $isEdit = !empty($employee);
         
         <!-- Submit Buttons -->
         <div class="form-actions">
-            <button type="button" onclick="closeModal()" class="ta-btn ta-btn-secondary cancel-btn">
+            <button type="button" data-action="closeModal" class="ta-btn ta-btn-secondary cancel-btn">
                 Cancel
             </button>
             <button type="submit" class="ta-btn ta-btn-primary">
@@ -120,19 +121,6 @@ $isEdit = !empty($employee);
 </div>
 
 <script>
-// Password reset toggle for edit mode
 <?php if ($isEdit): ?>
-setTimeout(() => {
-    const resetCheckbox = document.getElementById('reset_password');
-    const passwordField = document.getElementById('passwordField');
-    const newPasswordInput = document.getElementById('new_password');
-    
-    if (resetCheckbox && passwordField && newPasswordInput) {
-        resetCheckbox.addEventListener('change', function() {
-            passwordField.classList.toggle('hidden', !this.checked);
-            newPasswordInput.required = this.checked;
-        });
-    }
-}, 100);
+<script src="../../assets/js/admin/employee-form.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/admin/employee-form.js'); ?>"></script>
 <?php endif; ?>
-</script>

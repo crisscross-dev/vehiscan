@@ -22,12 +22,25 @@
     searchCount.style.color = visibleCount > 0 ? '#16a34a' : '#dc2626';
   }
 
+  function escapeHtml(value) {
+    if (window.VehiScanUtils && typeof window.VehiScanUtils.escapeHtml === 'function') {
+      return window.VehiScanUtils.escapeHtml(value);
+    }
+
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function loadPendingAccounts() {
     const tbody = document.getElementById('approvalsBody');
     if (!tbody) return;
 
     tbody.innerHTML = `
-      <tr><td colspan="6" class="px-6 py-4">
+      <tr><td colspan="7" class="px-6 py-4">
         <div class="ta-skeleton ta-skeleton-row"></div>
         <div class="ta-skeleton ta-skeleton-row"></div>
         <div class="ta-skeleton ta-skeleton-row"></div>
@@ -55,7 +68,7 @@
         const accounts = Array.isArray(data) ? data : (Array.isArray(data?.accounts) ? data.accounts : []);
 
         if (data && data.error) {
-          tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Error: ${data.error}</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Error: ${escapeHtml(data.error)}</td></tr>`;
           if (window.VehiScanNotifications) {
             window.VehiScanNotifications.addError('Failed to load pending accounts: ' + data.error);
           }
@@ -63,7 +76,7 @@
         }
 
         if (!Array.isArray(accounts) || accounts.length === 0) {
-          tableBody.innerHTML = '<tr><td colspan="6"><div class="ta-empty-state"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><p>No pending accounts to review</p></div></td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="7"><div class="ta-empty-state"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><p>No pending accounts to review</p></div></td></tr>';
           if (window.VehiScanNotifications) {
             window.VehiScanNotifications.addInfo('All pending accounts have been reviewed.');
           }
@@ -86,11 +99,14 @@
             .join(' ') || 'User';
           const accountType = acc.account_type || 'homeowner';
 
+          const isHomeowner = accountType === 'homeowner';
+          const hasPreviewImages = Boolean(acc.owner_img || acc.car_img);
+
           return `
             <tr>
               <td class="px-6 py-4 whitespace-nowrap">
                 <input type="checkbox" class="approval-checkbox rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500" 
-                  data-id="${acc.id}" data-type="${accountType}" onchange="window.updateBulkActionsBar()">
+                  data-id="${acc.id}" data-type="${accountType}">
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${String(fullName).substring(0, 50)}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">${String(username).substring(0, 30)}</td>
@@ -105,12 +121,19 @@
                       <svg class="ta-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
                     </button>
                     <div class="ta-action-menu" role="menu" aria-hidden="true">
-                      <button type="button" role="menuitem" class="ta-action-menu-item green" onclick="window.openActionModal(${acc.id}, '${accountType}', 'approve', '${String(fullName).replace(/'/g, "\\'")}')">
+                      ${isHomeowner && hasPreviewImages ? `
+                      <button type="button" role="menuitem" class="ta-action-menu-item blue btn-preview" data-id="${acc.id}">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"></path></svg>
+                        Preview
+                      </button>
+                      <div class="ta-action-divider"></div>
+                      ` : ''}
+                      <button type="button" role="menuitem" class="ta-action-menu-item green btn-account-action" data-account-id="${escapeHtml(acc.id)}" data-account-type="${escapeHtml(accountType)}" data-account-decision="approve" data-account-name="${escapeHtml(String(fullName).substring(0, 50))}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         Approve
                       </button>
                       <div class="ta-action-divider"></div>
-                      <button type="button" role="menuitem" class="ta-action-menu-item red" onclick="window.openActionModal(${acc.id}, '${accountType}', 'reject', '${String(fullName).replace(/'/g, "\\'")}')">
+                      <button type="button" role="menuitem" class="ta-action-menu-item red btn-account-action" data-account-id="${escapeHtml(acc.id)}" data-account-type="${escapeHtml(accountType)}" data-account-decision="reject" data-account-name="${escapeHtml(String(fullName).substring(0, 50))}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         Reject
                       </button>
@@ -122,7 +145,43 @@
           `;
         }).join('');
 
+        // Attach change listeners to checkboxes to update bulk actions bar
+        document.querySelectorAll('.approval-checkbox').forEach(cb => {
+          cb.removeEventListener('change', window.updateBulkActionsBar);
+          cb.addEventListener('change', window.updateBulkActionsBar);
+        });
+
         window.updateBulkActionsBar();
+
+        document.querySelectorAll('.btn-preview').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            try {
+              const homeownerId = btn.dataset.id;
+              if (homeownerId && typeof window.openModal === 'function') {
+                window.openModal(`homeowners/homeowner_profile.php?id=${homeownerId}`);
+              }
+            } catch (error) {
+              console.error('[Approvals] Preview parse error:', error);
+            }
+          });
+        });
+
+        document.querySelectorAll('.btn-account-action').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            try {
+              const accountId = btn.dataset.accountId;
+              const accountType = btn.dataset.accountType || 'homeowner';
+              const decision = btn.dataset.accountDecision || 'approve';
+              const accountName = btn.dataset.accountName || 'Unknown';
+
+              if (accountId && typeof window.openActionModal === 'function') {
+                window.openActionModal(accountId, accountType, decision, accountName);
+              }
+            } catch (error) {
+              console.error('[Approvals] Account action parse error:', error);
+            }
+          });
+        });
 
         if (typeof applyApprovalsSearchFilter === 'function') {
           applyApprovalsSearchFilter();
@@ -132,7 +191,7 @@
         console.error('Error loading accounts:', err);
         const tableBody = document.getElementById('approvalsBody');
         if (tableBody) {
-          tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">${String(err.message || 'Failed to load pending accounts.')}</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">${escapeHtml(err.message || 'Failed to load pending accounts.')}</td></tr>`;
         }
         if (window.VehiScanNotifications) {
           window.VehiScanNotifications.addError(String(err.message || 'Failed to load pending accounts.'));
@@ -225,6 +284,13 @@
       }
     });
   }
+
+  // Bind bulk action buttons (replace deprecated inline onclick usage)
+  const bulkApproveBtn = document.getElementById('bulkApproveBtn');
+  if (bulkApproveBtn) bulkApproveBtn.addEventListener('click', () => window.processBulkAction('approve'));
+
+  const bulkRejectBtn = document.getElementById('bulkRejectBtn');
+  if (bulkRejectBtn) bulkRejectBtn.addEventListener('click', () => window.processBulkAction('reject'));
 
   (function () {
     const searchInput = document.getElementById('approvalsSearchInput');

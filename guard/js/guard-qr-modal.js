@@ -44,7 +44,7 @@
     modal.setAttribute('aria-hidden', 'true');
     modal.innerHTML = `
       <div class="qr-modal-content">
-        <button type="button" class="qr-modal-close" onclick="closeQRZoom()" aria-label="Close">&times;</button>
+        <button type="button" class="qr-modal-close" data-action="closeQRZoom" aria-label="Close">&times;</button>
         <div class="qr-modal-image-wrapper">
           <img id="qrZoomImage" class="qr-modal-image" src="" alt="QR Code">
           <img class="qr-modal-logo" src="../../assets/images/ville_de_palme.png" alt="Logo">

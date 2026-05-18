@@ -20,9 +20,15 @@ if (!$isCli) {
 
     $isLocalhost = in_array($hostWithoutPort, ['localhost', '127.0.0.1', '::1'], true);
 
+    $forwardedProto = strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    $remoteAddr = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+    $trustedProxyCsv = (string)(getenv('TRUSTED_PROXIES') ?: '');
+    $trustedProxies = array_values(array_filter(array_map('trim', explode(',', $trustedProxyCsv))));
+    $isTrustedProxy = in_array($remoteAddr, $trustedProxies, true);
+
     $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
                (!empty($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] === '443') ||
-               (strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https');
+               ($isTrustedProxy && $forwardedProto === 'https');
 
     // Enforce HTTPS in non-local environments.
     if (!$isLocalhost && !$isHttps && !empty($_SERVER['REQUEST_URI'])) {
@@ -44,7 +50,8 @@ header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 
 // Content Security Policy — mitigate XSS, data injection, click-jacking
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';");
+// Note: inline scripts have been migrated; allow only self-hosted scripts.
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';");
 
 // Control referrer information
 header('Referrer-Policy: strict-origin-when-cross-origin');

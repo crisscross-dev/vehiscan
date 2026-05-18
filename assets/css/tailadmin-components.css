@@ -41,8 +41,7 @@
   --ta-swal-cancel: #6b7280;    /* gray-500 — cancel buttons */
 }
 
-body.dark,
-body.dark-mode {
+body.dark {
   --ta-card-bg: #1e293b;
   --ta-card-border: #334155;
   --ta-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
@@ -67,14 +66,12 @@ body.dark-mode {
 /* ================================================================
    Layout: Content Area Dark Mode
    ================================================================ */
-body.dark #content-area,
-body.dark-mode #content-area {
+body.dark #content-area {
   background-color: var(--ta-surface-bg);
   color: var(--ta-text-primary);
 }
 
-body.dark .main-header,
-body.dark-mode .main-header {
+body.dark .main-header {
   background-color: var(--ta-card-bg) !important;
   border-color: var(--ta-card-border) !important;
 }
@@ -462,18 +459,17 @@ body.dark-mode .main-header {
 .ta-badge.neutral { background: rgba(100, 116, 139, 0.1); color: #475569; }
 .ta-badge.purple  { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
 
-body.dark .ta-badge.success,
-body.dark-mode .ta-badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+body.dark .ta-badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 body.dark .ta-badge.warning,
-body.dark-mode .ta-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+body.dark .ta-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 body.dark .ta-badge.danger,
-body.dark-mode .ta-badge.danger  { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+body.dark .ta-badge.danger  { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 body.dark .ta-badge.info,
-body.dark-mode .ta-badge.info    { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+body.dark .ta-badge.info    { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 body.dark .ta-badge.neutral,
-body.dark-mode .ta-badge.neutral { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+body.dark .ta-badge.neutral { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
 body.dark .ta-badge.purple,
-body.dark-mode .ta-badge.purple  { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+body.dark .ta-badge.purple  { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
 
 /* ================================================================
    Component: Page Header
@@ -575,92 +571,91 @@ body.dark-mode .ta-badge.purple  { background: rgba(139, 92, 246, 0.2); color: #
 /* ================================================================
    Dark Mode: Content background & general fixes
    ================================================================ */
-body.dark,
-body.dark-mode {
+body.dark {
   background-color: #0f172a !important;
 }
 
 body.dark #content-area h1,
 body.dark #content-area h2,
 body.dark #content-area h3,
-body.dark-mode #content-area h1,
-body.dark-mode #content-area h2,
-body.dark-mode #content-area h3 {
+body.dark #content-area h1,
+body.dark #content-area h2,
+body.dark #content-area h3 {
   color: var(--ta-text-primary);
 }
 
 body.dark #content-area p,
-body.dark-mode #content-area p {
+body.dark #content-area p {
   color: var(--ta-text-secondary);
 }
 
 /* Dark mode for standard bg-white / bg-slate-50 elements inside fetch fragments */
 body.dark #content-area .bg-white,
-body.dark-mode #content-area .bg-white {
+body.dark #content-area .bg-white {
   background-color: var(--ta-card-bg) !important;
   color: var(--ta-text-primary);
 }
 
 body.dark #content-area .bg-slate-50,
 body.dark #content-area .bg-gray-50,
-body.dark-mode #content-area .bg-slate-50,
-body.dark-mode #content-area .bg-gray-50 {
+body.dark #content-area .bg-slate-50,
+body.dark #content-area .bg-gray-50 {
   background-color: var(--ta-table-header-bg) !important;
 }
 
 body.dark #content-area .text-gray-900,
 body.dark #content-area .text-slate-900,
-body.dark-mode #content-area .text-gray-900,
-body.dark-mode #content-area .text-slate-900 {
+body.dark #content-area .text-gray-900,
+body.dark #content-area .text-slate-900 {
   color: var(--ta-text-primary) !important;
 }
 
 body.dark #content-area .text-gray-800,
 body.dark #content-area .text-slate-800,
-body.dark-mode #content-area .text-gray-800,
-body.dark-mode #content-area .text-slate-800 {
+body.dark #content-area .text-gray-800,
+body.dark #content-area .text-slate-800 {
   color: var(--ta-text-primary) !important;
 }
 
 body.dark #content-area .text-gray-700,
 body.dark #content-area .text-slate-700,
-body.dark-mode #content-area .text-gray-700,
-body.dark-mode #content-area .text-slate-700 {
+body.dark #content-area .text-gray-700,
+body.dark #content-area .text-slate-700 {
   color: var(--ta-text-secondary) !important;
 }
 
 body.dark #content-area .text-gray-600,
 body.dark #content-area .text-slate-600,
-body.dark-mode #content-area .text-gray-600,
-body.dark-mode #content-area .text-slate-600 {
+body.dark #content-area .text-gray-600,
+body.dark #content-area .text-slate-600 {
   color: var(--ta-text-secondary) !important;
 }
 
 body.dark #content-area .text-gray-500,
 body.dark #content-area .text-slate-500,
-body.dark-mode #content-area .text-gray-500,
-body.dark-mode #content-area .text-slate-500 {
+body.dark #content-area .text-gray-500,
+body.dark #content-area .text-slate-500 {
   color: var(--ta-text-muted) !important;
 }
 
 body.dark #content-area .border-slate-200,
 body.dark #content-area .border-gray-200,
-body.dark-mode #content-area .border-slate-200,
-body.dark-mode #content-area .border-gray-200 {
+body.dark #content-area .border-slate-200,
+body.dark #content-area .border-gray-200 {
   border-color: var(--ta-card-border) !important;
 }
 
 body.dark #content-area .divide-slate-200 > :not(:last-child),
 body.dark #content-area .divide-gray-200 > :not(:last-child),
-body.dark-mode #content-area .divide-slate-200 > :not(:last-child),
-body.dark-mode #content-area .divide-gray-200 > :not(:last-child) {
+body.dark #content-area .divide-slate-200 > :not(:last-child),
+body.dark #content-area .divide-gray-200 > :not(:last-child) {
   border-color: var(--ta-card-border) !important;
 }
 
 body.dark #content-area .hover\:bg-slate-50:hover,
 body.dark #content-area .hover\:bg-gray-50:hover,
-body.dark-mode #content-area .hover\:bg-slate-50:hover,
-body.dark-mode #content-area .hover\:bg-gray-50:hover {
+body.dark #content-area .hover\:bg-slate-50:hover,
+body.dark #content-area .hover\:bg-gray-50:hover {
   background-color: var(--ta-table-row-hover) !important;
 }
 
@@ -671,50 +666,50 @@ body.dark #content-area input[type="date"],
 body.dark #content-area input[type="email"],
 body.dark #content-area select,
 body.dark #content-area textarea,
-body.dark-mode #content-area input[type="text"],
-body.dark-mode #content-area input[type="search"],
-body.dark-mode #content-area input[type="date"],
-body.dark-mode #content-area input[type="email"],
-body.dark-mode #content-area select,
-body.dark-mode #content-area textarea {
+body.dark #content-area input[type="text"],
+body.dark #content-area input[type="search"],
+body.dark #content-area input[type="date"],
+body.dark #content-area input[type="email"],
+body.dark #content-area select,
+body.dark #content-area textarea {
   background-color: var(--ta-input-bg) !important;
   border-color: var(--ta-input-border) !important;
   color: var(--ta-text-primary) !important;
 }
 
 body.dark #content-area input::placeholder,
-body.dark-mode #content-area input::placeholder {
+body.dark #content-area input::placeholder {
   color: var(--ta-text-muted) !important;
 }
 
 /* Dark mode for shadows */
 body.dark #content-area .shadow-sm,
 body.dark #content-area .shadow,
-body.dark-mode #content-area .shadow-sm,
-body.dark-mode #content-area .shadow {
+body.dark #content-area .shadow-sm,
+body.dark #content-area .shadow {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Dark mode for modal */
 body.dark .swal2-popup,
-body.dark-mode .swal2-popup {
+body.dark .swal2-popup {
   background-color: var(--ta-card-bg);
   color: var(--ta-text-primary);
 }
 
 body.dark .swal2-title,
-body.dark-mode .swal2-title {
+body.dark .swal2-title {
   color: var(--ta-text-primary);
 }
 
 body.dark .swal2-html-container,
-body.dark-mode .swal2-html-container {
+body.dark .swal2-html-container {
   color: var(--ta-text-secondary);
 }
 
 /* Dark mode for dropdown */
 body.dark #user-dropdown,
-body.dark-mode #user-dropdown {
+body.dark #user-dropdown {
   background-color: var(--ta-card-bg);
   border-color: var(--ta-card-border);
 }
@@ -765,33 +760,33 @@ body.dark-mode #user-dropdown {
    DataTables Dark Mode Override
    ================================================================ */
 body.dark .dataTables_wrapper,
-body.dark-mode .dataTables_wrapper {
+body.dark .dataTables_wrapper {
   color: var(--ta-text-primary);
 }
 
 body.dark .dataTables_wrapper .dataTables_length select,
 body.dark .dataTables_wrapper .dataTables_filter input,
-body.dark-mode .dataTables_wrapper .dataTables_length select,
-body.dark-mode .dataTables_wrapper .dataTables_filter input {
+body.dark .dataTables_wrapper .dataTables_length select,
+body.dark .dataTables_wrapper .dataTables_filter input {
   background-color: var(--ta-input-bg);
   border-color: var(--ta-input-border);
   color: var(--ta-text-primary);
 }
 
 body.dark .dataTables_wrapper .dataTables_paginate .paginate_button,
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
   color: var(--ta-text-secondary) !important;
 }
 
 body.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
   background: #3b82f6 !important;
   color: white !important;
   border-color: #3b82f6 !important;
 }
 
 body.dark .dataTables_wrapper .dataTables_info,
-body.dark-mode .dataTables_wrapper .dataTables_info {
+body.dark .dataTables_wrapper .dataTables_info {
   color: var(--ta-text-muted);
 }
 
@@ -1304,11 +1299,11 @@ body.dark-mode .dataTables_wrapper .dataTables_info {
 .ta-sidebar-badge.red { background: #fee2e2; color: #991b1b; }
 
 body.dark .ta-sidebar-badge.amber,
-body.dark-mode .ta-sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+body.dark .ta-sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 body.dark .ta-sidebar-badge.blue,
-body.dark-mode .ta-sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+body.dark .ta-sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 body.dark .ta-sidebar-badge.red,
-body.dark-mode .ta-sidebar-badge.red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+body.dark .ta-sidebar-badge.red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
 /* ================================================================
    Component: Form Group with validation
@@ -1327,7 +1322,7 @@ body.dark-mode .ta-sidebar-badge.red { background: rgba(239, 68, 68, 0.2); color
 
 .ta-form-group .ta-input-icon {
   position: absolute;
-  left: 0.75rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--ta-text-muted);
@@ -1337,7 +1332,7 @@ body.dark-mode .ta-sidebar-badge.red { background: rgba(239, 68, 68, 0.2); color
 }
 
 .ta-form-group .ta-input-icon + .ta-input {
-  padding-left: 2.5rem;
+  padding-left: 3rem;
 }
 
 .ta-form-group .ta-error-msg {
@@ -1423,13 +1418,13 @@ body.dark-mode .ta-sidebar-badge.red { background: rgba(239, 68, 68, 0.2); color
 .ta-alert-danger { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
 
 body.dark .ta-alert-info,
-body.dark-mode .ta-alert-info { background: rgba(59,130,246,0.1); color: #93c5fd; }
+body.dark .ta-alert-info { background: rgba(59,130,246,0.1); color: #93c5fd; }
 body.dark .ta-alert-success,
-body.dark-mode .ta-alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; }
+body.dark .ta-alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; }
 body.dark .ta-alert-warning,
-body.dark-mode .ta-alert-warning { background: rgba(245,158,11,0.1); color: #fcd34d; }
+body.dark .ta-alert-warning { background: rgba(245,158,11,0.1); color: #fcd34d; }
 body.dark .ta-alert-danger,
-body.dark-mode .ta-alert-danger { background: rgba(239,68,68,0.1); color: #fca5a5; }
+body.dark .ta-alert-danger { background: rgba(239,68,68,0.1); color: #fca5a5; }
 
 .ta-alert svg {
   width: 1.25rem;

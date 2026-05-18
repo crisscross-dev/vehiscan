@@ -48,7 +48,7 @@ class VisitorPassRuntimeRegression
             'csrf_token' => 'valid-token',
             'homeowner_id' => '1',
             'visitor_name' => 'TEST VISITOR',
-            'visitor_plate' => 'ABC-1234',
+            'visitor_plate' => 'ABC123',
             'purpose' => 'RUNTIME CHECK',
             'valid_from' => '2026-04-13 10:00:00',
             'valid_until' => '2026-04-13 12:00:00',

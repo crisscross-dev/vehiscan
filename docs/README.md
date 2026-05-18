@@ -52,10 +52,10 @@ Vehiscan-RFID/
 │
 ├── includes/ # Shared PHP Includes
 │ ├── session_config.php # Session configuration
-│ ├── session_admin.php # Admin session management
+│ ├── session_admin_unified.php # Admin/super-admin session management
 │ ├── session_guard.php # Guard session management
 │ ├── security_headers.php # Security headers
-│ ├── rate_limit.php # Rate limiting
+│ ├── rate_limiter.php # Rate limiting
 │ ├── file_validator.php # File upload validation
 │ ├── upload_helper.php # Upload utilities
 │ └── helpers.php # Helper functions

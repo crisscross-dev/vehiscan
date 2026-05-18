@@ -304,51 +304,51 @@ body.dark .filter-toggle-item.toggle-active {
 }
 
 body.dark .guard-module-card,
-body.dark-mode .guard-module-card {
+body.dark .guard-module-card {
   border-color: #334155;
   background: #1e293b;
   box-shadow: none;
 }
 
 body.dark .guard-module-card .guard-module-header,
-body.dark-mode .guard-module-card .guard-module-header {
+body.dark .guard-module-card .guard-module-header {
   border-bottom-color: #334155;
 }
 
 body.dark .guard-module-card .guard-module-title,
-body.dark-mode .guard-module-card .guard-module-title {
+body.dark .guard-module-card .guard-module-title {
   color: #e2e8f0;
 }
 
 body.dark .guard-module-card .guard-module-subtitle,
-body.dark-mode .guard-module-card .guard-module-subtitle {
+body.dark .guard-module-card .guard-module-subtitle {
   color: #94a3b8;
 }
 
 body.dark .guard-vehicle-card,
-body.dark-mode .guard-vehicle-card {
+body.dark .guard-vehicle-card {
   border-color: #334155;
   background: linear-gradient(180deg, #1e293b 0%, #172235 100%);
 }
 
 body.dark .guard-vehicle-title,
-body.dark-mode .guard-vehicle-title {
+body.dark .guard-vehicle-title {
   color: #f8fafc;
 }
 
 body.dark .guard-vehicle-meta,
 body.dark .guard-vehicle-rfid,
-body.dark-mode .guard-vehicle-meta,
-body.dark-mode .guard-vehicle-rfid {
+body.dark .guard-vehicle-meta,
+body.dark .guard-vehicle-rfid {
   color: #94a3b8;
 }
 
 body.dark .guard-visitor-form select:disabled,
 body.dark .guard-visitor-form input:disabled,
 body.dark .guard-visitor-form textarea:disabled,
-body.dark-mode .guard-visitor-form select:disabled,
-body.dark-mode .guard-visitor-form input:disabled,
-body.dark-mode .guard-visitor-form textarea:disabled {
+body.dark .guard-visitor-form select:disabled,
+body.dark .guard-visitor-form input:disabled,
+body.dark .guard-visitor-form textarea:disabled {
   background: #1e293b;
   color: #64748b;
   border-color: #334155;
@@ -374,7 +374,7 @@ body.dark-mode .guard-visitor-form textarea:disabled {
 }
 
 body.dark #qr-reader__dashboard,
-body.dark-mode #qr-reader__dashboard {
+body.dark #qr-reader__dashboard {
   background: #1e293b;
   border-top-color: #334155;
   color: #e2e8f0;
@@ -402,7 +402,7 @@ body.dark-mode #qr-reader__dashboard {
 }
 
 body.dark #qr-reader__status_span,
-body.dark-mode #qr-reader__status_span {
+body.dark #qr-reader__status_span {
   color: #94a3b8 !important;
 }
 
@@ -416,7 +416,7 @@ body.dark-mode #qr-reader__status_span {
 }
 
 body.dark #qr-reader__camera_selection,
-body.dark-mode #qr-reader__camera_selection {
+body.dark #qr-reader__camera_selection {
   background-color: #0f172a !important;
   border-color: #334155 !important;
   color: #e2e8f0 !important;

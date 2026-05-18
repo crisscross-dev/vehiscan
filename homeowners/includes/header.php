@@ -12,7 +12,7 @@
     <div class="flex items-center gap-3">
         <div class="h-8 w-1 bg-blue-600 rounded-full"></div>
         <h1 id="page-title" class="text-xl font-bold text-gray-900 transition-all duration-300 dark:text-white">
-            Dashboard
+            <?php echo htmlspecialchars($homeownerPageTitle ?? 'Dashboard'); ?>
         </h1>
     </div>
 

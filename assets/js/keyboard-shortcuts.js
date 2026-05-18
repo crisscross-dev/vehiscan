@@ -30,6 +30,27 @@
         );
     };
 
+    const getAppBasePath = () => {
+        const path = window.location.pathname || '';
+        const markers = ['/admin/', '/guard/', '/homeowners/', '/auth/', '/api/', '/visitor/'];
+        let cutIndex = -1;
+
+        markers.forEach((marker) => {
+            const idx = path.indexOf(marker);
+            if (idx >= 0 && (cutIndex === -1 || idx < cutIndex)) {
+                cutIndex = idx;
+            }
+        });
+
+        return cutIndex >= 0 ? path.slice(0, cutIndex) : '';
+    };
+
+    const toAppPath = (relativePath) => {
+        const clean = String(relativePath || '').replace(/^\/+/, '');
+        const base = getAppBasePath();
+        return `${base}/${clean}`;
+    };
+
     // Handle keydown events
     const handleKeydown = (e) => {
         if (!enabled) return;
@@ -242,11 +263,11 @@
             if (typeof loadPage === 'function') {
                 loadPage('dashboard');
             } else if (window.location.pathname.includes('admin')) {
-                window.location.href = '/Vehiscan-RFID/admin/admin_panel.php';
+                window.location.href = toAppPath('admin/admin_panel.php');
             } else if (window.location.pathname.includes('guard')) {
-                window.location.href = '/Vehiscan-RFID/guard/pages/guard_side.php';
+                window.location.href = toAppPath('guard/pages/guard_side.php');
             } else if (window.location.pathname.includes('homeowners')) {
-                window.location.href = '/Vehiscan-RFID/homeowners/portal.php';
+                window.location.href = toAppPath('homeowners/portal.php');
             }
         }, {
             id: 'global.nav.home.ctrlh',

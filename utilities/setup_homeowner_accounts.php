@@ -67,7 +67,8 @@ try {
     echo "\n" . str_repeat("=", 60) . "\n";
     echo "SUCCESS: Created $created homeowner accounts!\n";
     echo str_repeat("=", 60) . "\n\n";
-    echo "Access Portal: http://localhost/Vehiscan-RFID/homeowners/login.php\n";
+    $appUrl = getAppUrl();
+    echo "Access Portal: " . $appUrl . "/auth/login.php\n";
     echo "Default Password: $default_password\n";
     echo "\nIMPORTANT: Users should change their passwords after first login!\n";
     

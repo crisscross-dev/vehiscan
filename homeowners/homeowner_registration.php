@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Validate CSRF token using InputSanitizer
   $posted_csrf = InputSanitizer::post('csrf_token', 'string');
   if (!InputSanitizer::validateCsrf($posted_csrf)) {
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Invalid security token. Please refresh and try again.']);
     exit;
   }
@@ -82,35 +83,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Email is now the only login identifier for homeowner accounts.
   $loginIdentity = strtolower(trim((string)$email));
   
-  // Validate required fields
-  if (empty($firstName) || empty($lastName) || empty($email) || empty($contact) || empty($address) || empty($vehicle_type) || empty($color) || empty($plate_number) || empty($password)) {
+  // Validate required fields. Plate number is optional for E-bike
+  $plateRequired = ($vehicle_type !== 'E-bike');
+  if (empty($firstName) || empty($lastName) || empty($email) || empty($contact) || empty($address) || empty($vehicle_type) || empty($color) || ($plateRequired && empty($plate_number)) || empty($password)) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'All required fields must be filled out.']);
     exit;
   }
 
   if (strlen($firstName) < 2 || strlen($firstName) > 50 || strlen($lastName) < 2 || strlen($lastName) > 50) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'First and last name must be 2-50 characters each.']);
     exit;
   }
 
   if (!empty($middleName) && strlen($middleName) > 50) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Middle name must not exceed 50 characters.']);
     exit;
   }
 
   if (!empty($suffix) && strlen($suffix) > 10) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Suffix must not exceed 10 characters.']);
     exit;
   }
 
   $allowedVehicleTypes = ['Sedan', 'SUV', 'Hatchback', 'Pickup', 'Van', 'Motorcycle', 'E-bike', 'Truck', 'Other'];
   if (!in_array($vehicle_type, $allowedVehicleTypes, true)) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid vehicle type.']);
     exit;
   }
   if ($vehicle_type === 'Other') {
     $vehicle_type = trim($vehicle_type_other);
     if ($vehicle_type === '' || strlen($vehicle_type) > 40) {
+      http_response_code(400);
       echo json_encode(['success' => false, 'message' => 'Please provide a valid custom vehicle type (max 40 characters).']);
       exit;
     }
@@ -118,12 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $allowedColors = ['Black', 'White', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown', 'Yellow', 'Orange', 'Other'];
   if (!in_array($color, $allowedColors, true)) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid vehicle color.']);
     exit;
   }
   if ($color === 'Other') {
     $color = trim($color_other);
     if ($color === '' || strlen($color) > 30) {
+      http_response_code(400);
       echo json_encode(['success' => false, 'message' => 'Please provide a valid custom vehicle color (max 30 characters).']);
       exit;
     }
@@ -131,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
   // Validate email format
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid email address format.']);
     exit;
   }
@@ -138,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Format contact number (0912-345-6789)
   $contact = formatContactNumber($contact);
   if ($contact && !preg_match('/^\d{4}-\d{3}-\d{4}$/', $contact)) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Contact number must be in format: 0912-345-6789']);
     exit;
   }
@@ -241,6 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if ($uploadErrors) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => implode(' ', $uploadErrors)]);
     exit;
   }
@@ -311,18 +324,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $vehicleImagePath = $saveFile('car_img', true);
 
   if ($uploadErrors) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => implode(' ', $uploadErrors)]);
     exit;
   }
 
   // Validate password
   if ($password !== $confirm_password) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Passwords do not match.']);
     exit;
   }
 
-  $passwordValidation = InputValidator::validatePassword($password, 12);
+  // Registrator / homeowner password policy: minimum 8 chars and at least one symbol
+  $passwordValidation = InputValidator::validatePassword($password, 8, true);
   if (!$passwordValidation['valid']) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => $passwordValidation['message']]);
     exit;
   }
@@ -330,6 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Validate plate number
   $plateValidation = InputValidator::validatePlateNumber($plate_number);
   if (!$plateValidation['valid']) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => $plateValidation['message']]);
     exit;
   }
@@ -340,6 +358,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $dupStmt->execute([$plate_number]);
   $duplicate = $dupStmt->fetch(PDO::FETCH_ASSOC);
   if ($duplicate) {
+    http_response_code(409);
     echo json_encode([
       'success' => false,
       'message' => 'Plate number already linked to homeowner: ' . ($duplicate['name'] ?? 'Unknown')
@@ -350,6 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Validate phone number
   $phoneValidation = InputValidator::validatePhoneNumber($contact);
   if (!$phoneValidation['valid']) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => $phoneValidation['message']]);
     exit;
   }
@@ -423,6 +443,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email
       ]);
 
+      // Insert the primary vehicle into vehicles table
+      if (!empty($vehicle_type) && !empty($color) && !empty($plate_number)) {
+          $vehStmt = $pdo->prepare("INSERT INTO vehicles (homeowner_id, vehicle_type, color, plate_number, is_primary, is_active, registered_at) VALUES (?, ?, ?, ?, 1, 1, NOW())");
+          $vehStmt->execute([
+              $homeowner_id,
+              $vehicle_type,
+              $color,
+              $plate_number
+          ]);
+      }
+
       // Commit transaction
       $pdo->commit();
 
@@ -442,6 +473,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       
       // Check if it's a duplicate email/login identity
       if ($e->getCode() == 23000) {
+        http_response_code(409);
         echo json_encode([
           'success' => false,
           'message' => 'Email already exists. Please use a different one.'
@@ -449,12 +481,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       // Check if it's a column not found error
       else if (strpos($e->getMessage(), 'Unknown column') !== false) {
+        http_response_code(500);
         echo json_encode([
           'success' => false, 
           'message' => 'Database configuration error: Please contact the administrator to update the system.',
           'technical_details' => 'Run the migration script at: _testing/apply_homeowner_auth_migration.php'
         ]);
       } else {
+        http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Database error occurred. Please try again later.']);
       }
       
@@ -471,6 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->rollBack();
       }
       
+      http_response_code(500);
       echo json_encode(['success' => false, 'message' => 'Unexpected error occurred. Please try again later.']);
       error_log('REGISTRATION ERROR: ' . $e->getMessage());
       
@@ -481,6 +516,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       ]);
     }
   } else {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Please fill in all required fields.']);
     
     // Record failed attempt
@@ -639,16 +675,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               id="passwordInput"
               placeholder="Create a secure password"
               required
-              minlength="12"
+              minlength="8"
               maxlength="100"
-              pattern="(?=.*[a-zA-Z])(?=.*[0-9]).{12,}"
-              title="Must be at least 12 characters with letters and numbers"
+              pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+              title="Must be at least 8 characters and include a symbol"
             >
             <button type="button" class="toggle-password" data-target="passwordInput" aria-label="Toggle password visibility" tabindex="-1">
               <span class="eye-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
             </button>
           </div>
-          <p class="form-hint">At least 12 characters with letters and numbers</p>
+          <p class="form-hint">At least 8 characters including a symbol</p>
         </div>
 
         <div class="form-group">
@@ -662,7 +698,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               id="confirmPasswordInput"
               placeholder="Re-enter password"
               required
-              minlength="12"
+              minlength="8"
               maxlength="100"
             >
             <button type="button" class="toggle-password" data-target="confirmPasswordInput" aria-label="Toggle confirm password visibility" tabindex="-1">
@@ -778,13 +814,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             id="plateInput"
             placeholder="e.g., ABC-1234"
             required
-            maxlength="15"
-            pattern="[A-Z0-9\-]{3,15}"
-            title="Plate number should be 3-15 characters (letters, numbers, hyphens)"
+            maxlength="7"
+            pattern="[A-Z0-9\-]{3,7}"
+            title="Plate number should be 3-7 characters (letters, numbers, hyphens)"
             style="text-transform: uppercase;"
             autocomplete="off"
           >
-          <p class="form-hint" id="plateHint">Required for automated gate recognition</p>
+          <p class="form-hint" id="plateHint">Required for automated gate recognition (optional for E-bike)</p>
         </div>
       </fieldset>
 

@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../includes/input_sanitizer.php';
 require_once __DIR__ . '/../../includes/input_validator.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
-    http_response_code(403);
+    http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }

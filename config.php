@@ -52,8 +52,8 @@ function getAppUrl()
 
     // Auto-detect from server variables
     if (php_sapi_name() === 'cli') {
-        // CLI mode - return localhost default
-        return 'http://localhost/Vehiscan-RFID';
+        // CLI mode - return localhost default (CLI-only fallback for development)
+        return 'http://localhost';
     }
 
     // Web mode - detect from request
@@ -71,6 +71,7 @@ function getAppUrl()
 
 // Database configuration
 define('DB_HOST', config('DB_HOST', 'localhost'));
+define('DB_PORT', config('DB_PORT', '3306'));
 define('DB_NAME', config('DB_NAME', 'vehiscan_vdp'));
 define('DB_USER', config('DB_USER', 'root'));
 define('DB_PASS', config('DB_PASS', ''));
@@ -96,6 +97,21 @@ if (APP_ENV === 'production') {
 define('SESSION_LIFETIME', (int) config('SESSION_LIFETIME', 3600));
 define('SESSION_SECURE', config('SESSION_SECURE', 'false') === 'true');
 define('SESSION_HTTPONLY', config('SESSION_HTTPONLY', 'true') === 'true');
+define('SESSION_SAMESITE', config('SESSION_SAMESITE', 'Lax'));
+// Apply recommended session cookie settings globally so calls to session_start()
+// across the app inherit secure defaults. Only apply when no session is active
+// to avoid runtime warnings in code that has already started the session.
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', 1);
+    ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
+    ini_set('session.cookie_lifetime', SESSION_LIFETIME);
+    ini_set('session.cookie_secure', SESSION_SECURE ? 1 : 0);
+    ini_set('session.cookie_httponly', SESSION_HTTPONLY ? 1 : 0);
+    // Set SameSite when supported (PHP 7.3+ supports session.cookie_samesite)
+    if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70300) {
+        ini_set('session.cookie_samesite', SESSION_SAMESITE);
+    }
+}
 
 // Security settings
 define('CSRF_TOKEN_LENGTH', (int) config('CSRF_TOKEN_LENGTH', 32));

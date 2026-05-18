@@ -4,6 +4,35 @@ let activityChart = null;
 let currentPeriod = 'week';
 let vehicleManagementInitialized = false;
 
+async function fetchVehicleJson(url, options = {}) {
+    const headers = {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+        headers
+    });
+
+    const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+    if (!contentType.includes('application/json')) {
+        throw new Error(`Unexpected server response (${response.status})`);
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+        const message = data.message || data.error || `Request failed (${response.status})`;
+        const error = new Error(String(message));
+        error.status = response.status;
+        throw error;
+    }
+
+    return data;
+}
+
 function escapeHtml(value) {
     if (window.VehiScanUtils && typeof window.VehiScanUtils.escapeHtml === 'function') {
         return window.VehiScanUtils.escapeHtml(value);
@@ -45,8 +74,7 @@ function getCSRFToken() {
 // Load vehicles
 async function loadVehicles() {
     try {
-        const response = await fetch('api/get_vehicles.php');
-        const data = await response.json();
+        const data = await fetchVehicleJson('api/get_vehicles.php');
         
         if (!data.success) {
             throw new Error(data.error || 'Failed to load vehicles');
@@ -74,7 +102,7 @@ function renderVehicles(vehicles) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
                 </svg>
                 <p class="text-gray-600 dark:text-gray-400 mb-4">No vehicles registered yet</p>
-                <button type="button" onclick="showAddVehicleModal()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <button type="button" data-action="showAddVehicleModal" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     Add Your First Vehicle
                 </button>
             </div>
@@ -82,42 +110,54 @@ function renderVehicles(vehicles) {
         return;
     }
     
-    grid.innerHTML = vehicles.map(vehicle => {
+    grid.innerHTML = vehicles.map((vehicle, index) => {
         const safeVehicleType = escapeHtml(vehicle.vehicle_type);
         const safeColor = escapeHtml(vehicle.color);
         const safePlate = escapeHtml(vehicle.plate_number);
         const safeVehicleId = Number.parseInt(vehicle.id ?? vehicle.vehicle_id, 10) || 0;
         const isPrimary = Number.parseInt(String(vehicle.is_primary), 10) === 1 || vehicle.is_primary === true;
         const vehicleImageSrc = resolveVehicleImageSrc(vehicle.vehicle_img || vehicle.homeowner_car_img);
+        const delay = (index % 4) * 100;
 
         return `
-        <div class="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-lg transition-shadow">
-            ${vehicleImageSrc ? `
-                <img src="${vehicleImageSrc}" alt="${safeVehicleType}" class="w-full h-48 object-cover">
-            ` : `
-                <div class="w-full h-48 bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
-                    <svg class="h-20 w-20 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
-                    </svg>
+        <div class="glass overflow-hidden hover:shadow-xl transition-all duration-300 animate-fade-in-up" style="animation-delay: ${delay}ms">
+            <div class="relative group">
+                ${vehicleImageSrc ? `
+                    <img src="${vehicleImageSrc}" alt="${safeVehicleType}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500">
+                ` : `
+                    <div class="w-full h-48 bg-gray-100 dark:bg-slate-700/50 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                        </svg>
+                    </div>
+                `}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                     <span class="text-white text-xs font-medium bg-white/20 backdrop-blur-md px-2 py-1 rounded">ID: ${safeVehicleId}</span>
                 </div>
-            `}
-            <div class="p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-bold text-gray-900 dark:text-white">${safeVehicleType}</h3>
-                    ${isPrimary ? '<span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-semibold rounded">Primary</span>' : ''}
+            </div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white text-lg">${safeVehicleType}</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Color: ${safeColor}</p>
+                    </div>
+                    ${isPrimary ? '<span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] uppercase font-bold tracking-wider rounded-full border border-blue-200 dark:border-blue-800">Primary</span>' : ''}
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Color: ${safeColor}</p>
-                <p class="text-sm font-mono bg-gray-50 dark:bg-slate-700 dark:text-gray-200 px-2 py-1 rounded inline-block">${safePlate}</p>
-                <div class="mt-4 flex gap-2">
+                
+                <div class="flex items-center gap-2 mb-5">
+                    <span class="text-xs font-mono font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-600 shadow-sm">${safePlate}</span>
+                </div>
+
+                <div class="flex gap-2 pt-2 border-t border-gray-100 dark:border-slate-700/50">
                     ${!isPrimary ? `
-                        <button type="button" onclick="setPrimaryVehicle(${safeVehicleId})" class="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 text-sm font-medium flex items-center gap-1">
+                        <button type="button" data-action="setPrimaryVehicle" data-action-arg="${safeVehicleId}" class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 text-sm font-semibold">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            Set Primary
+                            Primary
                         </button>
                     ` : ''}
-                    <button type="button" onclick="deleteVehicle(${safeVehicleId})" class="px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded hover:bg-red-100 dark:hover:bg-red-900/40 text-sm font-medium flex items-center gap-1">
+                    <button type="button" data-action="deleteVehicle" data-action-arg="${safeVehicleId}" class="flex-1 py-2 px-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center justify-center gap-2 text-sm font-semibold">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -138,17 +178,13 @@ async function setPrimaryVehicle(vehicleId) {
             throw new Error('Invalid vehicle selected');
         }
 
-        const response = await fetch('api/set_primary_vehicle.php', {
+        const data = await fetchVehicleJson('api/set_primary_vehicle.php', {
             method: 'POST',
-            credentials: 'same-origin',
             headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ vehicle_id: parsedVehicleId, csrf_token: getCSRFToken() })
         });
-
-        const data = await response.json();
 
         if (!data.success) {
             throw new Error(data.message || data.error || 'Failed to set primary vehicle');
@@ -209,13 +245,11 @@ async function deleteVehicle(vehicleId) {
     
     if (result.isConfirmed && String(result.value || '').trim().toUpperCase() === 'DELETE') {
         try {
-            const response = await fetch('api/delete_vehicle.php', {
+            const data = await fetchVehicleJson('api/delete_vehicle.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ vehicle_id: vehicleId, csrf_token: getCSRFToken(), confirmation: 'DELETE' })
             });
-            
-            const data = await response.json();
             
             if (!data.success) {
                 throw new Error(data.error || 'Failed to delete vehicle');
@@ -243,8 +277,7 @@ async function loadVehicleActivity(period = 'week') {
     });
     
     try {
-        const response = await fetch(`api/get_vehicle_activity.php?period=${period}`);
-        const data = await response.json();
+        const data = await fetchVehicleJson(`api/get_vehicle_activity.php?period=${period}`);
         
         if (!data.success) {
             throw new Error(data.error || 'Failed to load activity');

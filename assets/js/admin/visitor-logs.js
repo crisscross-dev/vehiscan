@@ -3,7 +3,14 @@
  * Handles loading, filtering, and displaying visitor pass QR code scans
  */
 
-let visitorLogsState = {
+(function () {
+const visitorLogsRoot = window;
+if (visitorLogsRoot.__vehiscanVisitorLogsInitialized) {
+    return;
+}
+visitorLogsRoot.__vehiscanVisitorLogsInitialized = true;
+
+const visitorLogsState = visitorLogsRoot.__vehiscanVisitorLogsState || {
     page: 1,
     perPage: 20,
     total: 0,
@@ -13,9 +20,25 @@ let visitorLogsState = {
     dateFrom: '',
     dateTo: ''
 };
+visitorLogsRoot.__vehiscanVisitorLogsState = visitorLogsState;
+
+function getAppBasePath() {
+    const path = window.location.pathname || '';
+    const markers = ['/admin/', '/guard/', '/homeowners/', '/auth/', '/api/', '/visitor/'];
+    let cutIndex = -1;
+
+    markers.forEach((marker) => {
+        const idx = path.indexOf(marker);
+        if (idx >= 0 && (cutIndex === -1 || idx < cutIndex)) {
+            cutIndex = idx;
+        }
+    });
+
+    return cutIndex >= 0 ? path.slice(0, cutIndex) : '';
+}
 
 function loadVisitorLogs(page = 1) {
-    const baseUrl = window.location.origin + (window.vehiscanConfig?.baseUrl || '/Vehiscan-RFID');
+    const baseUrl = window.location.origin + (window.vehiscanConfig?.baseUrl || getAppBasePath());
     const params = new URLSearchParams({
         page: page,
         per_page: visitorLogsState.perPage,
@@ -139,7 +162,7 @@ function showError(message) {
 }
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', function() {
+function initVisitorLogsPage() {
     const filterBtn = document.getElementById('visitorLogsFilterBtn');
     const clearBtn = document.getElementById('visitorLogsClearBtn');
     const refreshBtn = document.getElementById('visitorLogsRefreshBtn');
@@ -191,4 +214,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial load
     loadVisitorLogs(1);
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVisitorLogsPage, { once: true });
+} else {
+    initVisitorLogsPage();
+}
+})();

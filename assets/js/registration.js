@@ -261,7 +261,7 @@ function initializeValidation() {
     
     plateInput.addEventListener('input', function() {
       const hint = document.getElementById('plateHint');
-      const value = this.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '').slice(0, 15);
+      const value = this.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '').slice(0, 7);
       this.value = value;
       
       // Clear previous timeout
@@ -270,7 +270,7 @@ function initializeValidation() {
       if (value.length >= 3) {
         this.classList.add('valid');
         this.classList.remove('invalid');
-        hint.textContent = `Plate number accepted (${value.length}/15)`;
+        hint.textContent = `Plate number accepted (${value.length}/7)`;
         hint.style.color = '#10b981';
         
         // Check for duplicates if plate changed
@@ -374,9 +374,9 @@ function initializeValidation() {
 // Initialize plate number auto-uppercase
 function initializePlateInput() {
   const plateInput = document.getElementById('plateInput');
-  if (plateInput) {
+    if (plateInput) {
     plateInput.addEventListener('input', function(e) {
-      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '').slice(0, 15);
+      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '').slice(0, 7);
     });
   }
 }
@@ -401,6 +401,19 @@ function initializeVehicleColorOtherFields() {
   if (vehicleTypeInput && vehicleTypeOtherInput) {
     vehicleTypeInput.addEventListener('change', () => syncOtherField(vehicleTypeInput, vehicleTypeOtherInput));
     syncOtherField(vehicleTypeInput, vehicleTypeOtherInput);
+    // Make plate optional when E-bike is selected
+    const plateInput = document.getElementById('plateInput');
+    const plateHint = document.getElementById('plateHint');
+    const updatePlateRequirement = () => {
+      if (!plateInput) return;
+      const isEbike = vehicleTypeInput.value === 'E-bike';
+      plateInput.required = !isEbike;
+      if (plateHint) {
+        plateHint.textContent = isEbike ? 'Plate number is optional for E-bike' : 'Required for automated gate recognition (optional for E-bike)';
+      }
+    };
+    vehicleTypeInput.addEventListener('change', updatePlateRequirement);
+    updatePlateRequirement();
   }
 
   if (colorInput && colorOtherInput) {
@@ -429,8 +442,9 @@ function initializeCameraButtons() {
     // Create a dedicated file input positioned over the button
     const cameraInput = document.createElement('input');
     cameraInput.type = 'file';
-    cameraInput.accept = 'image/*';
-    cameraInput.capture = 'environment';
+    // Encourage mobile browsers to open the camera directly where supported
+    cameraInput.accept = 'image/*;capture=camera';
+    cameraInput.setAttribute('capture', 'environment');
     cameraInput.id = inputName + '_cameraInput';
     cameraInput.className = 'hidden-file-input';
     cameraInput.style.cssText = `

@@ -1,12 +1,15 @@
 <?php
+header('Content-Type: application/json');
 require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
+
 requireRequestMethod('POST');
+
 if (!in_array($_SESSION['role'] ?? '', ['super_admin', 'admin'])) {
     http_response_code(403);
-    header('Content-Type: application/json');
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../includes/input_sanitizer.php';
@@ -15,8 +18,6 @@ require_once __DIR__ . '/../../includes/email.php';
 require_once __DIR__ . '/../../includes/email_templates.php';
 require_once __DIR__ . '/../../includes/audit_logger.php';
 require_once __DIR__ . '/qr_helper.php';
-
-header('Content-Type: application/json');
 
 AuditLogger::init($pdo);
 
