@@ -134,13 +134,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $sessionUsername = (string)($result['username'] ?? $identifier);
                 $redirectUrl = '../homeowners/portal.php';
                 
-                // Update last_login
-                $pdo->prepare("UPDATE homeowner_auth SET last_login = NOW(), failed_login_attempts = 0 WHERE id = ?")->execute([$result['id']]);
+                // Update login metrics when optional columns exist; do not block login.
+                try {
+                    $pdo->prepare("UPDATE homeowner_auth SET last_login = NOW(), failed_login_attempts = 0 WHERE id = ?")->execute([$result['id']]);
+                } catch (Throwable $e) {
+                    error_log('homeowner_auth metrics update skipped: ' . $e->getMessage());
+                }
                 // Reset rate limiter on successful login
                 $rateLimiter->reset($identifier, 'login');
             } else {
-                // Track failed login
-                $pdo->prepare("UPDATE homeowner_auth SET failed_login_attempts = failed_login_attempts + 1, last_failed_login = NOW() WHERE id = ?")->execute([$result['id']]);
+                // Track failed login if audit columns exist; never fail request on this best-effort update.
+                try {
+                    $pdo->prepare("UPDATE homeowner_auth SET failed_login_attempts = failed_login_attempts + 1, last_failed_login = NOW() WHERE id = ?")->execute([$result['id']]);
+                } catch (Throwable $e) {
+                    error_log('homeowner_auth failed-login metrics update skipped: ' . $e->getMessage());
+                }
                 $rateLimiter->recordAttempt($identifier, 'login');
                 sleep(1);
             }
