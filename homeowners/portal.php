@@ -4,6 +4,10 @@ require_once __DIR__ . '/../includes/session_homeowner.php';
 require_once __DIR__ . '/../includes/common_utilities.php';
 require_once __DIR__ . '/../db.php';
 
+function safeFileTime($path) {
+    return file_exists($path) ? filemtime($path) : 0;
+}
+
 $allowedHomeownerPages = ['dashboard', 'passes', 'vehicles', 'activity', 'profile'];
 $homeownerActivePage = strtolower(trim((string)($_GET['hpage'] ?? 'dashboard')));
 if (!in_array($homeownerActivePage, $allowedHomeownerPages, true)) {
@@ -119,11 +123,11 @@ if (empty($_SESSION['csrf_token'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
     <title>Homeowner Portal — VehiScan</title>
-    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-    <link rel="stylesheet" href="css/homeowner.css?v=<?php echo filemtime(__DIR__ . '/css/homeowner.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/system.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
+    <link rel="stylesheet" href="css/homeowner.css?v=<?php echo safeFileTime(__DIR__ . '/css/homeowner.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
     <script src="../assets/js/libs/chart.umd.min.js"></script>
         <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
@@ -144,8 +148,8 @@ if (empty($_SESSION['csrf_token'])) {
                 } catch (e) {}
             })();
         </script>
-    <script src="../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
-    <script src="../assets/js/session-timeout.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
+    <script src="../assets/js/toast.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
+    <script src="../assets/js/session-timeout.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
 </head>
 
 <body class="m-0 p-0 overflow-hidden bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
@@ -973,15 +977,15 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <script src="../assets/js/utils/html-escape.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
-    <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
-    <script src="../assets/js/mobile-gestures.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
-    <script src="../assets/js/table-enhancer.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
-    <script src="js/homeowner.js?v=<?php echo filemtime(__DIR__ . '/js/homeowner.js'); ?>"></script>
-    <script src="js/homeowner-dark-mode.js?v=<?php echo filemtime(__DIR__ . '/js/homeowner-dark-mode.js'); ?>"></script>
-    <script src="js/vehicle-management.js?v=<?php echo filemtime(__DIR__ . '/js/vehicle-management.js'); ?>"></script>
+    <script src="../assets/js/utils/html-escape.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
+    <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
+    <script src="../assets/js/mobile-gestures.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
+    <script src="../assets/js/table-enhancer.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
+    <script src="js/homeowner.js?v=<?php echo safeFileTime(__DIR__ . '/js/homeowner.js'); ?>"></script>
+    <script src="js/homeowner-dark-mode.js?v=<?php echo safeFileTime(__DIR__ . '/js/homeowner-dark-mode.js'); ?>"></script>
+    <script src="js/vehicle-management.js?v=<?php echo safeFileTime(__DIR__ . '/js/vehicle-management.js'); ?>"></script>
 
-    <script src="js/homeowner/portal-profile-request.js?v=<?php echo filemtime(__DIR__ . '/js/homeowner/portal-profile-request.js'); ?>"></script>
+    <script src="js/homeowner/portal-profile-request.js?v=<?php echo safeFileTime(__DIR__ . '/js/homeowner/portal-profile-request.js'); ?>"></script>
 
     <!-- Image Zoom Modal -->
     <div id="imageZoomModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 hidden z-50" role="dialog" aria-modal="true" aria-label="Image zoom viewer" aria-hidden="true">

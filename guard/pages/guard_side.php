@@ -30,6 +30,10 @@ $guardPageTitle = [
 ][$guardActivePage] ?? 'Access Logs';
 
 require_once __DIR__ . '/../../db.php';
+
+function safeFileTime($path) {
+  return file_exists($path) ? filemtime($path) : 0;
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -40,14 +44,14 @@ require_once __DIR__ . '/../../db.php';
   <title>Guard Panel — VehiScan</title>
 
   <!-- CSS Files - Load in Order -->
-  <link rel="stylesheet" href="../../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/tailwind.css'); ?>">
-  <link rel="stylesheet" href="../../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/system.css'); ?>">
-  <link rel="stylesheet" href="../../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/tailadmin-components.css'); ?>">
-  <link rel="stylesheet" href="../css/guard_side.css?v=<?php echo filemtime(__DIR__ . '/../css/guard_side.css'); ?>">
-  <link rel="stylesheet" href="../css/guard-dark-mode.css?v=<?php echo filemtime(__DIR__ . '/../css/guard-dark-mode.css'); ?>">
-  <link rel="stylesheet" href="../css/guard-components.css?v=<?php echo filemtime(__DIR__ . '/../css/guard-components.css'); ?>">
-  <link rel="stylesheet" href="../css/guard-qr-modal.css?v=<?php echo filemtime(__DIR__ . '/../css/guard-qr-modal.css'); ?>">
-  <link rel="stylesheet" href="../../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/premium-polish.css'); ?>">
+  <link rel="stylesheet" href="../../assets/css/tailwind.css?v=<?php echo safeFileTime(__DIR__ . '/../../assets/css/tailwind.css'); ?>">
+  <link rel="stylesheet" href="../../assets/css/system.css?v=<?php echo safeFileTime(__DIR__ . '/../../assets/css/system.css'); ?>">
+  <link rel="stylesheet" href="../../assets/css/tailadmin-components.css?v=<?php echo safeFileTime(__DIR__ . '/../../assets/css/tailadmin-components.css'); ?>">
+  <link rel="stylesheet" href="../css/guard_side.css?v=<?php echo safeFileTime(__DIR__ . '/../css/guard_side.css'); ?>">
+  <link rel="stylesheet" href="../css/guard-dark-mode.css?v=<?php echo safeFileTime(__DIR__ . '/../css/guard-dark-mode.css'); ?>">
+  <link rel="stylesheet" href="../css/guard-components.css?v=<?php echo safeFileTime(__DIR__ . '/../css/guard-components.css'); ?>">
+  <link rel="stylesheet" href="../css/guard-qr-modal.css?v=<?php echo safeFileTime(__DIR__ . '/../css/guard-qr-modal.css'); ?>">
+  <link rel="stylesheet" href="../../assets/css/premium-polish.css?v=<?php echo safeFileTime(__DIR__ . '/../../assets/css/premium-polish.css'); ?>">
 
   <style>
     /* Skeleton Loader — adapts to light/dark mode */
@@ -87,13 +91,13 @@ require_once __DIR__ . '/../../db.php';
 
   <!-- External Libraries - Must load before custom scripts -->
   <script src="../../assets/js/libs/sweetalert2.all.min.js"></script>
-  <script src="../../assets/js/libs/html5-qrcode.min.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/libs/html5-qrcode.min.js'); ?>" type="text/javascript"></script>
+  <script src="../../assets/js/libs/html5-qrcode.min.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/libs/html5-qrcode.min.js'); ?>" type="text/javascript"></script>
 
     <!-- CSRF Token - stored in meta tag for security (not in window scope) -->
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
   <!-- Core Utilities -->
-  <script src="../../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/toast.js'); ?>"></script>
+  <script src="../../assets/js/toast.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/toast.js'); ?>"></script>
   <!-- Session timeout disabled for guard - 24/7 operation -->
 </head>
 
@@ -1175,18 +1179,18 @@ require_once __DIR__ . '/../../db.php';
 
 
   <!-- Guard Application Scripts - Load in order: utils -> config -> features -> main -->
-  <script src="../js/logger.js?v=<?php echo filemtime(__DIR__ . '/../js/logger.js'); ?>"></script>
-  <script src="../../assets/js/utils/html-escape.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/utils/html-escape.js'); ?>"></script>
-  <script src="../../assets/js/keyboard-shortcuts.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/keyboard-shortcuts.js'); ?>"></script>
-  <script src="../../assets/js/mobile-gestures.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/mobile-gestures.js'); ?>"></script>
-  <script src="../../assets/js/table-enhancer.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/table-enhancer.js'); ?>"></script>
-  <script src="../js/guard-dark-mode.js?v=<?php echo filemtime(__DIR__ . '/../js/guard-dark-mode.js'); ?>"></script>
-  <script src="../js/guard-qr-modal.js?v=<?php echo filemtime(__DIR__ . '/../js/guard-qr-modal.js'); ?>"></script>
-  <script src="../js/guard_side.js?v=<?php echo filemtime(__DIR__ . '/../js/guard_side.js'); ?>"></script>
-  <script src="../js/camera-core.js?v=<?php echo filemtime(__DIR__ . '/../js/camera-core.js'); ?>"></script>
-  <script src="../js/camera-handler.js?v=<?php echo filemtime(__DIR__ . '/../js/camera-handler.js'); ?>"></script>
-  <script src="../js/main-camera-handler.js?v=<?php echo filemtime(__DIR__ . '/../js/main-camera-handler.js'); ?>"></script>
-  <script src="../../assets/js/guard/guard-inline.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/guard/guard-inline.js'); ?>"></script>
+  <script src="../js/logger.js?v=<?php echo safeFileTime(__DIR__ . '/../js/logger.js'); ?>"></script>
+  <script src="../../assets/js/utils/html-escape.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/utils/html-escape.js'); ?>"></script>
+  <script src="../../assets/js/keyboard-shortcuts.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/keyboard-shortcuts.js'); ?>"></script>
+  <script src="../../assets/js/mobile-gestures.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/mobile-gestures.js'); ?>"></script>
+  <script src="../../assets/js/table-enhancer.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/table-enhancer.js'); ?>"></script>
+  <script src="../js/guard-dark-mode.js?v=<?php echo safeFileTime(__DIR__ . '/../js/guard-dark-mode.js'); ?>"></script>
+  <script src="../js/guard-qr-modal.js?v=<?php echo safeFileTime(__DIR__ . '/../js/guard-qr-modal.js'); ?>"></script>
+  <script src="../js/guard_side.js?v=<?php echo safeFileTime(__DIR__ . '/../js/guard_side.js'); ?>"></script>
+  <script src="../js/camera-core.js?v=<?php echo safeFileTime(__DIR__ . '/../js/camera-core.js'); ?>"></script>
+  <script src="../js/camera-handler.js?v=<?php echo safeFileTime(__DIR__ . '/../js/camera-handler.js'); ?>"></script>
+  <script src="../js/main-camera-handler.js?v=<?php echo safeFileTime(__DIR__ . '/../js/main-camera-handler.js'); ?>"></script>
+  <script src="../../assets/js/guard/guard-inline.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/guard/guard-inline.js'); ?>"></script>
 </body>
 
 </html>
