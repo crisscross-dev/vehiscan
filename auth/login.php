@@ -8,6 +8,8 @@ require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/security_headers.php';
 require_once __DIR__ . '/../includes/input_sanitizer.php';
 require_once __DIR__ . '/../includes/session_helpers.php';
+// Compatibility fallback in case deployment missed helper files
+require_once __DIR__ . '/../includes/compat.php';
 require_once __DIR__ . '/../includes/rate_limiter.php';
 
 // Start session with default name first

@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/session_helpers.php';
+// Ensure small compatibility helpers exist in case of partial deploys
+require_once __DIR__ . '/compat.php';
 // Configure session for guard access
 initializeVehiscanSessionPath();
 // Use Lax for local network testing, Strict for production

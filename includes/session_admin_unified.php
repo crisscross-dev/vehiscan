@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/session_helpers.php';
+// Ensure small compatibility helpers exist in case of partial deploys
+require_once __DIR__ . '/compat.php';
 // Unified session handler for both admin and super_admin
 // Resolves the correct session without cross-role collision
 

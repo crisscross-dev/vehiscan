@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/session_helpers.php';
+// Ensure small compatibility helpers exist in case of partial deploys
+require_once __DIR__ . '/compat.php';
 /**
  * Homeowner Session Management
  */
