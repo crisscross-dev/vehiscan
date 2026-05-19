@@ -388,13 +388,6 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
               <span class="sidebar-text">Audit Logs</span>
             </a>
 
-            <?php if ($isSuperAdmin): ?>
-            <a href="#"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
-              data-page="settings">
-            </a>
-            <?php endif; ?>
-
             <button id="backupBtn" type="button"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800">
               <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

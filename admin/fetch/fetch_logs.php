@@ -14,6 +14,13 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'a
 // admin/fetch/fetch_logs.php
 require_once __DIR__ . '/../../db.php';
 
+$guardLogFlagsExists = false;
+try {
+  $guardLogFlagsExists = (bool)$pdo->query("SHOW TABLES LIKE 'guard_log_flags'")->fetchColumn();
+} catch (Exception $e) {
+  $guardLogFlagsExists = false;
+}
+
 // Pagination
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $page = min($page, 10000);
@@ -111,6 +118,13 @@ if (!empty($where)) {
 }
 
 try {
+  $guardLogFlagsJoin = $guardLogFlagsExists
+    ? "LEFT JOIN guard_log_flags glf ON glf.log_id = r.log_id AND glf.status = 'open'"
+    : "";
+  $flaggedCountSql = $guardLogFlagsExists
+    ? "(SELECT COUNT(*) FROM guard_log_flags WHERE status = 'open') as flagged"
+    : "0 as flagged";
+
   // Get total count
   $countSql = "SELECT COUNT(*) FROM recent_logs r" . $whereSql;
   $countStmt = $pdo->prepare($countSql);
@@ -131,7 +145,7 @@ try {
                                 glf.id AS flag_id, glf.reason AS flag_reason
                          FROM recent_logs r
                          LEFT JOIN homeowners h ON r.plate_number = h.plate_number
-                         LEFT JOIN guard_log_flags glf ON glf.log_id = r.log_id AND glf.status = 'open'
+            {$guardLogFlagsJoin}
                          " . $whereSql . "
                          ORDER BY r.created_at DESC, r.log_id DESC
                          LIMIT :limit OFFSET :offset");
@@ -151,7 +165,7 @@ try {
       COUNT(*) as total,
       SUM(CASE WHEN status = 'IN' THEN 1 ELSE 0 END) as entries,
       SUM(CASE WHEN status = 'OUT' THEN 1 ELSE 0 END) as exits,
-      (SELECT COUNT(*) FROM guard_log_flags WHERE status = 'open') as flagged
+      {$flaggedCountSql}
     FROM recent_logs
     WHERE DATE(created_at) = CURDATE()
   ");

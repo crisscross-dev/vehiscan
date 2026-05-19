@@ -19,6 +19,13 @@ require_once __DIR__ . '/../../includes/query_cache.php';
 $cacheKey = 'dashboard_stats_' . ($_SESSION['user_id'] ?? 'guest');
 $stats = QueryCache::get($cacheKey);
 
+$guardLogFlagsExists = false;
+try {
+  $guardLogFlagsExists = (bool)$pdo->query("SHOW TABLES LIKE 'guard_log_flags'")->fetchColumn();
+} catch (Exception $e) {
+  $guardLogFlagsExists = false;
+}
+
 if (!$stats) {
   // Fetch fresh data
   try {
@@ -127,9 +134,16 @@ if (!$stats) {
 </div>
 
 <?php
-// Check for flagged logs
-$flaggedStmt = $pdo->query("SELECT COUNT(*) FROM guard_log_flags WHERE status = 'open'");
-$flaggedCount = (int)$flaggedStmt->fetchColumn();
+// Check for flagged logs when the table exists on this deployment
+$flaggedCount = 0;
+if ($guardLogFlagsExists) {
+  try {
+    $flaggedStmt = $pdo->query("SELECT COUNT(*) FROM guard_log_flags WHERE status = 'open'");
+    $flaggedCount = (int)$flaggedStmt->fetchColumn();
+  } catch (Exception $e) {
+    $flaggedCount = 0;
+  }
+}
 
 if ($flaggedCount > 0): ?>
 <div class="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 rounded-r-lg flex items-center justify-between animate-pulse shadow-sm animate-fade-in-up animate-delay-2">
