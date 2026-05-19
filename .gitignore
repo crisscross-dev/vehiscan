@@ -74,6 +74,10 @@ vendor/
 system_diagnostic.php
 phpinfo.php
 test*.php
+!test_ping.php
+!test_db.php
+!test_db_public.php
+!test_db_public_v2.php
 debug*.php
 
 # Temporary PowerShell / shell scripts
