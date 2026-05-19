@@ -57,8 +57,9 @@ header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 
 // Content Security Policy — mitigate XSS, data injection, click-jacking
-// Note: inline scripts have been migrated; allow only self-hosted scripts.
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';");
+// Note: some pages currently use inline scripts; allow them temporarily.
+// TODO: replace inline scripts with external files and use nonces/hashes.
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';");
 
 // Control referrer information
 header('Referrer-Policy: strict-origin-when-cross-origin');
