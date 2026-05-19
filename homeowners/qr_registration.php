@@ -63,7 +63,7 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
   <style>
     
   </script>
-  <script src="../assets/js/homeowner/qr-registration.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/homeowner/qr-registration.js'); ?>"></script>
+  <script src="../assets/js/homeowner/qr-registration.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/homeowner/qr-registration.js'); ?>"></script>
       padding: 2rem 1rem;
       position: relative;
       overflow-x: hidden;

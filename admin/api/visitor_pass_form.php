@@ -397,4 +397,4 @@ $submitLabel = $editPass ? 'Update Pass' : 'Create Pass';
     <button type="submit" class="ta-btn ta-btn-primary"><?php echo htmlspecialchars($submitLabel); ?></button>
   </div>
 </form>
-<script src="../../assets/js/admin/visitor-pass-form.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/admin/visitor-pass-form.js'); ?>"></script>
+<script src="../../assets/js/admin/visitor-pass-form.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/admin/visitor-pass-form.js'); ?>"></script>

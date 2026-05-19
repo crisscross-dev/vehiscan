@@ -82,9 +82,9 @@ ob_end_flush();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password — VehiScan</title>
-    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/system.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }

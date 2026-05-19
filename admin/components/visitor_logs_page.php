@@ -144,4 +144,4 @@ require_once __DIR__ . '/../../db.php';
     </div>
 </div>
 
-<script src="../assets/js/admin/visitor-logs.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/admin/visitor-logs.js'); ?>"></script>
+<script src="../assets/js/admin/visitor-logs.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/admin/visitor-logs.js'); ?>"></script>

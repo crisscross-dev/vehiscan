@@ -122,5 +122,5 @@ $isEdit = !empty($employee);
 
 <script>
 <?php if ($isEdit): ?>
-<script src="../../assets/js/admin/employee-form.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/admin/employee-form.js'); ?>"></script>
+<script src="../../assets/js/admin/employee-form.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/admin/employee-form.js'); ?>"></script>
 <?php endif; ?>

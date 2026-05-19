@@ -40,6 +40,13 @@ if (!$isCli) {
     }
 }
 
+// Safe wrapper for filemtime() used across many entry pages to avoid fatal warnings
+if (!function_exists('safeFileTime')) {
+    function safeFileTime(string $path): int {
+        return file_exists($path) ? @filemtime($path) : 0;
+    }
+}
+
 // Prevent clickjacking
 header('X-Frame-Options: SAMEORIGIN');
 
