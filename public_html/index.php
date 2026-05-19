@@ -23,6 +23,15 @@ set_include_path(APP_ROOT . PATH_SEPARATOR . get_include_path());
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $basePath = parse_url($requestUri, PHP_URL_PATH);
 
+// Allow direct access to lightweight diagnostic endpoints so front-controller
+// routing does not mask deployment and connectivity issues during triage.
+$diagnosticFiles = [
+    'test_ping.php',
+    'test_db_public.php',
+    'test_db_public_v2.php',
+    'test_db.php',
+];
+
 // Remove public_html if it's in the path (shouldn't be, but be safe)
 $basePath = str_replace('/public_html', '', $basePath);
 
@@ -71,6 +80,21 @@ if ($basePath === '/' || $basePath === '' || $basePath === '/index.php') {
 
 // Security: prevent directory traversal
 $targetFile = str_replace('..', '', $targetFile);
+
+if (in_array($targetFile, $diagnosticFiles, true)) {
+    $diagnosticPath = APP_ROOT . '/' . $targetFile;
+
+    if (file_exists($diagnosticPath) && is_file($diagnosticPath)) {
+        include $diagnosticPath;
+        exit;
+    }
+
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo "Diagnostic endpoint missing: {$targetFile}\n";
+    echo "Expected at: {$diagnosticPath}\n";
+    exit;
+}
 
 // Resolve to full path
 $fullPath = APP_ROOT . '/' . $targetFile;

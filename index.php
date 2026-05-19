@@ -1,4 +1,30 @@
 <?php
+// Allow direct access to lightweight diagnostic endpoints even when a host
+// rewrite routes requests through this front controller.
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$requestFile = basename($requestPath);
+$diagnosticFiles = [
+    'test_ping.php',
+    'test_db_public.php',
+    'test_db_public_v2.php',
+    'test_db.php',
+];
+
+if (in_array($requestFile, $diagnosticFiles, true)) {
+    $diagnosticPath = __DIR__ . '/' . $requestFile;
+
+    if (is_file($diagnosticPath)) {
+        require $diagnosticPath;
+        exit;
+    }
+
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo "Diagnostic endpoint missing: {$requestFile}\n";
+    echo "Expected at: {$diagnosticPath}\n";
+    exit;
+}
+
 // Detect active session and redirect to appropriate dashboard
 // Isolate from other XAMPP apps to prevent cross-app GC
 $appSavePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'vehiscan_sessions';
