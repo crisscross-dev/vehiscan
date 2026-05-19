@@ -1,4 +1,6 @@
 <?php
+// Temporary: include host-side error logger to record fatal errors to diagnostics/last_host_error.log
+@require_once __DIR__ . '/../diagnostics/host_error_log.php';
 require_once __DIR__ . '/../includes/security_headers.php';
 require_once __DIR__ . '/../includes/session_admin_unified.php';
 
