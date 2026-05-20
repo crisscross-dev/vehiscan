@@ -8,7 +8,7 @@ require_once __DIR__ . '/../db.php';
 
 echo "<!DOCTYPE html>\n";
 echo "<html><head><title>Database Index Migration</title>";
-echo "<style>body{font-family:Arial;padding:20px;background:#f5f5f5;}";
+echo "<style nonce=\"" . htmlspecialchars(vehiscanGetCspNonce() ?? '') . "\">body{font-family:Arial;padding:20px;background:#f5f5f5;}";
 echo ".success{color:green;}.error{color:red;}.info{color:blue;}</style></head><body>";
 echo "<h1>Database Performance Index Migration</h1>";
 

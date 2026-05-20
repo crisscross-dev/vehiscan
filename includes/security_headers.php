@@ -57,9 +57,24 @@ header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 
 // Content Security Policy — mitigate XSS, data injection, click-jacking
-// Note: some pages currently use inline scripts; allow them temporarily.
-// TODO: replace inline scripts with external files and use nonces/hashes.
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';");
+// Content Security Policy with per-request nonce for inline scripts/styles.
+// Pages should echo the nonce via the global helper `vehiscanGetCspNonce()`
+// in inline `<script nonce="...">` and `<style nonce="...">` tags.
+if (!function_exists('vehiscanGetCspNonce')) {
+    $csp_nonce = bin2hex(random_bytes(16));
+    $GLOBALS['VEHISCAN_CSP_NONCE'] = $csp_nonce;
+    function vehiscanGetCspNonce(): string {
+        return $GLOBALS['VEHISCAN_CSP_NONCE'] ?? '';
+    }
+}
+
+$nonce = vehiscanGetCspNonce();
+// For hardened deployment: prefer local assets only.
+// Remove external CDN/style hosts to minimize external dependencies.
+$script_src = "'self' 'nonce-$nonce'";
+$style_src = "'self' 'nonce-$nonce'";
+
+header("Content-Security-Policy: default-src 'self'; script-src $script_src; style-src $style_src; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';");
 
 // Control referrer information
 header('Referrer-Policy: strict-origin-when-cross-origin');

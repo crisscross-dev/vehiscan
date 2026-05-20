@@ -201,7 +201,7 @@ echo "\n</pre>";
     <button type="submit">[TEST] Test Scan</button>
 </form>
 
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     body { font-family: monospace; padding: 20px; background: #f5f5f5; }
     h1, h2 { color: #2c3e50; }
     form { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; }

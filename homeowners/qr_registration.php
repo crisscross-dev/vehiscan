@@ -60,7 +60,7 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homeowner Registration QR | VehiScan</title>
-  <style>
+  <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     
   </script>
   <script src="../assets/js/homeowner/qr-registration.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/homeowner/qr-registration.js'); ?>"></script>
@@ -353,7 +353,7 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
     <?php endif; ?>
   </main>
 
-  <script>
+  <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     document.querySelector('.copy-btn')?.addEventListener('click', (event) => {
       const button = event.currentTarget;
       const value = button.dataset.copy;

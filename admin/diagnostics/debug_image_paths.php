@@ -9,7 +9,7 @@ header('Content-Type: text/html; charset=UTF-8');
 <head>
     <meta charset="UTF-8">
     <title>Debug Image Paths</title>
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
         h1 { color: #4ec9b0; }
         table { border-collapse: collapse; width: 100%; margin: 20px 0; }

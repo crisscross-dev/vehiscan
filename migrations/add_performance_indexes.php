@@ -12,15 +12,18 @@ echo "<!DOCTYPE html>
 <html>
 <head>
     <title>Performance Indexes Migration</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-        .success { color: #16a34a; font-weight: bold; }
-        .error { color: #dc2626; font-weight: bold; }
-        .info { color: #3b82f6; }
-        .step { color: #6b7280; margin: 10px 0; }
-        pre { background: #f3f4f6; padding: 10px; border-radius: 4px; }
-    </style>
-</head>
+";
+
+echo '<style nonce="' . htmlspecialchars(vehiscanGetCspNonce() ?? '') . '">'
+    . "        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }\n"
+    . "        .success { color: #16a34a; font-weight: bold; }\n"
+    . "        .error { color: #dc2626; font-weight: bold; }\n"
+    . "        .info { color: #3b82f6; }\n"
+    . "        .step { color: #6b7280; margin: 10px 0; }\n"
+    . "        pre { background: #f3f4f6; padding: 10px; border-radius: 4px; }\n"
+    . "    </style>\n";
+
+echo "</head>
 <body>
     <h1><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M5 12h14M12 5l7 7-7 7'/></svg> Performance Indexes Migration</h1>
     <p class='info'>This migration adds database indexes to improve query performance by up to 10x.</p>

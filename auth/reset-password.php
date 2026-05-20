@@ -86,7 +86,7 @@ ob_end_flush();
     <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
     <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/system.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
       body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
       @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       .auth-animate { animation: fadeInUp 0.4s ease-out; }
@@ -171,7 +171,7 @@ ob_end_flush();
         </div>
     </div>
 
-    <script>
+    <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     // Password strength meter
     const minPasswordLength = <?= (int) (defined('PASSWORD_MIN_LENGTH') ? PASSWORD_MIN_LENGTH : 12) ?>;
     const pwInput = document.getElementById('password');

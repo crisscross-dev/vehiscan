@@ -1,15 +1,14 @@
 <?php
 // Security: Role-based access control
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+// Ensure CSP nonce helper is available for inline style/script nonces
+require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
+require_once __DIR__ . '/../../includes/fetch_auth.php';
 
 requireRequestMethod('GET');
 
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
-    http_response_code(403);
-    header('Content-Type: application/json');
-    exit(json_encode(['error' => 'Unauthorized access']));
-}
+fetch_require_role(['super_admin', 'admin']);
 
 require_once __DIR__ . '/../../db.php';
 
@@ -334,7 +333,7 @@ try {
     </div>
 </div>
 
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
 @keyframes rfidPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
     50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }

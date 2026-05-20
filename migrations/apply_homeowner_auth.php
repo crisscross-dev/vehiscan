@@ -6,7 +6,17 @@
 
 require_once __DIR__ . '/../db.php';
 
-echo "<!DOCTYPE html>\n<html>\n<head>\n<title>Database Migration - Homeowner Auth</title>\n<style>\nbody { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }\n.success { color: #10b981; background: #d1fae5; padding: 15px; border-radius: 8px; margin: 10px 0; }\n.error { color: #ef4444; background: #fee2e2; padding: 15px; border-radius: 8px; margin: 10px 0; }\n.info { color: #3b82f6; background: #dbeafe; padding: 15px; border-radius: 8px; margin: 10px 0; }\ncode { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: monospace; }\n</style>\n</head>\n<body>\n";
+echo "<!DOCTYPE html>\n<html>\n<head>\n<title>Database Migration - Homeowner Auth</title>\n";
+
+echo '<style nonce="' . htmlspecialchars(vehiscanGetCspNonce() ?? '') . '">\n'
+    . "body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }\n"
+    . ".success { color: #10b981; background: #d1fae5; padding: 15px; border-radius: 8px; margin: 10px 0; }\n"
+    . ".error { color: #ef4444; background: #fee2e2; padding: 15px; border-radius: 8px; margin: 10px 0; }\n"
+    . ".info { color: #3b82f6; background: #dbeafe; padding: 15px; border-radius: 8px; margin: 10px 0; }\n"
+    . "code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: monospace; }\n"
+    . "</style>\n";
+
+echo "</head>\n<body>\n";
 
 echo "<h1><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2'/></svg> Database Migration: Homeowner Authentication</h1>\n";
 echo "<p>This migration adds <code>username</code> and <code>password_hash</code> columns to the homeowners table.</p>\n";

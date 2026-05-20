@@ -63,7 +63,7 @@ try {
 <head>
 <meta charset="utf-8">
 <title>Image Diagnostic</title>
-<style>body{font-family:Segoe UI,Arial;padding:20px;background:#f7f9fb}h1{color:#2c3e50}table{border-collapse:collapse;width:100%;background:#fff}th,td{padding:8px;border:1px solid #e6e6e6;text-align:left}th{background:#f1f5f9}</style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">body{font-family:Segoe UI,Arial;padding:20px;background:#f7f9fb}h1{color:#2c3e50}table{border-collapse:collapse;width:100%;background:#fff}th,td{padding:8px;border:1px solid #e6e6e6;text-align:left}th{background:#f1f5f9}</style>
 </head>
 <body>
 <h1>Image Diagnostic</h1>

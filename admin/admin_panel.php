@@ -37,6 +37,9 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <title>Admin Panel — VehiScan</title>
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
   <meta name="vehiscan-csrf" content="<?= htmlspecialchars($csrf) ?>">
+  <?php if (function_exists('vehiscanGetCspNonce')): ?>
+    <meta name="vehiscan-csp-nonce" content="<?= htmlspecialchars(vehiscanGetCspNonce()) ?>">
+  <?php endif; ?>
 
   <!-- CSS Files - Load in Order -->
   <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
@@ -57,7 +60,7 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <script src="../assets/js/session-timeout.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
   <script src="../assets/js/admin/inline-actions.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/admin/inline-actions.js'); ?>"></script>
 
-  <style>
+  <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     /* Session timeout warning modal styling */
     .swal2-popup {
       font-family: system-ui, -apple-system, sans-serif;

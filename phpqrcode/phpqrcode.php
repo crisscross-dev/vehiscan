@@ -807,7 +807,7 @@
                     }
                     
                     ?>
-                <style>
+                <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
                     .m { background-color: white; }
                 </style>
                 <?php
@@ -834,7 +834,7 @@
                 }
                 
                 ?>
-                <style>
+                <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
                     .p { background-color: yellow; }
                     .m { background-color: #00FF00; }
                     .s { background-color: #FF0000; }

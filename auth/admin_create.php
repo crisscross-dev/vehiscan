@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Create Admin</title>
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
 body{font-family:Segoe UI;background:#f4f6f8;display:flex;justify-content:center;align-items:center;height:100vh;}
 .container{background:white;padding:25px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);width:360px;}
 input,select,button{width:100%;padding:10px;margin-top:10px;border-radius:6px;border:1px solid #ccc;}

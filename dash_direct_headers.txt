@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Date: Wed, 20 May 2026 02:26:26 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Set-Cookie: vehiscan_admin=lq64fssphruqgbmb0cvmot2h2l; expires=Wed, 20 May 2026 03:26:26 GMT; Max-Age=3600; path=/; HttpOnly; SameSite=Lax
+X-CSRF-Token: 525f986079f2f55c1ea554eb1be4ad0f90d54b807e2fe89f5fbad859053d30c5
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

@@ -1,0 +1,931 @@
+
+<!-- Page Header -->
+<div class="mb-6">
+    <div class="flex items-center gap-3 mb-2">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">RFID Management</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Bind, manage, and monitor RFID tags for vehicles</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="ta-stat-card">
+        <div class="ta-stat-icon blue">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        </div>
+        <div class="ta-stat-content">
+            <p class="ta-stat-label">Total Vehicles</p>
+            <p class="ta-stat-value">24</p>
+        </div>
+    </div>
+    <div class="ta-stat-card">
+        <div class="ta-stat-icon green">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+        </div>
+        <div class="ta-stat-content">
+            <p class="ta-stat-label">RFID Bound</p>
+            <p class="ta-stat-value" style="color: #059669;">3</p>
+        </div>
+    </div>
+    <div class="ta-stat-card">
+        <div class="ta-stat-icon amber">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+        </div>
+        <div class="ta-stat-content">
+            <p class="ta-stat-label">Unbound</p>
+            <p class="ta-stat-value" style="color: #d97706;">21</p>
+        </div>
+    </div>
+</div>
+
+<!-- Active Binding Session Banner -->
+<div id="bindingBanner" class="mb-6 hidden">
+    <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 h-full w-1.5 bg-blue-500"></div>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl rfid-pulse">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.651a3.75 3.75 0 010-5.303m5.304 0a3.75 3.75 0 010 5.303m-7.425 2.122a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.808-3.808-9.98 0-13.789m13.788 0c3.808 3.808 3.808 9.981 0 13.79M12 12h.008v.007H12V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-blue-800">Waiting for RFID Scan...</h3>
+                    <p class="text-sm text-blue-600" id="bindingTarget">
+                                            </p>
+                    <p class="text-xs text-blue-500 mt-1">
+                        Time remaining: <span id="bindingTimer" class="font-mono font-bold">05:00</span>
+                    </p>
+                    <!-- Hidden input for USB HID RFID scanners -->
+                    <input type="hidden" id="csrfTokenInput" name="csrf_token" value="a4d70ba114d05b8501844b876fb7f0c31a57fb40c34551c9957687645df23fa1" />
+                    <input type="text" id="rfidHidInput" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;" tabindex="-1" />
+                </div>
+            </div>
+            <button id="cancelBindingBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                    data-session-id="">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Action Bar -->
+<div class="flex items-center gap-2 mb-4 flex-wrap">
+    <button id="rfidRefreshBtn" class="ta-btn ta-btn-secondary">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Refresh
+    </button>
+    <div class="flex items-center gap-2 ml-auto">
+        <div class="relative flex items-center">
+            <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="rfidSearchInput"
+                class="h-10 px-4 pl-12 border border-gray-300 dark:border-slate-600 rounded-lg min-w-[280px] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-slate-700 dark:text-gray-200"
+                placeholder="Search vehicles or owners...">
+        </div>
+        <span id="rfidSearchCount" class="text-sm text-gray-600 font-medium whitespace-nowrap"></span>
+    </div>
+</div>
+
+<!-- Main Table: Vehicles with RFID Status -->
+<div class="ta-table-wrapper" style="margin-bottom: 1.5rem;">
+    <table id="rfidTable" class="ta-table">
+        <thead>
+            <tr>
+                <th>Owner</th>
+                <th>Plate</th>
+                <th>Vehicle</th>
+                <th class="text-center">RFID Status</th>
+                <th>RFID UID</th>
+                <th>Bound Date</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+                                                <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="6">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">123</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">wqe</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            qwewqe                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="6"
+                                            data-plate="wqe"
+                                            data-owner="123">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="21">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Account Pending Test</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">SDF-123</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="21"
+                                            data-plate="SDF-123"
+                                            data-owner="Account Pending Test">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="3">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">asdasd</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">wadasdaw</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            dawdawd                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="3"
+                                            data-plate="wadasdaw"
+                                            data-owner="asdasd">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="23">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">asdasd dasd dsaasdasd</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">ASD-221</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="23"
+                                            data-plate="ASD-221"
+                                            data-owner="asdasd dasd dsaasdasd">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="4">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">asdwd</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">WADAWD</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Car                                                            <span class="text-xs text-gray-400">(awdwa)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="4"
+                                            data-plate="WADAWD"
+                                            data-owner="asdwd">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="2">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">dan bringer</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">wds-111</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            sea                                                            <span class="text-xs text-gray-400">(orange)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="2"
+                                            data-plate="wds-111"
+                                            data-owner="dan bringer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="348">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Dan Sedan Mano</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">ASD-223</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Red)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="348"
+                                            data-plate="ASD-223"
+                                            data-owner="Dan Sedan Mano">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="5">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">etaerqewr</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">Q3RQWR</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(q24235rqwrfafd)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="5"
+                                            data-plate="Q3RQWR"
+                                            data-owner="etaerqewr">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="20">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">John Doe Dela Cruz</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">QWE-123</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Rainbow)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="20"
+                                            data-plate="QWE-123"
+                                            data-owner="John Doe Dela Cruz">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="10">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Keyboard Mouse</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">FAH-6761</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Van                                                            <span class="text-xs text-gray-400">(RGB)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="10"
+                                            data-plate="FAH-6761"
+                                            data-owner="Keyboard Mouse">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="1">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">KYLE JANSEN </td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">BBO-111</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            TOYOTA GT 86                                                            <span class="text-xs text-gray-400">(BLACK)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="1"
+                                            data-plate="BBO-111"
+                                            data-owner="KYLE JANSEN ">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="245">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">KYLE JANSEN </td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">TSY-9281</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Tricycle                                                            <span class="text-xs text-gray-400">(Magenta)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="245"
+                                            data-plate="TSY-9281"
+                                            data-owner="KYLE JANSEN ">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="421">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Kyle Jansen  Guillano</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">ABC1235</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            E-bike                                                            <span class="text-xs text-gray-400">(White)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="421"
+                                            data-plate="ABC1235"
+                                            data-owner="Kyle Jansen  Guillano">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="343">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Kyle Sevilla Guillano</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">FMB-123</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Sedan                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="343"
+                                            data-plate="FMB-123"
+                                            data-owner="Kyle Sevilla Guillano">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="7">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">qwe12</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">QWER</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Car                                                            <span class="text-xs text-gray-400">(qwe125wre)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="7"
+                                            data-plate="QWER"
+                                            data-owner="qwe12">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="19">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Roman  Nanalsal</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">QFG-122</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="19"
+                                            data-plate="QFG-122"
+                                            data-owner="Roman  Nanalsal">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="321">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Tailadmin Test</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">AAD1234</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Hatchback                                                            <span class="text-xs text-gray-400">(White)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="321"
+                                            data-plate="AAD1234"
+                                            data-owner="Tailadmin Test">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="8">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">test</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">TEST</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(yest)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="8"
+                                            data-plate="TEST"
+                                            data-owner="test">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="9">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">test camera</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">CAMERA</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(test)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="9"
+                                            data-plate="CAMERA"
+                                            data-owner="test camera">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="24">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Testing Account Approvals</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">MNF-122</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Truck                                                            <span class="text-xs text-gray-400">(Rainbow)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="24"
+                                            data-plate="MNF-122"
+                                            data-owner="Testing Account Approvals">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="22">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Testing The Pending</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">CVB-221</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Truck                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge warning">Unbound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            <span class="text-gray-400">—</span>                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-primary ta-btn-sm btn-bind-rfid"
+                                            data-vehicle-id="22"
+                                            data-plate="CVB-221"
+                                            data-owner="Testing The Pending">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Bind RFID
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="11">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Homeowner Testing</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">EUT-069</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Car                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge success">Bound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            1258176770                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            Jan 16, 2026 4:09pm                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-danger ta-btn-sm btn-unbind-rfid"
+                                            data-vehicle-id="11"
+                                            data-plate="EUT-069"
+                                            data-uid="1258176770">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                        </svg>
+                                        Unbind
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="52">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">LEZ LI EE SR</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">ABS3556</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Secret)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge success">Bound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            1260280050                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            Mar 18, 2026 10:52am                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-danger ta-btn-sm btn-unbind-rfid"
+                                            data-vehicle-id="52"
+                                            data-plate="ABS3556"
+                                            data-uid="1260280050">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                        </svg>
+                                        Unbind
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50" data-vehicle-id="37">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">Tailadmin Test</td>
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-mono">QWE-222</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
+                            Motorcycle                                                            <span class="text-xs text-gray-400">(Black)</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-center">
+                                                            <span class="ta-badge success">Bound</span>
+                                                    </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">
+                            1261862882                        </td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs">
+                            Mar 18, 2026 11:11am                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                                                    <button class="ta-btn ta-btn-danger ta-btn-sm btn-unbind-rfid"
+                                            data-vehicle-id="37"
+                                            data-plate="QWE-222"
+                                            data-uid="1261862882">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                        </svg>
+                                        Unbind
+                                    </button>
+                                                            </div>
+                        </td>
+                    </tr>
+                                    </tbody>
+    </table>
+</div>
+
+<!-- Recent RFID Scan Log -->
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+    <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+        <svg class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Recent RFID Scans
+    </h3>
+    <div class="ta-table-wrapper">
+        <table class="ta-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>RFID UID</th>
+                    <th>Vehicle</th>
+                    <th>Owner</th>
+                    <th class="text-center">Result</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody id="recentScanLog">
+                                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:09:15pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1261862882</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">QWE-222</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">Tailadmin Test</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Access granted                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:09:10pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1260280050</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">ABS3556</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">LEZ LI EE SR</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    Access denied                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:09:05pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1260280050</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">ABS3556</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">LEZ LI EE SR</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Access granted                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:06:56pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1261862882</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">QWE-222</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">Tailadmin Test</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    Access denied                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:06:45pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1260280050</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">ABS3556</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">LEZ LI EE SR</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Access granted                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:06:39pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1261862882</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">QWE-222</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">Tailadmin Test</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    Access denied                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:06:32pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1261862882</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">QWE-222</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">Tailadmin Test</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    Access denied                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:06:26pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1261862882</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">QWE-222</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">Tailadmin Test</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Access granted                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                May 14, 2:06:18pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1262026018</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">—</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">—</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                    Unknown uid                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap">
+                                Apr 16, 2:24:04pm                            </td>
+                            <td class="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">1261862882</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-gray-300">QWE-222</td>
+                            <td class="px-3 py-2 text-gray-600 dark:text-gray-400">Tailadmin Test</td>
+                            <td class="px-3 py-2 text-center">
+                                                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Access granted                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-xs text-gray-500"></td>
+                        </tr>
+                                                </tbody>
+        </table>
+    </div>
+</div>
+
+<style nonce="96a1919a24942f86ccc72a2d406d95ad">
+@keyframes rfidPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
+}
+.rfid-pulse {
+    animation: rfidPulse 2s ease-in-out infinite;
+}
+</style>
+

@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Date: Wed, 20 May 2026 03:16:26 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+Content-Length: 75
+Content-Type: text/html; charset=UTF-8
+

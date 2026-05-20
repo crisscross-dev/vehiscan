@@ -1,0 +1,44 @@
+HTTP/1.1 302 Found
+Date: Wed, 20 May 2026 04:53:12 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-8a66750d359f2c28c46400aeb8e9ae59'; style-src 'self' 'nonce-8a66750d359f2c28c46400aeb8e9ae59'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Set-Cookie: vehiscan_superadmin=hdujcd026mc86eei3rutdv86th; expires=Wed, 20 May 2026 05:53:12 GMT; Max-Age=3600; path=/; HttpOnly; SameSite=Lax
+Set-Cookie: vehiscan_superadmin=4dmmmgh80enmuhi245hnhjdghv; expires=Wed, 20 May 2026 05:53:12 GMT; Max-Age=3600; path=/; HttpOnly; SameSite=Lax
+Location: ../admin/admin_panel.php
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+
+HTTP/1.1 200 OK
+Date: Wed, 20 May 2026 04:53:12 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-aae65ffc1391820e2459fd6e17f4455b'; style-src 'self' 'nonce-aae65ffc1391820e2459fd6e17f4455b'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+X-CSRF-Token: 3faf887994a01cdc94278999c8769b910e760e7389672f5320006f2336898526
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

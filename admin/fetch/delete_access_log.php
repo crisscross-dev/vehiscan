@@ -1,16 +1,15 @@
 <?php
 // admin/fetch/delete_access_log.php
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+// Ensure CSP nonce helper is available for inline style/script nonces
+require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
+require_once __DIR__ . '/../../includes/fetch_auth.php';
 
 requireRequestMethod('POST');
 
 // SECURITY: Only super_admin and admin can delete logs - NOT guards
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
-    http_response_code(403);
-    header('Content-Type: application/json');
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized - Only administrators can delete logs']));
-}
+fetch_require_role(['super_admin', 'admin']);
 
 header('Content-Type: application/json');
 http_response_code(403);

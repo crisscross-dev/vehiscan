@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Database Migrations - VehiScan</title>
     <link rel="stylesheet" href="../assets/css/tailwind.css">
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         .migration-status { padding: 10px; margin: 5px 0; border-radius: 5px; }
         .success { background: #d4edda; color: #155724; }
         .error { background: #f8d7da; color: #721c24; }
@@ -28,7 +28,7 @@
         </button>
     </div>
 
-    <script>
+    <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         document.getElementById('runMigrations').addEventListener('click', async () => {
             const statusDiv = document.getElementById('migration-status');
             const btn = document.getElementById('runMigrations');

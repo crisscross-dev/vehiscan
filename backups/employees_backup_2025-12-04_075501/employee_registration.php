@@ -113,7 +113,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
@@ -197,7 +197,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
         </div>
     </div>
 
-    <script>
+    <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         <?php if ($success): ?>
             Swal.fire({
                 icon: 'success',

@@ -1,0 +1,38 @@
+HTTP/1.1 302 Found
+Date: Wed, 20 May 2026 02:14:38 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+Set-Cookie: vehiscan_superadmin=sk9j3i4dmbmuahj9s2mer3hrkp; path=/; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Set-Cookie: vehiscan_superadmin=l5a2n4ia3hm9evlcmmaeg8rl01; path=/; HttpOnly; SameSite=Lax
+Location: admin_panel.php
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+
+HTTP/1.1 200 OK
+Date: Wed, 20 May 2026 02:14:38 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+X-CSRF-Token: 64664c4207e7420fdbd2faf8c1107e79
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

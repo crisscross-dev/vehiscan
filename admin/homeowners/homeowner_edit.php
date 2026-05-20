@@ -481,7 +481,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // GET: render the edit form (fragment)
 if (!empty($_GET['ajax'])):
 ?>
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
   .edit-homeowner-form {
     width: 100%;
     max-width: 100%;
@@ -815,7 +815,7 @@ if (!empty($_GET['ajax'])):
     <button type="submit" class="ta-btn ta-btn-primary"><svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M7 3v4h7"/><path d="M7 17h10"/><path d="M7 13h10"/></svg> Save Changes</button>
   </div>
 </form>
-<script>
+<script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
 (function () {
   const form = document.getElementById('editForm');
   if (!form || form.dataset.enhanced === '1') return;

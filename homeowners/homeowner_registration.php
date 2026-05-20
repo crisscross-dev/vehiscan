@@ -921,7 +921,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <!-- Local Scripts -->
   <!-- SweetAlert2 fallback: Create window.Swal object if not loaded from CDN -->
-  <script>
+  <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     if (typeof Swal === 'undefined') {
       window.Swal = {
         fire: function(options) {

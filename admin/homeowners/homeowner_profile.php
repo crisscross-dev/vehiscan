@@ -117,7 +117,7 @@ if ($carImgUrl === '') {
 $status = htmlspecialchars($homeowner['account_status'] ?? 'pending');
 $statusColor = ['approved' => 'green', 'pending' => 'yellow', 'rejected' => 'red'][$status] ?? 'gray';
 ?>
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
   .homeowner-profile-modal {
     display: flex;
     flex-direction: column;

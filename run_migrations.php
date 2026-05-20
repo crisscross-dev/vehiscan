@@ -22,7 +22,7 @@ header('Content-Type: text/html; charset=utf-8');
 <html>
 <head>
     <title>Database Setup</title>
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         body { font-family: monospace; padding: 20px; background: #1e293b; color: #e2e8f0; }
         .success { color: #10b981; }
         .error { color: #ef4444; }

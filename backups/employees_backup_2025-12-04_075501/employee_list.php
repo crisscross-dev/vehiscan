@@ -213,7 +213,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </main>
     </div>
 
-    <script>
+    <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         function deleteEmployee(id, username) {
             Swal.fire({
                 title: 'Delete Employee?',

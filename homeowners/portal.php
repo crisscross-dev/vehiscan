@@ -131,7 +131,7 @@ if (empty($_SESSION['csrf_token'])) {
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
     <script src="../assets/js/libs/chart.umd.min.js"></script>
         <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
-        <script>
+        <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
             // Expose minimal initial data via data attributes on body; portal-profile-request.js will initialize runtime state.
             (function(){
                 try {

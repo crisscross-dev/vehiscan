@@ -1,0 +1,1055 @@
+<!-- Page Header -->
+<div class="mb-6">
+  <div class="flex items-center justify-between gap-3 flex-wrap">
+    <div class="flex items-center gap-3">
+      <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 text-white shadow-lg">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+          </path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Access Activity</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Review and audit all vehicle entry/exit records</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="ta-stat-card">
+    <div class="ta-stat-icon indigo">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <div class="ta-stat-content">
+      <p class="ta-stat-label">Logs Today</p>
+      <p class="ta-stat-value">0</p>
+    </div>
+  </div>
+  <div class="ta-stat-card">
+    <div class="ta-stat-icon green">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+      </svg>
+    </div>
+    <div class="ta-stat-content">
+      <p class="ta-stat-label">Entries Today</p>
+      <p class="ta-stat-value text-emerald-600">0</p>
+    </div>
+  </div>
+  <div class="ta-stat-card">
+    <div class="ta-stat-icon red">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3 3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+      </svg>
+    </div>
+    <div class="ta-stat-content">
+      <p class="ta-stat-label">Exits Today</p>
+      <p class="ta-stat-value text-rose-600">0</p>
+    </div>
+  </div>
+  <div class="ta-stat-card">
+    <div class="ta-stat-icon amber">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+      </svg>
+    </div>
+    <div class="ta-stat-content">
+      <p class="ta-stat-label">Active Flags</p>
+      <p class="ta-stat-value text-amber-600">0</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- Action Bar -->
+<div class="ta-toolbar mb-4">
+  <div class="ta-toolbar-start">
+    <button id="refreshLogsBtn" class="ta-btn ta-btn-secondary">
+    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+      </path>
+    </svg>
+    Refresh
+    </button>
+    <button id="exportLogsBtn" class="ta-btn ta-btn-success">
+    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+      </path>
+    </svg>
+    Export CSV
+    </button>
+    <input type="text" id="logsPlateFilter" class="ta-input max-w-[180px] uppercase" placeholder="Plate (e.g. ABC1234)" value="">
+    <input type="date" id="logsDateFrom" class="ta-input max-w-[150px]" value="">
+    <input type="date" id="logsDateTo" class="ta-input max-w-[150px]" value="">
+    <select id="logsPerPage" class="ta-select">
+          <option value="25" >25 / page</option>
+          <option value="50" selected>50 / page</option>
+          <option value="100" >100 / page</option>
+          <option value="200" >200 / page</option>
+        </select>
+    <button type="button" id="applyLogsFiltersBtn" class="ta-btn ta-btn-primary">Apply</button>
+    <button type="button" id="clearLogsFiltersBtn" class="ta-btn ta-btn-secondary">Clear</button>
+  </div>
+
+  <div class="ta-toolbar-end">
+    <div class="relative flex items-center">
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input type="text" id="logsSearchInput"
+        class="ta-input pl-10 min-w-[280px]"
+        placeholder="Search logs...">
+    </div>
+    <span id="logsSearchCount" class="text-sm text-gray-600 font-medium whitespace-nowrap"></span>
+  </div>
+</div>
+
+<div class="ta-table-wrapper">
+  <table id="logsTable" class="ta-table">
+    <thead>
+      <tr>
+        <th>Date/Time</th>
+        <th>Plate</th>
+        <th>Status</th>
+        <th>Owner</th>
+        <th>Vehicle</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                May 14, 2026 02:09:15 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                May 14, 2026 02:09:05 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                May 14, 2026 02:06:45 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                May 14, 2026 02:06:26 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 02:24:04 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 02:23:57 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 02:23:38 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 11:50:04 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 11:49:59 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 11:49:41 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 11:49:36 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 11:49:31 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 16, 2026 11:49:26 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:38:24 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:36:11 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:36:03 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:35:57 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:35:51 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:35:45 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:35:39 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 08:35:30 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 05:26:15 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 05:26:08 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 05:00:56 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 05:00:38 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 05:00:29 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 04:59:28 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 04:52:45 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 04:40:44 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 04:40:37 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 15, 2026 04:12:36 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:48:32 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:48:25 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:48:15 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:47:54 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:47:30 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:47:20 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:47:09 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 13, 2026 08:47:00 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 12, 2026 03:32:00 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 12, 2026 03:31:51 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 12, 2026 03:31:42 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">ABS3556</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Lez Li Ee Sr</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 12, 2026 03:31:34 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 12, 2026 03:30:14 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 11, 2026 06:13:31 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 11, 2026 06:13:23 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">EUT-069</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Homeowner Testing</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Car</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 11, 2026 06:13:12 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Apr 11, 2026 06:13:02 PM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Mar 31, 2026 09:35:43 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge danger">
+                OUT              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50 ">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+              <div class="flex items-center gap-2">
+                                Mar 31, 2026 09:35:32 AM              </div>
+            </td>
+            <td class="px-4 py-3 font-mono text-sm text-slate-700 dark:text-slate-300">QWE-222</td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">
+                IN              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Tailadmin Test</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">Motorcycle</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                                  <span class="text-xs text-slate-400 italic">No actions</span>
+                              </div>
+            </td>
+          </tr>
+                  </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+  <div class="flex items-center justify-between mt-6">
+    <div class="text-sm text-gray-600">
+      Showing 1 to 50 of
+      190 logs
+    </div>
+
+    <div class="flex items-center gap-2">
+      
+      
+              <button class="ta-btn ta-btn-sm ta-btn-primary pagination-btn"
+          data-page="1">1</button>
+              <button class="ta-btn ta-btn-sm ta-btn-secondary pagination-btn"
+          data-page="2">2</button>
+              <button class="ta-btn ta-btn-sm ta-btn-secondary pagination-btn"
+          data-page="3">3</button>
+      
+                      <button class="ta-btn ta-btn-sm ta-btn-secondary pagination-btn"
+          data-page="4">4</button>
+      
+              <button class="ta-btn ta-btn-sm ta-btn-secondary pagination-btn" data-page="2">Next »</button>
+          </div>
+  </div>

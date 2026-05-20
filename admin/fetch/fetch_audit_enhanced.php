@@ -9,20 +9,14 @@
  * @created 2025-11-20
  */
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+// Ensure CSP nonce helper is available for inline style/script nonces
+require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
+require_once __DIR__ . '/../../includes/fetch_auth.php';
 
 requireRequestMethod('GET');
 
-// Check authentication
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
-    http_response_code(403);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => false,
-        'message' => 'Unauthorized access'
-    ]);
-    exit;
-}
+fetch_require_role(['super_admin', 'admin']);
 
 header('Content-Type: application/json');
 

@@ -1,0 +1,5 @@
+"Log ID",Date/Time,"Plate Number",Status,"Owner Name","Vehicle Type"
+320,"2026-05-14 14:09:15",QWE-222,OUT,"Tailadmin Test",Motorcycle
+319,"2026-05-14 14:09:05",ABS3556,IN,"LEZ LI EE SR",Motorcycle
+318,"2026-05-14 14:06:45",ABS3556,OUT,"LEZ LI EE SR",Motorcycle
+317,"2026-05-14 14:06:26",QWE-222,IN,"Tailadmin Test",Motorcycle

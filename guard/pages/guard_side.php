@@ -53,7 +53,7 @@ function safeFileTime($path) {
   <link rel="stylesheet" href="../css/guard-qr-modal.css?v=<?php echo safeFileTime(__DIR__ . '/../css/guard-qr-modal.css'); ?>">
   <link rel="stylesheet" href="../../assets/css/premium-polish.css?v=<?php echo safeFileTime(__DIR__ . '/../../assets/css/premium-polish.css'); ?>">
 
-  <style>
+  <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     /* Skeleton Loader — adapts to light/dark mode */
     :root {
       --skeleton-from: #e5e7eb;

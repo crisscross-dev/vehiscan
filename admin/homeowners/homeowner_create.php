@@ -286,7 +286,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // GET => render form fragment (when called with ajax=1)
 ?>
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
   .create-homeowner-form {
     width: 100%;
     max-width: 100%;
@@ -610,7 +610,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 </form>
 
-<script>
+<script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
 (function () {
   const form = document.getElementById('createHomeownerForm');
   if (!form || form.dataset.wizardBound === '1') return;

@@ -1,0 +1,256 @@
+
+<!-- Page Header -->
+<div class="mb-6">
+    <div class="flex items-center gap-3 mb-2">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+        </div>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Profile Update Requests</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Review and manage homeowner profile change requests</p>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Stat Cards Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6 animate-fade-in-up animate-delay-1">
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left ring-2 ring-blue-500"
+            data-status="">
+            <div class="ta-stat-icon indigo">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </div>
+            <div class="ta-stat-content">
+                <p class="ta-stat-label">Total</p>
+                <p class="ta-stat-value">2</p>
+            </div>
+        </button>
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left "
+            data-status="pending">
+            <div class="ta-stat-icon amber">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ta-stat-content">
+                <p class="ta-stat-label">Pending</p>
+                <p class="ta-stat-value">0</p>
+            </div>
+        </button>
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left "
+            data-status="acknowledged">
+            <div class="ta-stat-icon blue">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ta-stat-content">
+                <p class="ta-stat-label">Acknowledged</p>
+                <p class="ta-stat-value">0</p>
+            </div>
+        </button>
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left "
+            data-status="completed">
+            <div class="ta-stat-icon green">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <div class="ta-stat-content">
+                <p class="ta-stat-label">Completed</p>
+                <p class="ta-stat-value">2</p>
+            </div>
+        </button>
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left "
+            data-status="rejected">
+            <div class="ta-stat-icon red">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <div class="ta-stat-content">
+                <p class="ta-stat-label">Rejected</p>
+                <p class="ta-stat-value">0</p>
+            </div>
+        </button>
+    </div>
+
+
+    <div class="mb-4 glass border-blue-100/50 dark:border-slate-700/50 px-4 py-4 rounded-2xl animate-fade-in-up animate-delay-2">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-blue-900 dark:text-slate-100">Workflow Optimization Guide</p>
+                    <p class="text-xs text-blue-700/70 dark:text-slate-400 mt-0.5">Follow this path for consistent request handling.</p>
+                </div>
+            </div>
+            <div class="text-xs text-blue-700 dark:text-slate-400 bg-blue-100/50 dark:bg-slate-700/50 px-2 py-1 rounded-lg">
+                Quick Tip: Click status cards to filter.
+            </div>
+        </div>
+        <div class="mt-4 flex items-center gap-2 flex-wrap text-[10px] font-bold uppercase tracking-wider">
+            <span class="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-3 py-1.5 border border-yellow-200">Pending</span>
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-800 px-3 py-1.5 border border-blue-200">Acknowledge</span>
+            <span class="text-gray-400 font-normal normal-case">or</span>
+            <span class="inline-flex items-center rounded-full bg-red-100 text-red-800 px-3 py-1.5 border border-red-200">Reject</span>
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <span class="inline-flex items-center rounded-full bg-green-100 text-green-800 px-3 py-1.5 border border-green-200">Complete</span>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="flex items-center gap-2 mb-2 flex-wrap">
+        <button id="refreshProfileReqs" class="ta-btn ta-btn-secondary">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refresh
+        </button>
+                <div class="flex items-center gap-2 ml-auto">
+            <div class="relative flex items-center flex-1 min-w-0 sm:max-w-md">
+                <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" id="profileReqSearch"
+                    class="h-10 px-4 pl-12 w-full border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-slate-700 dark:text-gray-200"
+                    placeholder="Search requests..." value="">
+            </div>
+            <select id="profileReqPerPage" class="ta-select" title="Rows per page">
+                                    <option value="10" >10 / page</option>
+                                    <option value="15" selected>15 / page</option>
+                                    <option value="25" >25 / page</option>
+                                    <option value="50" >50 / page</option>
+                            </select>
+        </div>
+    </div>
+
+    <div class="mb-4 flex items-center justify-between flex-wrap gap-2 text-xs">
+        <div class="text-gray-600 dark:text-gray-300">
+            Showing 2 of 2 requests
+        </div>
+        <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <span class="inline-flex items-center rounded-full border border-gray-300 dark:border-slate-600 px-2.5 py-1">
+                Status: All            </span>
+                    </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="ta-table-wrapper glass animate-fade-in-up animate-delay-3 overflow-x-auto">
+        <table class="ta-table w-full">
+            <thead>
+                <tr>
+                    <th class="text-left">Homeowner</th>
+                    <th class="text-left">Request</th>
+                    <th class="text-center whitespace-nowrap">Status</th>
+                    <th class="text-left whitespace-nowrap">Date</th>
+                    <th class="text-center whitespace-nowrap">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                                                            <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                            <!-- Homeowner -->
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                                                            <img src="../uploads/homeowners/20260207_114943_6986b65706597.jpeg"
+                                            alt="" class="h-9 w-9 rounded-full object-cover flex-shrink-0">
+                                                                        <div class="min-w-0">
+                                        <p class="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">Tailadmin Test</p>
+                                                                                    <p class="text-xs text-slate-500">QWE-222</p>
+                                                                            </div>
+                                </div>
+                            </td>
+                            <!-- Request Text -->
+                            <td class="px-4 py-3">
+                                <p class="text-slate-700 dark:text-slate-300 max-w-md whitespace-normal break-words leading-5" title="wrong address g pa edit ba alisin yung test">
+                                    wrong address g pa edit ba alisin yung test                                </p>
+                                                                    <p class="text-xs text-slate-400 mt-1 truncate" title="goods na g">
+                                        Admin: goods na g                                    </p>
+                                                            </td>
+                            <!-- Status -->
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                    Completed                                </span>
+                            </td>
+                            <!-- Date -->
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs whitespace-nowrap">
+                                Apr 13, 2026 8:24 PM                            </td>
+                            <!-- Actions -->
+                            <td class="px-4 py-3 text-center">
+                                                                        <span class="text-xs text-gray-400">—</span>
+                                                                </td>
+                        </tr>
+                                            <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                            <!-- Homeowner -->
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                                                            <img src="../uploads/homeowners/20260207_114943_6986b65706597.jpeg"
+                                            alt="" class="h-9 w-9 rounded-full object-cover flex-shrink-0">
+                                                                        <div class="min-w-0">
+                                        <p class="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">Tailadmin Test</p>
+                                                                                    <p class="text-xs text-slate-500">QWE-222</p>
+                                                                            </div>
+                                </div>
+                            </td>
+                            <!-- Request Text -->
+                            <td class="px-4 py-3">
+                                <p class="text-slate-700 dark:text-slate-300 max-w-md whitespace-normal break-words leading-5" title="i need to update my address">
+                                    i need to update my address                                </p>
+                                                            </td>
+                            <!-- Status -->
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                    Completed                                </span>
+                            </td>
+                            <!-- Date -->
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-xs whitespace-nowrap">
+                                Feb 8, 2026 5:54 PM                            </td>
+                            <!-- Actions -->
+                            <td class="px-4 py-3 text-center">
+                                                                        <span class="text-xs text-gray-400">—</span>
+                                                                </td>
+                        </tr>
+                                                </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    
+
+<!-- Action Modal -->
+<div id="profileReqModal" class="hidden fixed inset-0 flex items-center justify-center bg-black/40 p-3" style="z-index: 10050;">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg w-full p-4 max-h-[85vh] overflow-y-auto" style="max-width: 520px;">
+        <h3 id="modalTitle" class="text-base font-semibold text-gray-900 dark:text-white mb-3">Process Request</h3>
+        <p id="modalContext" class="text-sm text-gray-600 dark:text-gray-300 mb-3"></p>
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admin Notes (optional)</label>
+            <textarea id="modalNotes" rows="2"
+                class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-gray-200"
+                placeholder="Add any notes about this action..."></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+            <button id="modalCancel"
+                class="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                Cancel
+            </button>
+            <button id="modalConfirm"
+                class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+

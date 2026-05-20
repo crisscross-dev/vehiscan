@@ -316,7 +316,7 @@ ob_end_flush();
     <script src="../assets/js/login.js?v=<?php echo safeFileTime(__DIR__ . '/../assets/js/login.js'); ?>"></script>
 
     <!-- PHP-generated alerts -->
-    <script>
+    <script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         // Configure SweetAlert2 defaults
         if (typeof Swal !== 'undefined') {
             Swal.mixin({

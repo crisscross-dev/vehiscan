@@ -1,0 +1,60 @@
+=== delete_access_log.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== export_csv.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== export_logs_csv.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_approvals.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_audit.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_audit_enhanced.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_dashboard.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_employees.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_logs.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_manage.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_profile_requests.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_rfid.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_visitors.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_visitor_logs.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+
+=== fetch_visitor_passes.php ===
+HTTP/1.1 403 Forbidden
+{"error":"Unauthorized","redirect":"\/Vehiscan-RFID\/auth\/login.php"}
+

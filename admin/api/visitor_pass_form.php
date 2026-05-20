@@ -208,7 +208,7 @@ $defaultUntil = $editPass ? date('Y-m-d\TH:i', strtotime($editPass['valid_until'
 $formTitle = $editPass ? 'Edit Visitor Pass' : 'Create Visitor Pass';
 $submitLabel = $editPass ? 'Update Pass' : 'Create Pass';
 ?>
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
   #editModal .visitor-pass-modal-form {
     max-width: 100%;
   }

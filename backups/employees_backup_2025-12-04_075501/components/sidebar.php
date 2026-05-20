@@ -1,5 +1,5 @@
 <!-- Sidebar Component for Employee Management Pages -->
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
   .sidebar-transition {
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }

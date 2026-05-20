@@ -44,7 +44,7 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visitor Pass Verification — VehiScan</title>
   <link rel="stylesheet" href="../assets/css/tailwind.css">
-  <style>
+  <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

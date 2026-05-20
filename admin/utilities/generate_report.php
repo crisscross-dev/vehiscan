@@ -133,7 +133,7 @@ if ($format === 'excel') {
 <html>
 <head>
     <title><?= htmlspecialchars($title ?? '') ?></title>
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         body { font-family: Arial, sans-serif; padding: 20px; }
         h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }

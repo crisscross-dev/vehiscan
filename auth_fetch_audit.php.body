@@ -1,0 +1,2703 @@
+
+<div class="mb-6">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Logs</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Track administrative actions and system changes</p>
+    </div>
+  </div>
+</div>
+
+<div class="ta-toolbar mb-4">
+  <div class="ta-toolbar-start">
+    <select id="actionFilter" class="ta-select filter-select">
+      <option value="">All Actions</option>
+              <option value="DELETE" >
+          DELETE        </option>
+              <option value="DELETE_ALL" >
+          DELETE_ALL        </option>
+              <option value="employee_create" >
+          employee_create        </option>
+              <option value="employee_update" >
+          employee_update        </option>
+              <option value="EXPORT_AND_DELETE" >
+          EXPORT_AND_DELETE        </option>
+              <option value="profile_request_acknowledged" >
+          profile_request_acknowledged        </option>
+              <option value="profile_request_completed" >
+          profile_request_completed        </option>
+              <option value="RFID binding cancelled" >
+          RFID binding cancelled        </option>
+              <option value="RFID binding initiated" >
+          RFID binding initiated        </option>
+              <option value="RFID unbound" >
+          RFID unbound        </option>
+              <option value="RFID_SCAN_SIMULATED" >
+          RFID_SCAN_SIMULATED        </option>
+              <option value="VISITOR_PASS_CANCELLED" >
+          VISITOR_PASS_CANCELLED        </option>
+              <option value="VISITOR_PASS_REJECTED" >
+          VISITOR_PASS_REJECTED        </option>
+          </select>
+
+    <input type="text" id="userFilter" class="ta-input min-w-[180px]" placeholder="Filter by user..." value="">
+    <input type="date" id="auditDateFrom" class="ta-input" value="" aria-label="Audit start date">
+    <input type="date" id="auditDateTo" class="ta-input" value="" aria-label="Audit end date">
+    <select id="auditLimit" class="ta-select">
+              <option value="100" >100 / page</option>
+              <option value="200" selected>200 / page</option>
+              <option value="500" >500 / page</option>
+              <option value="1000" >1000 / page</option>
+          </select>
+
+    <button id="applyFilters" class="ta-btn ta-btn-primary">Apply</button>
+    <button id="clearFilters" class="ta-btn ta-btn-secondary">Clear</button>
+    <button id="exportAuditBtn" class="ta-btn ta-btn-success">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+      Export CSV
+    </button>
+  </div>
+
+  <div class="ta-toolbar-end">
+    <div class="relative flex items-center">
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input type="text" id="auditSearchInput" class="ta-input pl-12 min-w-[260px]" placeholder="Search logs...">
+    </div>
+    <span id="auditSearchCount" class="text-sm text-gray-600 font-medium whitespace-nowrap"></span>
+  </div>
+</div>
+
+
+<div class="ta-table-wrapper">
+  <table id="auditTable" class="ta-table">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Actor</th>
+        <th>Action</th>
+        <th>Table</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 20, 2026 10:33:48 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 19, 2026 02:47:18 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 18, 2026 10:13:25 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 18, 2026 09:34:00 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 18, 2026 08:52:07 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 14, 2026 02:06:05 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 14, 2026 02:04:43 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 14, 2026 02:04:28 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 14, 2026 01:47:42 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 13, 2026 08:18:51 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 13, 2026 08:13:30 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 13, 2026 08:12:35 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 13, 2026 08:10:41 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 12, 2026 04:17:32 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 11, 2026 07:48:42 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 11, 2026 07:17:37 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 06:14:03 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:54:49 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:53:35 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:27:12 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:26:57 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:26:13 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:25:37 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:25:26 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 05:20:57 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 04:55:56 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 01:40:41 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 10, 2026 09:32:41 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 08:49:16 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 08:08:12 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 08:07:41 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 08:07:15 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 05:54:53 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 04:54:21 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 04:15:57 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 03:25:36 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 03:21:56 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 03:18:21 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 03:13:54 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 12:39:54 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 09, 2026 12:10:23 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">May 08, 2026 11:09:04 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:32:07 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:31:55 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">visitor_pass_approved</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">visitor_passes</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              status: pending → active; approved_at: null → 2026-04-27 08:31:55; qr_code: null → true            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:31:43 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">visitor_pass_created</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">visitor_passes</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              homeowner_id: null → 64; visitor_name: null → MARK; visitor_plate: null → YIE; purpose: null → sada; valid_from: null → 2026-04-27T08:31; valid_until: null → 2026-04-27 23:59:59; is_recurring: null → 0; status: null → pending; qr_code: null → true            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:31:07 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">visitor_pass_approved</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">visitor_passes</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              status: pending → active; approved_at: null → 2026-04-27 08:31:07; qr_code: null → true            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:30:33 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge success">visitor_pass_created</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">visitor_passes</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              homeowner_id: null → 64; visitor_name: null → MARK; visitor_plate: null → YIE; purpose: null → Barajse; valid_from: null → 2026-04-27T08:29; valid_until: null → 2026-04-27 23:59:59; is_recurring: null → 0; status: null → pending; qr_code: null → true            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:28:05 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:18:24 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 27, 2026 08:06:34 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 03:05:23 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 02:22:23 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 01:44:54 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 01:05:40 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 01:02:23 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 12:29:35 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 12:28:59 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 26, 2026 11:56:32 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 19, 2026 04:21:28 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 18, 2026 10:15:26 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 18, 2026 09:37:41 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 18, 2026 08:58:20 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 18, 2026 08:56:47 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 18, 2026 08:53:21 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 04:01:35 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 04:00:10 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 03:51:40 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 03:51:16 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 03:44:40 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 03:38:46 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 03:36:44 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 03:30:28 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:42:16 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:35:15 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:34:27 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:33:17 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:32:44 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:32:12 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:30:01 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:22:57 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:18:07 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:14:21 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:13:54 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:13:23 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:12:54 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 02:12:04 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 01:37:47 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 12:00:55 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 12:00:44 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 12:00:31 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 12:00:15 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:59:48 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:39:39 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:38:36 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:36:29 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:36:09 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:32:54 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 11:32:07 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:28:30 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:27:36 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:26:52 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:26:38 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:25:57 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:25:44 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:16:56 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:12:16 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:07:55 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:02:38 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:02:22 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:02:08 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:01:48 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:01:05 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:00:32 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 09:00:18 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 08:59:48 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 16, 2026 08:43:32 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 08:56:32 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 08:11:24 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:38:01 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:37:51 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:31:47 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:18:31 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:17:24 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:16:35 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:03:27 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 07:02:13 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 06:59:14 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 06:58:57 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 04:13:11 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 04:02:36 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 01:47:40 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 01:03:22 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 01:01:25 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 12:58:17 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:37:12 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:34:33 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:30:48 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:30:08 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:27:48 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:26:46 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:25:07 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 10:20:02 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 09:56:40 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 08:33:40 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 04:00:18 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 15, 2026 03:11:36 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 14, 2026 07:53:24 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 14, 2026 07:53:02 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 08:59:15 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 08:07:43 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 07:51:34 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 07:35:25 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 12:16:50 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 11:43:50 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 11:13:50 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 11:05:26 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>temp_admin_policy_check</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 11:05:00 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>kyle_jansen</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 10:31:14 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:56:56 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:56:17 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:54:35 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:51:50 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Jshn</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">homeowner_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:49:45 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:48:44 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 09:47:32 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 08:45:27 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 13, 2026 08:42:56 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 12, 2026 03:41:15 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 12, 2026 03:31:17 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Apr 12, 2026 03:21:44 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 31, 2026 09:26:40 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 31, 2026 08:51:41 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 30, 2026 01:06:52 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 30, 2026 10:58:52 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 19, 2026 03:57:38 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 19, 2026 03:57:28 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 19, 2026 03:52:38 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 01:48:17 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 11:21:36 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 11:21:23 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 10:54:02 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 10:27:56 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 09:51:13 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 18, 2026 09:22:17 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 17, 2026 10:52:16 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 17, 2026 09:48:20 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 17, 2026 07:45:02 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 17, 2026 07:44:17 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 17, 2026 07:18:33 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 17, 2026 07:18:12 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 10, 2026 03:18:52 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 10, 2026 02:39:51 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 10, 2026 01:43:52 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 10, 2026 11:37:52 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Admin_First</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 10, 2026 10:16:52 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 10, 2026 09:14:52 AM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 09, 2026 02:37:40 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 09, 2026 02:09:23 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 09, 2026 02:00:47 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Administrator</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">super_admin_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  <tr class="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors even:bg-slate-50 dark:even:bg-slate-800/50">
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">Mar 09, 2026 01:51:25 PM</td>
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-200">
+              <div>Guard1</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">IP: ::1</div>
+            </td>
+            <td class="px-4 py-3">
+                            <span class="ta-badge info">guard_logout</span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">-</td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm max-w-[24rem]">
+              -            </td>
+          </tr>
+                  </tbody>
+  </table>
+</div>
+
+  <div class="flex items-center justify-between mt-4">
+    <p class="text-sm text-slate-600 dark:text-slate-400">
+      Showing 1-200 of 206 logs
+    </p>
+    <div class="flex items-center gap-1">
+                    <button class="pagination-btn ta-btn ta-btn-sm ta-btn-primary" data-page="1">1</button>
+              <button class="pagination-btn ta-btn ta-btn-sm ta-btn-outline-secondary" data-page="2">2</button>
+                    <button class="pagination-btn ta-btn ta-btn-sm ta-btn-outline-secondary" data-page="2">Next</button>
+          </div>
+  </div>

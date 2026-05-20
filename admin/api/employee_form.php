@@ -120,7 +120,7 @@ $isEdit = !empty($employee);
     </form>
 </div>
 
-<script>
+<script nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
 <?php if ($isEdit): ?>
 <script src="../../assets/js/admin/employee-form.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/admin/employee-form.js'); ?>"></script>
 <?php endif; ?>

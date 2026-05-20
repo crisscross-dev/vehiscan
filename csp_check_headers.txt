@@ -1,0 +1,23 @@
+HTTP/1.1 302 Found
+Date: Wed, 20 May 2026 02:28:56 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+X-Powered-By: PHP/8.2.12
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-1b3ea25c72ccc9aaaca05dc75e1f10eb'; style-src 'self' 'nonce-1b3ea25c72ccc9aaaca05dc75e1f10eb'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(self), microphone=(), geolocation=()
+Set-Cookie: vehiscan_admin=0s78m8h3fi5q7ahdtu79qkm37c; path=/; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Set-Cookie: vehiscan_admin=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/
+Location: /Vehiscan-RFID/auth/login.php
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+

@@ -111,7 +111,7 @@ require_once __DIR__ . '/../../db.php';
 
 <script src="../assets/js/admin/approvals-page.js?v=<?php echo safeFileTime(__DIR__ . '/../../assets/js/admin/approvals-page.js'); ?>"></script>
 
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
 /* Ensure table is not overlapping */
 #approvalsTable {
     position: relative;

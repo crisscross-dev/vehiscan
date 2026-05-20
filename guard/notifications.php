@@ -51,7 +51,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
 <meta charset="UTF-8">
 <title>Notifications</title>
-<style>
+<style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
     body {
         font-family: "Segoe UI", sans-serif;
         background-color: #f4f6f8;

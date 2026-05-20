@@ -209,7 +209,7 @@ if ($error && $httpStatus >= 400) {
     <title>Visitor Pass — VehiScan</title>
     <link rel="stylesheet" href="../assets/css/tailwind.css">
     <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-    <style>
+    <style nonce="<?php echo htmlspecialchars(vehiscanGetCspNonce() ?? ''); ?>">
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .pass-animate { animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }

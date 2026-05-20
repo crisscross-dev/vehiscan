@@ -1,0 +1,17 @@
+HTTP/1.1 200 OK
+Connection: Keep-Alive
+Keep-Alive: timeout=5, max=100
+Cache-Control: public, max-age=604800
+Expires: Wed, 27 May 2026 01:26:57 GMT
+Content-Type: application/x-javascript
+Last-Modified: Tue, 19 May 2026 10:06:57 GMT
+Etag: "23b66-6a0c3641-afd71edf2fea5199;;;"
+Accept-Ranges: bytes
+Content-Length: 146278
+Date: Wed, 20 May 2026 01:26:57 GMT
+Server: LiteSpeed
+platform: hostinger
+panel: hpanel
+Content-Security-Policy: upgrade-insecure-requests
+alt-svc: h3=":443"; ma=2592000, h3-29=":443"; ma=2592000, h3-Q050=":443"; ma=2592000, h3-Q046=":443"; ma=2592000, h3-Q043=":443"; ma=2592000, quic=":443"; ma=2592000; v="43,46"
+
