@@ -33,6 +33,8 @@ if (session_status() === PHP_SESSION_NONE) {
     $sessionStarted = false;
     $hasSuperCookie = isset($_COOKIE['vehiscan_superadmin']);
     $hasAdminCookie = isset($_COOKIE['vehiscan_admin']);
+    // Detect AJAX early so cleanup decisions can avoid removing cookies mid-AJAX
+    $isAjaxRequestGlobal = function_exists('vehiscanIsAjaxRequest') ? vehiscanIsAjaxRequest() : false;
 
     // CASE 1: Only one cookie exists — use it directly (most common case)
     if ($hasSuperCookie && !$hasAdminCookie) {
@@ -40,11 +42,15 @@ if (session_status() === PHP_SESSION_NONE) {
         session_start();
         if (isset($_SESSION['role']) && $_SESSION['role'] === 'super_admin') {
             $sessionStarted = true;
-        } else {
+            } else {
             // Cookie exists but session is invalid/empty — clean it up
             $_SESSION = [];
             session_destroy();
-            setcookie('vehiscan_superadmin', '', time() - 3600, '/');
+            // Avoid removing role cookies during AJAX calls to prevent
+            // transient cookie loss when multiple requests happen in parallel.
+            if (!$isAjaxRequestGlobal) {
+                setcookie('vehiscan_superadmin', '', time() - 3600, '/');
+            }
         }
     } elseif ($hasAdminCookie && !$hasSuperCookie) {
         session_name('vehiscan_admin');
@@ -54,7 +60,9 @@ if (session_status() === PHP_SESSION_NONE) {
         } else {
             $_SESSION = [];
             session_destroy();
-            setcookie('vehiscan_admin', '', time() - 3600, '/');
+            if (!$isAjaxRequestGlobal) {
+                setcookie('vehiscan_admin', '', time() - 3600, '/');
+            }
         }
     } elseif ($hasSuperCookie && $hasAdminCookie) {
         // CASE 2: Both cookies exist — anomalous state.
@@ -84,14 +92,16 @@ if (session_status() === PHP_SESSION_NONE) {
         session_write_close();
 
         // Pick the session with the most recent LOGIN (not activity)
-        if ($superLogin > 0 && $superLogin >= $adminLogin) {
+            if ($superLogin > 0 && $superLogin >= $adminLogin) {
             // Super admin session is more recent — destroy the stale admin session
             session_name('vehiscan_admin');
             session_id($_COOKIE['vehiscan_admin']);
             session_start();
             $_SESSION = [];
             session_destroy();
-            setcookie('vehiscan_admin', '', time() - 3600, '/');
+            if (!$isAjaxRequestGlobal) {
+                setcookie('vehiscan_admin', '', time() - 3600, '/');
+            }
             unset($_COOKIE['vehiscan_admin']);
 
             session_name('vehiscan_superadmin');
@@ -105,7 +115,9 @@ if (session_status() === PHP_SESSION_NONE) {
             session_start();
             $_SESSION = [];
             session_destroy();
-            setcookie('vehiscan_superadmin', '', time() - 3600, '/');
+            if (!$isAjaxRequestGlobal) {
+                setcookie('vehiscan_superadmin', '', time() - 3600, '/');
+            }
             unset($_COOKIE['vehiscan_superadmin']);
 
             session_name('vehiscan_admin');
