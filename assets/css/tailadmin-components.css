@@ -1709,3 +1709,10 @@ body.dark .ta-action-menu-item.red:hover,
 .dark .ta-action-menu-item.red:hover { background: #7f1d1d33; }
 body.dark .ta-action-divider,
 .dark .ta-action-divider { background: #334155; }
+
+/* ================================================================
+  Stacking fixes: ensure header does not intercept clicks for content
+  ================================================================ */
+#brand-header, .main-header { position: relative; z-index: 10; }
+#content-area { position: relative; z-index: 20; }
+.ta-action-dropdown, .ta-action-menu, .ta-btn { z-index: 30; }

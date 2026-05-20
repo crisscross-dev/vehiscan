@@ -36,6 +36,7 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Panel — VehiScan</title>
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
+  <meta name="vehiscan-csrf" content="<?= htmlspecialchars($csrf) ?>">
 
   <!-- CSS Files - Load in Order -->
   <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo safeFileTime(__DIR__ . '/../assets/css/tailwind.css'); ?>">

@@ -3,6 +3,45 @@
 const ADMIN_PANEL_DEBUG = !!(window.vehiscanConfig && window.vehiscanConfig.debug);
 const adminPanelLog = (...args) => { if (ADMIN_PANEL_DEBUG) console.log(...args); };
 
+// Global fetch wrapper to ensure AJAX requests include identifying headers
+// and a CSRF token when available. This keeps individual fetch calls small
+// and ensures server-side handlers can detect AJAX vs full-page requests.
+(function patchFetchForAdmin(){
+  if (!window.fetch) return;
+  const _origFetch = window.fetch.bind(window);
+  // Read initial CSRF token from meta if present
+  try {
+    const m = document.querySelector('meta[name="vehiscan-csrf"]');
+    if (m) window.VEHI_CSRF_TOKEN = m.getAttribute('content') || '';
+  } catch (e) { window.VEHI_CSRF_TOKEN = window.VEHI_CSRF_TOKEN || ''; }
+
+  window.fetch = function(input, init){
+    init = init || {};
+    // default to same-origin credentials for admin requests
+    if (!init.credentials) init.credentials = 'same-origin';
+    init.headers = init.headers || {};
+
+    // If headers is a Headers instance, copy into a plain object to add values
+    if (typeof Headers !== 'undefined' && init.headers instanceof Headers) {
+      const h = {};
+      init.headers.forEach((v,k)=>{ h[k]=v; });
+      init.headers = h;
+    }
+
+    // Add X-Requested-With so server detects AJAX requests
+    if (!init.headers['X-Requested-With'] && !init.headers['x-requested-with']) {
+      init.headers['X-Requested-With'] = 'XMLHttpRequest';
+    }
+
+    // Ensure CSRF header if we have a token
+    if (window.VEHI_CSRF_TOKEN) {
+      init.headers['X-CSRF-Token'] = window.VEHI_CSRF_TOKEN;
+    }
+
+    return _origFetch(input, init);
+  };
+})();
+
 // SweetAlert2 Fallback - Must be defined before DOMContentLoaded
 if (typeof Swal === 'undefined') {
   console.warn('[ADMIN] SweetAlert2 not loaded, using fallback alert/confirm');
