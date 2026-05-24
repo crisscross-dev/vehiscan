@@ -43,6 +43,28 @@ jobs:
           echo "Main app uploaded successfully."
           sleep 3
 
+      - name: Install dependencies on host
+        run: |
+          echo "Installing composer dependencies on host..."
+          ssh -i ~/.ssh/private_key -p 65002 u321426185@145.79.28.1 "
+            set -e
+            cd /home/u321426185/domains/mysamplesystem.site/vehiscan || exit 1
+            if command -v composer >/dev/null 2>&1; then
+              composer install --no-dev --optimize-autoloader --prefer-dist
+            elif [ -f composer.phar ]; then
+              php composer.phar install --no-dev --optimize-autoloader --prefer-dist
+            else
+              echo 'Composer not found on host; skipping composer install'
+            fi
+
+            # Run migrations if present (non-fatal)
+            if [ -f run_migrations.php ]; then
+              php run_migrations.php || true
+            fi
+          "
+          echo "Dependency install step finished."
+          sleep 2
+
       - name: Copy Assets to public_html
         run: |
           echo "Preparing assets folder..."
