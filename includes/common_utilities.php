@@ -31,7 +31,7 @@ function formatContactNumber($number) {
  * @return string
  */
 function sanitizeInput($input) {
-    return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars(strip_tags(trim($input ?? '')), ENT_QUOTES, 'UTF-8');
 }
 
 /**
@@ -52,6 +52,26 @@ function formatFileSize($bytes) {
     $units = ['B', 'KB', 'MB', 'GB', 'TB'];
     $power = $bytes > 0 ? floor(log($bytes, 1024)) : 0;
     return round($bytes / pow(1024, $power), 2) . ' ' . $units[$power];
+}
+
+/**
+ * Format a datetime value for display
+ * @param string|null $value
+ * @param bool $includeTime
+ * @return string
+ */
+function formatDisplayDateTime($value, $includeTime = true) {
+    if (empty($value)) {
+        return '-';
+    }
+
+    try {
+        $dateTime = new DateTime((string)$value);
+    } catch (Exception $e) {
+        return (string)$value;
+    }
+
+    return $includeTime ? $dateTime->format('M j, Y g:i A') : $dateTime->format('M j, Y');
 }
 
 /**

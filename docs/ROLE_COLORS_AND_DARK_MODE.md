@@ -1,4 +1,4 @@
-# Role Colors and Dark Mode Configuration Guide
+﻿# Role Colors and Dark Mode Configuration Guide
 
 ## 🎨 How to Edit Role Badge Colors
 
@@ -13,7 +13,7 @@ $badges = [
   'admin' => 'bg-purple-100 text-purple-800',
   'guard' => 'bg-blue-100 text-blue-800',
   'super_admin' => 'bg-orange-100 text-orange-800',
-  'owner' => 'bg-emerald-100 text-emerald-800'
+  'homeowner' => 'bg-emerald-100 text-emerald-800'
 ];
 ```
 
@@ -49,33 +49,33 @@ Replace the color names in the format `bg-{color}-100 text-{color}-800`:
 **Elegant Professional Colors:**
 ```php
 $badges = [
-  'admin' => 'bg-indigo-100 text-indigo-800',      // Indigo (professional)
-  'guard' => 'bg-emerald-100 text-emerald-800',    // Emerald (security)
-  'super_admin' => 'bg-rose-100 text-rose-800'     // Rose (executive)
+  'admin' => 'bg-indigo-100 text-indigo-800', // Indigo (professional)
+  'guard' => 'bg-emerald-100 text-emerald-800', // Emerald (security)
+  'super_admin' => 'bg-rose-100 text-rose-800' // Rose (executive)
 ];
 ```
 
 **Vibrant Modern Colors:**
 ```php
 $badges = [
-  'admin' => 'bg-violet-100 text-violet-800',      // Violet
-  'guard' => 'bg-cyan-100 text-cyan-800',          // Cyan
-  'super_admin' => 'bg-amber-100 text-amber-800'   // Amber
+  'admin' => 'bg-violet-100 text-violet-800', // Violet
+  'guard' => 'bg-cyan-100 text-cyan-800', // Cyan
+  'super_admin' => 'bg-amber-100 text-amber-800' // Amber
 ];
 ```
 
 **Minimalist Colors:**
 ```php
 $badges = [
-  'admin' => 'bg-slate-100 text-slate-800',        // Slate gray
-  'guard' => 'bg-gray-100 text-gray-800',          // Neutral gray
-  'super_admin' => 'bg-zinc-100 text-zinc-800'     // Zinc gray
+  'admin' => 'bg-slate-100 text-slate-800', // Slate gray
+  'guard' => 'bg-gray-100 text-gray-800', // Neutral gray
+  'super_admin' => 'bg-zinc-100 text-zinc-800' // Zinc gray
 ];
 ```
 
 ---
 
-## 🌙 Dark Mode Toggle CSS Review
+## Dark Mode Toggle CSS Review
 
 The dark mode toggle combines Tailwind CSS utility classes with custom CSS for smooth animations.
 
@@ -179,9 +179,9 @@ All dark mode styles use the `body.dark` selector and Tailwind-compatible CSS va
 ### Core Variables
 ```css
 body.dark {
-  --bg: #0f172a;        /* Slate 900 */
-  --text: #f1f5f9;      /* Slate 100 */
-  --border: #334155;    /* Slate 700 */
+  --bg: #0f172a; /* Slate 900 */
+  --text: #f1f5f9; /* Slate 100 */
+  --border: #334155; /* Slate 700 */
   background-color: #0f172a;
   color: #f1f5f9;
 }
@@ -192,7 +192,7 @@ body.dark {
 #### Tables
 ```css
 body.dark table {
-  background: #1e293b !important;  /* Slate 800 */
+  background: #1e293b !important; /* Slate 800 */
   color: #f1f5f9 !important;
 }
 
@@ -203,7 +203,7 @@ body.dark table th {
 }
 
 body.dark table tr:hover {
-  background: #334155 !important;  /* Slate 700 */
+  background: #334155 !important; /* Slate 700 */
 }
 ```
 
@@ -212,12 +212,12 @@ body.dark table tr:hover {
 body.dark #sidebar,
 body.dark aside,
 body.dark nav {
-  background: #1e293b !important;  /* Slate 800 */
+  background: #1e293b !important; /* Slate 800 */
   border-color: #334155 !important;
 }
 
 body.dark #sidebar a:hover {
-  background: #334155 !important;  /* Slate 700 */
+  background: #334155 !important; /* Slate 700 */
   color: #f1f5f9 !important;
 }
 ```
@@ -229,11 +229,11 @@ body.dark select,
 body.dark textarea {
   background: #1e293b !important;
   color: #f1f5f9 !important;
-  border-color: #475569 !important;  /* Slate 600 */
+  border-color: #475569 !important; /* Slate 600 */
 }
 
 body.dark input:focus {
-  border-color: #3b82f6 !important;  /* Blue 500 */
+  border-color: #3b82f6 !important; /* Blue 500 */
   outline-color: #3b82f6 !important;
 }
 ```
@@ -249,7 +249,7 @@ body.dark #editModal .modal-body {
 
 ---
 
-## 📋 Summary
+## Summary
 
 ### Tailwind + Plain CSS Combination Strategy
 
@@ -282,7 +282,7 @@ body.dark #editModal .modal-body {
 
 ---
 
-## 🔧 Quick Customization Examples
+## Quick Customization Examples
 
 ### Make Admin Role Green Instead of Purple:
 ```php
@@ -307,13 +307,13 @@ darkModeToggle.classList.remove('bg-gray-300', 'border-gray-400');
 ```css
 /* In assets/css/system.css */
 body.dark {
-  --bg: #020617;        /* Slate 950 - Almost black */
+  --bg: #020617; /* Slate 950 - Almost black */
   background-color: #020617;
 }
 
 body.dark #sidebar,
 body.dark .bg-white {
-  background: #0f172a !important;  /* Slate 900 - Very dark */
+  background: #0f172a !important; /* Slate 900 - Very dark */
 }
 ```
 
@@ -321,7 +321,7 @@ Then rebuild: `cd config && npm run build`
 
 ---
 
-## 🛡️ Guard Panel Dark Mode (Separate System)
+## Guard Panel Dark Mode (Separate System)
 
 The guard panel has its own **dedicated dark mode system** that is independent from the admin panel.
 

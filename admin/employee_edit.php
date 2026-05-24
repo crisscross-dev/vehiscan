@@ -3,20 +3,7 @@
  * Employee Edit
  * Edit employee details and role
  */
-
-// Check Super Admin or Admin session
-session_name('vehiscan_superadmin');
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
-    session_write_close();
-    session_name('vehiscan_admin');
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-}
+require_once __DIR__ . '/../includes/session_admin_unified.php';
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     header("Location: ../auth/login.php");
@@ -63,12 +50,13 @@ $error = '';
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token using InputSanitizer
-    $posted_csrf = InputSanitizer::post('csrf', 'string');
+    $posted_csrf = InputSanitizer::post('csrf_token', 'string');
     if (!InputSanitizer::validateCsrf($posted_csrf)) {
         $error = 'Invalid security token. Please refresh and try again.';
     } else {
     // Sanitize inputs
-    $role = InputSanitizer::post('role', 'string');
+    $roleRaw = InputSanitizer::post('role', 'string');
+    $role = $roleRaw === 'owner' ? 'homeowner' : $roleRaw;
     $new_password = InputSanitizer::post('new_password', 'string');
     $reset_password = isset($_POST['reset_password']);
     
@@ -80,10 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validation
     if (empty($role)) {
         $error = "Role is required.";
-    } elseif (!in_array($role, ['admin', 'guard', 'owner'])) {
+    } elseif (!in_array($role, ['admin', 'guard', 'homeowner'])) {
         $error = "Invalid role selected.";
-    } elseif ($reset_password && strlen($new_password) < 8) {
-        $error = "Password must be at least 8 characters.";
+    } elseif ($reset_password && strlen($new_password) < 12) {
+        $error = "Password must be at least 12 characters.";
     } else {
         // Update employee
         if ($reset_password && $new_password) {
@@ -132,9 +120,8 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Employee - VehiScan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -164,11 +151,11 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
             <!-- Edit Form -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <form method="POST" id="employeeForm">
-                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
                     <!-- Username (Read-only) -->
                     <div class="mb-6">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
-                        <input type="text" value="<?= htmlspecialchars($employee['username']) ?>" 
+                        <input type="text" value="<?= htmlspecialchars($employee['username'] ?? '') ?>" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" 
                                disabled>
                         <p class="text-sm text-gray-500 mt-1">Username cannot be changed</p>
@@ -180,7 +167,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                         <select id="role" name="role" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                             <option value="admin" <?= $employee['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                             <option value="guard" <?= $employee['role'] === 'guard' ? 'selected' : '' ?>>Guard</option>
-                            <option value="owner" <?= $employee['role'] === 'owner' ? 'selected' : '' ?>>Homeowner</option>
+                            <option value="homeowner" <?= in_array(($employee['role'] ?? ''), ['homeowner', 'owner'], true) ? 'selected' : '' ?>>Homeowner</option>
                         </select>
                     </div>
 
@@ -197,7 +184,8 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                             <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
                             <input type="password" id="new_password" name="new_password" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                   placeholder="Enter new password (min 8 characters)">
+                                placeholder="Enter new password (min 12 characters)"
+                                minlength="12">
                         </div>
                     </div>
 
@@ -206,7 +194,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                         <a href="employee_list.php" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
                             Cancel
                         </a>
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg font-medium">
+                        <button type="submit" class="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all shadow-lg font-medium">
                             Update Employee
                         </button>
                     </div>
@@ -230,7 +218,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                 icon: 'error',
                 title: 'Error',
                 text: '<?= $error ?>',
-                confirmButtonColor: '#3b82f6'
+                confirmButtonColor: '#ef4444'
             });
         <?php endif; ?>
 

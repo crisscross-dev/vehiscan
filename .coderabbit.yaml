@@ -17,6 +17,7 @@ reviews:
     - "**/*.css"
     - "**/*.html"
     - "**/*.json"
+    - "**/*.md"
     
     # Exclude vendor and dependencies
     - "!vendor/**"

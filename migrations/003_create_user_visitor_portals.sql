@@ -46,7 +46,7 @@ SET @fk_exists = (SELECT COUNT(*)
                   AND CONSTRAINT_NAME = 'fk_visitor_passes_approved_by');
 
 SET @sql = IF(@fk_exists = 0,
-    'ALTER TABLE visitor_passes ADD CONSTRAINT fk_visitor_passes_approved_by FOREIGN KEY (approved_by) REFERENCES super_admin(id) ON DELETE SET NULL',
+    'ALTER TABLE visitor_passes ADD CONSTRAINT fk_visitor_passes_approved_by FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL',
     'SELECT "Foreign key already exists" AS message');
 
 PREPARE stmt FROM @sql;

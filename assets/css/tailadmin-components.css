@@ -1,0 +1,1711 @@
+/**
+ * TailAdmin-Inspired Component System for VehiScan
+ * Provides consistent UI patterns across all admin pages
+ * Built on top of Tailwind CSS utility classes via CSS custom properties
+ */
+
+/* ================================================================
+   CSS Custom Properties (Design Tokens)
+   ================================================================ */
+:root {
+  /* Card tokens */
+  --ta-card-bg: #ffffff;
+  --ta-card-border: #e2e8f0;
+  --ta-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --ta-shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --ta-card-radius: 0.75rem;
+  
+  /* Surface tokens */
+  --ta-surface-bg: #f8fafc;
+  --ta-surface-hover: #f1f5f9;
+  
+  /* Text tokens */
+  --ta-text-primary: #0f172a;
+  --ta-text-secondary: #475569;
+  --ta-text-muted: #94a3b8;
+  
+  /* Input tokens */
+  --ta-input-bg: #ffffff;
+  --ta-input-border: #cbd5e1;
+  --ta-input-focus-ring: rgba(59, 130, 246, 0.5);
+  
+  /* Table tokens */
+  --ta-table-header-bg: #f8fafc;
+  --ta-table-row-hover: #f1f5f9;
+  --ta-table-border: #e2e8f0;
+
+  /* SweetAlert2 button tokens */
+  --ta-swal-confirm: #3b82f6;   /* blue-500 — default confirm */
+  --ta-swal-danger: #ef4444;    /* red-500 — destructive actions */
+  --ta-swal-success: #10b981;   /* emerald-500 — approve/success */
+  --ta-swal-cancel: #6b7280;    /* gray-500 — cancel buttons */
+}
+
+body.dark {
+  --ta-card-bg: #1e293b;
+  --ta-card-border: #334155;
+  --ta-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+  --ta-shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  
+  --ta-surface-bg: #0f172a;
+  --ta-surface-hover: #1e293b;
+  
+  --ta-text-primary: #f1f5f9;
+  --ta-text-secondary: #cbd5e1;
+  --ta-text-muted: #64748b;
+  
+  --ta-input-bg: #1e293b;
+  --ta-input-border: #475569;
+  --ta-input-focus-ring: rgba(59, 130, 246, 0.4);
+  
+  --ta-table-header-bg: #1e293b;
+  --ta-table-row-hover: #334155;
+  --ta-table-border: #334155;
+}
+
+/* ================================================================
+   Layout: Content Area Dark Mode
+   ================================================================ */
+body.dark #content-area {
+  background-color: var(--ta-surface-bg);
+  color: var(--ta-text-primary);
+}
+
+body.dark .main-header {
+  background-color: var(--ta-card-bg) !important;
+  border-color: var(--ta-card-border) !important;
+}
+
+/* ================================================================
+   Component: Card
+   ================================================================ */
+.ta-card {
+  background: var(--ta-card-bg);
+  border: 1px solid var(--ta-card-border);
+  border-radius: var(--ta-card-radius);
+  box-shadow: var(--ta-card-shadow);
+  transition: box-shadow 0.2s ease;
+}
+
+.ta-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.ta-card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--ta-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ta-card-header h3,
+.ta-card-header .ta-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ta-text-primary);
+  margin: 0;
+}
+
+.ta-card-body {
+  padding: 1.5rem;
+}
+
+.ta-card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--ta-card-border);
+}
+
+/* ================================================================
+   Component: Stat Card (TailAdmin-style metric cards)
+   ================================================================ */
+.ta-stat-card {
+  background: var(--ta-card-bg);
+  border: 1px solid var(--ta-card-border);
+  border-radius: var(--ta-card-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--ta-card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ta-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.ta-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ta-shadow-premium);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.ta-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.ta-stat-card:hover .ta-stat-icon {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.ta-stat-icon.blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
+.ta-stat-icon.green { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+.ta-stat-icon.amber { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
+.ta-stat-icon.red { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+.ta-stat-icon.purple { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%); color: #7c3aed; border: 1px solid rgba(139, 92, 246, 0.2); }
+.ta-stat-icon.indigo { background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%); color: #4f46e5; border: 1px solid rgba(99, 102, 241, 0.2); }
+
+.ta-stat-content {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+
+.ta-stat-label,
+.ta-stat-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ta-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.ta-stat-description {
+  font-size: 0.75rem;
+  color: var(--ta-text-secondary);
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+.ta-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ta-text-primary);
+  line-height: 1.2;
+}
+
+.ta-stat-trend {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ta-stat-trend.up { color: #10b981; }
+.ta-stat-trend.down { color: #ef4444; }
+.ta-stat-trend.neutral { color: #94a3b8; }
+
+/* ================================================================
+   Component: Table
+   ================================================================ */
+.ta-table-wrapper {
+  background: var(--ta-card-bg);
+  border: 1px solid var(--ta-card-border);
+  border-radius: var(--ta-card-radius);
+  box-shadow: var(--ta-card-shadow);
+  overflow: hidden;
+}
+
+.ta-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ta-table thead {
+  background-color: var(--ta-table-header-bg);
+  border-bottom: 1px solid var(--ta-table-border);
+}
+
+.ta-table thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ta-text-secondary);
+  white-space: nowrap;
+}
+
+.ta-table tbody tr {
+  border-bottom: 1px solid var(--ta-table-border);
+  transition: background-color 0.15s ease;
+}
+
+.ta-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.ta-table tbody tr:hover {
+  background-color: var(--ta-table-row-hover);
+}
+
+.ta-table tbody td {
+  padding: 0.75rem 1rem;
+  color: var(--ta-text-primary);
+  vertical-align: middle;
+}
+
+.ta-table tbody td.muted {
+  color: var(--ta-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .ta-table-wrapper {
+    overflow: visible;
+  }
+
+  table[data-responsive-cards='true'] {
+    display: block;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+    background: transparent;
+  }
+
+  table[data-responsive-cards='true'] thead {
+    display: none;
+  }
+
+  table[data-responsive-cards='true'] tbody {
+    display: block;
+  }
+
+  table[data-responsive-cards='true'] tbody tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    background: var(--ta-card-bg);
+    border: 1px solid var(--ta-card-border);
+    border-radius: var(--ta-card-radius);
+    box-shadow: var(--ta-card-shadow);
+    overflow: hidden;
+  }
+
+  table[data-responsive-cards='true'] tbody tr[data-ta-empty-row='true'] {
+    margin-bottom: 0;
+    box-shadow: none;
+    background: transparent;
+    border: none;
+  }
+
+  table[data-responsive-cards='true'] tbody td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--ta-table-border);
+    white-space: normal;
+  }
+
+  table[data-responsive-cards='true'] tbody tr:last-child td:last-child {
+    border-bottom: none;
+  }
+
+  table[data-responsive-cards='true'] tbody tr[data-ta-empty-row='true'] td {
+    display: block;
+    padding: 1rem;
+    border-bottom: none;
+  }
+
+  table[data-responsive-cards='true'] tbody tr[data-ta-empty-row='true'] td::before {
+    content: none;
+  }
+
+  table[data-responsive-cards='true'] tbody td::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ta-text-muted);
+  }
+
+  table[data-responsive-cards='true'] tbody td:last-child {
+    border-bottom: none;
+  }
+
+  table[data-responsive-cards='true'] tbody td > .ta-action-dropdown,
+  table[data-responsive-cards='true'] tbody td > .rfid-col-container,
+  table[data-responsive-cards='true'] tbody td > .flex {
+    width: 100%;
+  }
+}
+
+/* ================================================================
+   Component: Toolbar (search + filters + actions)
+   ================================================================ */
+.ta-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ta-toolbar-start {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ta-toolbar-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ================================================================
+   Component: Form Inputs
+   ================================================================ */
+.ta-input {
+  display: block;
+  width: 100%;
+  background: var(--ta-input-bg);
+  border: 1px solid var(--ta-input-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ta-text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.ta-input::placeholder {
+  color: var(--ta-text-muted);
+}
+
+.ta-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px var(--ta-input-focus-ring);
+}
+
+.ta-select {
+  display: block;
+  background: var(--ta-input-bg);
+  border: 1px solid var(--ta-input-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ta-text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+}
+
+.ta-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px var(--ta-input-focus-ring);
+}
+
+.ta-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ta-text-secondary);
+  margin-bottom: 0.375rem;
+}
+
+/* ================================================================
+   Component: Badges
+   ================================================================ */
+.ta-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.ta-badge.success { background: rgba(16, 185, 129, 0.1); color: #059669; }
+.ta-badge.warning { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+.ta-badge.danger  { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+.ta-badge.info    { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+.ta-badge.neutral { background: rgba(100, 116, 139, 0.1); color: #475569; }
+.ta-badge.purple  { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+
+body.dark .ta-badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+body.dark .ta-badge.warning,
+body.dark .ta-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+body.dark .ta-badge.danger,
+body.dark .ta-badge.danger  { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+body.dark .ta-badge.info,
+body.dark .ta-badge.info    { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+body.dark .ta-badge.neutral,
+body.dark .ta-badge.neutral { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+body.dark .ta-badge.purple,
+body.dark .ta-badge.purple  { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+
+/* ================================================================
+   Component: Page Header
+   ================================================================ */
+.ta-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.ta-page-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ta-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ta-page-header p {
+  font-size: 0.875rem;
+  color: var(--ta-text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* ================================================================
+   Component: Empty State
+   ================================================================ */
+.ta-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--ta-text-muted);
+  background: var(--ta-surface-bg);
+  border: 2px dashed var(--ta-card-border);
+  border-radius: var(--ta-card-radius);
+  margin: 1rem 0;
+}
+
+.ta-empty-icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  background: var(--ta-card-bg);
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  color: #3b82f6;
+}
+
+.ta-empty-icon svg {
+  width: 2.25rem;
+  height: 2.25rem;
+  opacity: 0.9;
+}
+
+.ta-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ta-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.ta-empty-desc {
+  font-size: 0.875rem;
+  color: var(--ta-text-secondary);
+  max-width: 20rem;
+  line-height: 1.5;
+}
+
+/* ================================================================
+   Component: Loading Skeleton
+   ================================================================ */
+.ta-skeleton {
+  background: linear-gradient(90deg, 
+    var(--ta-surface-hover) 25%, 
+    var(--ta-card-border) 50%, 
+    var(--ta-surface-hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: ta-skeleton-loading 1.5s infinite linear;
+  border-radius: 0.375rem;
+}
+
+@keyframes ta-skeleton-loading {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.ta-skeleton-text { height: 0.75rem; width: 100%; margin-bottom: 0.5rem; }
+.ta-skeleton-title { height: 1.25rem; width: 60%; margin-bottom: 1rem; }
+.ta-skeleton-avatar { height: 3rem; width: 3rem; border-radius: 9999px; }
+.ta-skeleton-card { height: 10rem; width: 100%; border-radius: var(--ta-card-radius); }
+.ta-skeleton-button { height: 2.5rem; width: 6rem; }
+
+/* ================================================================
+   Dark Mode: Content background & general fixes
+   ================================================================ */
+body.dark {
+  background-color: #0f172a !important;
+}
+
+body.dark #content-area h1,
+body.dark #content-area h2,
+body.dark #content-area h3,
+body.dark #content-area h1,
+body.dark #content-area h2,
+body.dark #content-area h3 {
+  color: var(--ta-text-primary);
+}
+
+body.dark #content-area p,
+body.dark #content-area p {
+  color: var(--ta-text-secondary);
+}
+
+/* Dark mode for standard bg-white / bg-slate-50 elements inside fetch fragments */
+body.dark #content-area .bg-white,
+body.dark #content-area .bg-white {
+  background-color: var(--ta-card-bg) !important;
+  color: var(--ta-text-primary);
+}
+
+body.dark #content-area .bg-slate-50,
+body.dark #content-area .bg-gray-50,
+body.dark #content-area .bg-slate-50,
+body.dark #content-area .bg-gray-50 {
+  background-color: var(--ta-table-header-bg) !important;
+}
+
+body.dark #content-area .text-gray-900,
+body.dark #content-area .text-slate-900,
+body.dark #content-area .text-gray-900,
+body.dark #content-area .text-slate-900 {
+  color: var(--ta-text-primary) !important;
+}
+
+body.dark #content-area .text-gray-800,
+body.dark #content-area .text-slate-800,
+body.dark #content-area .text-gray-800,
+body.dark #content-area .text-slate-800 {
+  color: var(--ta-text-primary) !important;
+}
+
+body.dark #content-area .text-gray-700,
+body.dark #content-area .text-slate-700,
+body.dark #content-area .text-gray-700,
+body.dark #content-area .text-slate-700 {
+  color: var(--ta-text-secondary) !important;
+}
+
+body.dark #content-area .text-gray-600,
+body.dark #content-area .text-slate-600,
+body.dark #content-area .text-gray-600,
+body.dark #content-area .text-slate-600 {
+  color: var(--ta-text-secondary) !important;
+}
+
+body.dark #content-area .text-gray-500,
+body.dark #content-area .text-slate-500,
+body.dark #content-area .text-gray-500,
+body.dark #content-area .text-slate-500 {
+  color: var(--ta-text-muted) !important;
+}
+
+body.dark #content-area .border-slate-200,
+body.dark #content-area .border-gray-200,
+body.dark #content-area .border-slate-200,
+body.dark #content-area .border-gray-200 {
+  border-color: var(--ta-card-border) !important;
+}
+
+body.dark #content-area .divide-slate-200 > :not(:last-child),
+body.dark #content-area .divide-gray-200 > :not(:last-child),
+body.dark #content-area .divide-slate-200 > :not(:last-child),
+body.dark #content-area .divide-gray-200 > :not(:last-child) {
+  border-color: var(--ta-card-border) !important;
+}
+
+body.dark #content-area .hover\:bg-slate-50:hover,
+body.dark #content-area .hover\:bg-gray-50:hover,
+body.dark #content-area .hover\:bg-slate-50:hover,
+body.dark #content-area .hover\:bg-gray-50:hover {
+  background-color: var(--ta-table-row-hover) !important;
+}
+
+/* Dark mode for form inputs inside content area */
+body.dark #content-area input[type="text"],
+body.dark #content-area input[type="search"],
+body.dark #content-area input[type="date"],
+body.dark #content-area input[type="email"],
+body.dark #content-area select,
+body.dark #content-area textarea,
+body.dark #content-area input[type="text"],
+body.dark #content-area input[type="search"],
+body.dark #content-area input[type="date"],
+body.dark #content-area input[type="email"],
+body.dark #content-area select,
+body.dark #content-area textarea {
+  background-color: var(--ta-input-bg) !important;
+  border-color: var(--ta-input-border) !important;
+  color: var(--ta-text-primary) !important;
+}
+
+body.dark #content-area input::placeholder,
+body.dark #content-area input::placeholder {
+  color: var(--ta-text-muted) !important;
+}
+
+/* Dark mode for shadows */
+body.dark #content-area .shadow-sm,
+body.dark #content-area .shadow,
+body.dark #content-area .shadow-sm,
+body.dark #content-area .shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark mode for modal */
+body.dark .swal2-popup,
+body.dark .swal2-popup {
+  background-color: var(--ta-card-bg);
+  color: var(--ta-text-primary);
+}
+
+body.dark .swal2-title,
+body.dark .swal2-title {
+  color: var(--ta-text-primary);
+}
+
+body.dark .swal2-html-container,
+body.dark .swal2-html-container {
+  color: var(--ta-text-secondary);
+}
+
+/* Dark mode for dropdown */
+body.dark #user-dropdown,
+body.dark #user-dropdown {
+  background-color: var(--ta-card-bg);
+  border-color: var(--ta-card-border);
+}
+
+/* ================================================================
+   Component: Chart Wrapper
+   ================================================================ */
+.ta-chart-card {
+  background: var(--ta-card-bg);
+  border: 1px solid var(--ta-card-border);
+  border-radius: var(--ta-card-radius);
+  box-shadow: var(--ta-card-shadow);
+  overflow: hidden;
+}
+
+.ta-chart-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--ta-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ta-chart-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ta-text-primary);
+  margin: 0;
+}
+
+.ta-chart-body {
+  padding: 1.25rem;
+}
+
+/* ================================================================
+   Utility: Smooth page transition for SPA fragments
+   ================================================================ */
+#content-area > * {
+  animation: taFadeIn 0.15s ease-out;
+}
+
+@keyframes taFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   DataTables Dark Mode Override
+   ================================================================ */
+body.dark .dataTables_wrapper,
+body.dark .dataTables_wrapper {
+  color: var(--ta-text-primary);
+}
+
+body.dark .dataTables_wrapper .dataTables_length select,
+body.dark .dataTables_wrapper .dataTables_filter input,
+body.dark .dataTables_wrapper .dataTables_length select,
+body.dark .dataTables_wrapper .dataTables_filter input {
+  background-color: var(--ta-input-bg);
+  border-color: var(--ta-input-border);
+  color: var(--ta-text-primary);
+}
+
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button,
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: var(--ta-text-secondary) !important;
+}
+
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #3b82f6 !important;
+  color: white !important;
+  border-color: #3b82f6 !important;
+}
+
+body.dark .dataTables_wrapper .dataTables_info,
+body.dark .dataTables_wrapper .dataTables_info {
+  color: var(--ta-text-muted);
+}
+
+/* ================================================================
+   Component: Buttons (TailAdmin)
+   ================================================================ */
+.ta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  outline: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.ta-btn:focus-visible,
+.ta-breadcrumb a:focus-visible,
+.ta-input:focus-visible,
+.ta-select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.ta-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.ta-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ta-btn.is-loading {
+  opacity: 0.8;
+}
+
+.ta-btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.ta-btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+.ta-btn-success {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+}
+.ta-btn-success:hover { background: #15803d; border-color: #15803d; }
+
+.ta-btn-danger {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+.ta-btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+
+.ta-btn-warning {
+  background: #d97706;
+  color: #fff;
+  border-color: #d97706;
+}
+.ta-btn-warning:hover { background: #b45309; border-color: #b45309; }
+
+.ta-btn-secondary {
+  background: var(--ta-card-bg);
+  color: var(--ta-text-primary);
+  border-color: var(--ta-card-border);
+}
+.ta-btn-secondary:hover { background: var(--ta-surface-hover); }
+
+/* Ghost / outline variants */
+.ta-btn-ghost {
+  background: transparent;
+  color: var(--ta-text-secondary);
+  border-color: transparent;
+}
+.ta-btn-ghost:hover { background: var(--ta-surface-hover); color: var(--ta-text-primary); }
+
+.ta-btn-outline-primary {
+  background: transparent;
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+.ta-btn-outline-primary:hover { background: #3b82f6; color: #fff; }
+
+.ta-btn-sm { padding: 0.25rem 0.75rem; font-size: 0.8125rem; }
+.ta-btn-lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
+.ta-btn-icon { padding: 0.5rem; }
+
+/* ================================================================
+   Component: Breadcrumb
+   ================================================================ */
+.ta-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--ta-text-muted);
+  background: var(--ta-card-bg);
+  border-bottom: 1px solid var(--ta-card-border);
+}
+
+.ta-breadcrumb a {
+  color: var(--ta-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.ta-breadcrumb a:hover { color: #3b82f6; }
+.ta-breadcrumb a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.ta-breadcrumb .ta-bc-sep {
+  color: var(--ta-text-muted);
+  font-size: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ta-card,
+  .ta-stat-card,
+  .ta-btn,
+  .ta-breadcrumb a,
+  .ta-table tbody tr {
+    transition: none !important;
+  }
+
+  .skeleton,
+  .ta-spinner,
+  .ta-notification-dot,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+.ta-breadcrumb .ta-bc-current {
+  color: var(--ta-text-primary);
+  font-weight: 500;
+}
+
+/* ================================================================
+   Component: Notification Dropdown
+   ================================================================ */
+.ta-notification-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--ta-text-secondary);
+  transition: all 0.15s;
+}
+.ta-notification-bell:hover { background: var(--ta-surface-hover); color: var(--ta-text-primary); }
+.ta-notification-bell:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.ta-notification-dot {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid var(--ta-card-bg);
+  animation: ta-pulse-dot 2s infinite;
+}
+
+@keyframes ta-pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ta-notification-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 22rem;
+  max-height: 24rem;
+  background: var(--ta-card-bg);
+  border: 1px solid var(--ta-card-border);
+  border-radius: var(--ta-card-radius);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  z-index: 9999;
+  overflow: hidden;
+  display: none;
+}
+.ta-notification-panel.open { display: block; }
+
+.ta-notification-panel-header,
+.ta-notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--ta-card-border);
+}
+
+.ta-notification-panel-header h4,
+.ta-notification-header h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ta-text-primary);
+  margin: 0;
+}
+
+.ta-notification-panel-header a,
+.ta-notification-header a,
+.ta-notification-header button {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3b82f6;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ta-notification-panel-header a:hover,
+.ta-notification-header a:hover,
+.ta-notification-header button:hover { text-decoration: underline; }
+.ta-notification-panel-header a:focus-visible,
+.ta-notification-header a:focus-visible,
+.ta-notification-header button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.ta-notification-list {
+  overflow-y: auto;
+  max-height: 18rem;
+}
+
+.ta-notification-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--ta-card-border);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.ta-notification-item:hover { background: var(--ta-surface-hover); }
+.ta-notification-item:last-child { border-bottom: none; }
+
+.ta-notification-item .ta-notif-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.ta-notification-item .ta-notif-icon.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.ta-notification-item .ta-notif-icon.red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.ta-notification-item .ta-notif-icon.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.ta-notification-item .ta-notif-icon.amber { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+.ta-notification-item .ta-notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ta-notification-item .ta-notif-msg {
+  font-size: 0.8125rem;
+  color: var(--ta-text-primary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ta-notification-item .ta-notif-time {
+  font-size: 0.6875rem;
+  color: var(--ta-text-muted);
+  margin-top: 0.125rem;
+}
+
+.ta-notification-panel-footer,
+.ta-notification-footer {
+  border-top: 1px solid var(--ta-card-border);
+  padding: 0.7rem 1rem;
+  text-align: center;
+}
+
+.ta-notification-panel-footer a,
+.ta-notification-footer a {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #3b82f6;
+  text-decoration: none;
+}
+.ta-notification-panel-footer a:hover,
+.ta-notification-footer a:hover { text-decoration: underline; }
+.ta-notification-panel-footer a:focus-visible,
+.ta-notification-footer a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .ta-notification-panel {
+    right: 0;
+    width: min(22rem, calc(100vw - 1.25rem));
+    max-height: min(24rem, 72vh);
+    border-radius: 0.75rem;
+  }
+
+  .ta-notification-panel-header,
+  .ta-notification-header {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .ta-notification-item {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .ta-notification-list {
+    max-height: min(18rem, 58vh);
+  }
+
+  .ta-notification-panel-footer,
+  .ta-notification-footer {
+    padding: 0.65rem 0.85rem;
+  }
+}
+
+/* ================================================================
+   Component: Pill Tab Group (segmented control)
+   ================================================================ */
+.ta-pill-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--ta-surface-bg);
+  border: 1px solid var(--ta-card-border);
+  border-radius: 0.5rem;
+}
+
+.ta-pill-tab {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--ta-text-secondary);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.ta-pill-tab:hover { color: var(--ta-text-primary); }
+.ta-pill-tab:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+.ta-pill-tab.active {
+  background: var(--ta-card-bg);
+  color: var(--ta-text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ================================================================
+   Component: Enhanced Empty State
+   ================================================================ */
+.ta-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.ta-empty-state .ta-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--ta-surface-bg);
+  margin-bottom: 1rem;
+}
+
+.ta-empty-state .ta-empty-icon svg {
+  width: 2rem;
+  height: 2rem;
+  color: var(--ta-text-muted);
+  opacity: 1;
+  margin-bottom: 0;
+}
+
+.ta-empty-state .ta-empty-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ta-text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.ta-empty-state .ta-empty-desc {
+  font-size: 0.875rem;
+  color: var(--ta-text-muted);
+  max-width: 24rem;
+  margin-bottom: 1.25rem;
+}
+
+.ta-empty-state .ta-btn {
+  margin-top: 0.25rem;
+}
+
+/* ================================================================
+   Component: Timeline / Activity Feed
+   ================================================================ */
+.ta-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ta-timeline-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  position: relative;
+}
+
+.ta-timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0.9375rem;
+  top: 2.25rem;
+  bottom: 0;
+  width: 1px;
+  background: var(--ta-card-border);
+}
+
+.ta-timeline-dot {
+  flex-shrink: 0;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ta-timeline-dot.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.ta-timeline-dot.red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.ta-timeline-dot.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.ta-timeline-dot.amber { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+.ta-timeline-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ta-timeline-title {
+  font-size: 0.8125rem;
+  color: var(--ta-text-primary);
+  font-weight: 500;
+}
+
+.ta-timeline-time {
+  font-size: 0.6875rem;
+  color: var(--ta-text-muted);
+  margin-top: 0.125rem;
+}
+
+/* ================================================================
+   Component: Sidebar Badge Counter
+   ================================================================ */
+.ta-sidebar-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  line-height: 1;
+}
+.ta-sidebar-badge.amber { background: #fef3c7; color: #92400e; }
+.ta-sidebar-badge.blue { background: #dbeafe; color: #1e40af; }
+.ta-sidebar-badge.red { background: #fee2e2; color: #991b1b; }
+
+body.dark .ta-sidebar-badge.amber,
+body.dark .ta-sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+body.dark .ta-sidebar-badge.blue,
+body.dark .ta-sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+body.dark .ta-sidebar-badge.red,
+body.dark .ta-sidebar-badge.red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+/* ================================================================
+   Component: Form Group with validation
+   ================================================================ */
+.ta-form-group {
+  margin-bottom: 1rem;
+}
+
+.ta-form-group .ta-label {
+  margin-bottom: 0.375rem;
+}
+
+.ta-form-group .ta-input-wrapper {
+  position: relative;
+}
+
+.ta-form-group .ta-input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ta-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.ta-form-group .ta-input-icon + .ta-input {
+  padding-left: 3rem;
+}
+
+.ta-form-group .ta-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+.ta-form-group .ta-error-msg svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.ta-form-group .ta-input.error {
+  border-color: #fca5a5;
+}
+.ta-form-group .ta-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.ta-form-group .ta-input.valid {
+  border-color: #86efac;
+}
+.ta-form-group .ta-input.valid:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* ================================================================
+   Component: Password Strength Meter
+   ================================================================ */
+.ta-password-meter {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.ta-password-meter .ta-meter-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--ta-card-border);
+  transition: background 0.3s;
+}
+
+.ta-password-meter[data-strength="weak"] .ta-meter-bar:nth-child(1) { background: #ef4444; }
+.ta-password-meter[data-strength="fair"] .ta-meter-bar:nth-child(1),
+.ta-password-meter[data-strength="fair"] .ta-meter-bar:nth-child(2) { background: #f59e0b; }
+.ta-password-meter[data-strength="strong"] .ta-meter-bar:nth-child(1),
+.ta-password-meter[data-strength="strong"] .ta-meter-bar:nth-child(2),
+.ta-password-meter[data-strength="strong"] .ta-meter-bar:nth-child(3) { background: #10b981; }
+
+.ta-password-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+.ta-password-label.weak { color: #ef4444; }
+.ta-password-label.fair { color: #f59e0b; }
+.ta-password-label.strong { color: #10b981; }
+
+/* ================================================================
+   Component: Alert / Notice Stripe
+   ================================================================ */
+.ta-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  border-left: 4px solid;
+}
+
+.ta-alert-info { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+.ta-alert-success { background: #f0fdf4; border-color: #10b981; color: #166534; }
+.ta-alert-warning { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+.ta-alert-danger { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+
+body.dark .ta-alert-info,
+body.dark .ta-alert-info { background: rgba(59,130,246,0.1); color: #93c5fd; }
+body.dark .ta-alert-success,
+body.dark .ta-alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; }
+body.dark .ta-alert-warning,
+body.dark .ta-alert-warning { background: rgba(245,158,11,0.1); color: #fcd34d; }
+body.dark .ta-alert-danger,
+body.dark .ta-alert-danger { background: rgba(239,68,68,0.1); color: #fca5a5; }
+
+.ta-alert svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.ta-alert-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  padding: 0.25rem;
+}
+.ta-alert-dismiss:hover { opacity: 1; }
+.ta-alert-dismiss:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+  opacity: 1;
+}
+
+/* ================================================================
+   Component: Skeleton Loader
+   ================================================================ */
+.ta-skeleton {
+  background: linear-gradient(90deg, var(--ta-surface-bg) 25%, var(--ta-surface-hover) 50%, var(--ta-surface-bg) 75%);
+  background-size: 200% 100%;
+  animation: ta-skeleton-shimmer 1.5s infinite;
+  border-radius: 0.375rem;
+}
+
+@keyframes ta-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.ta-skeleton-text { height: 0.875rem; width: 60%; }
+.ta-skeleton-text-sm { height: 0.625rem; width: 40%; }
+.ta-skeleton-title { height: 1.5rem; width: 50%; }
+.ta-skeleton-avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; }
+.ta-skeleton-card { height: 12rem; }
+.ta-skeleton-row { height: 3rem; margin-bottom: 0.5rem; }
+
+/* ================================================================
+   Component: Dropzone (file upload area)
+   ================================================================ */
+.ta-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed var(--ta-input-border);
+  border-radius: var(--ta-card-radius);
+  background: var(--ta-surface-bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.ta-dropzone:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.04);
+}
+.ta-dropzone:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-color: #3b82f6;
+}
+
+.ta-dropzone.dragover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.ta-dropzone svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--ta-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.ta-dropzone .ta-dropzone-text {
+  font-size: 0.875rem;
+  color: var(--ta-text-secondary);
+  font-weight: 500;
+}
+
+.ta-dropzone .ta-dropzone-hint {
+  font-size: 0.75rem;
+  color: var(--ta-text-muted);
+  margin-top: 0.25rem;
+}
+
+.ta-dropzone .ta-dropzone-preview {
+  margin-top: 0.75rem;
+  max-width: 8rem;
+  max-height: 8rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: none;
+}
+
+.ta-dropzone .ta-dropzone-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ta-dropzone.has-preview .ta-dropzone-preview { display: block; }
+.ta-dropzone.has-preview svg,
+.ta-dropzone.has-preview .ta-dropzone-text,
+.ta-dropzone.has-preview .ta-dropzone-hint { display: none; }
+
+/* ================================================================
+   Auth Pages: TailAdmin-aligned dark mode
+   ================================================================ */
+.auth-page {
+  --auth-bg: #f8fafc;
+  --auth-card-bg: #ffffff;
+  --auth-card-border: #e2e8f0;
+  --auth-text: #0f172a;
+  --auth-text-secondary: #64748b;
+  --auth-input-bg: #ffffff;
+  --auth-input-border: #cbd5e1;
+  --auth-accent: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .auth-page {
+    --auth-bg: #0f172a;
+    --auth-card-bg: #1e293b;
+    --auth-card-border: #334155;
+    --auth-text: #f1f5f9;
+    --auth-text-secondary: #94a3b8;
+    --auth-input-bg: #1e293b;
+    --auth-input-border: #475569;
+    --auth-accent: #3b82f6;
+  }
+}
+
+/* ================================================================
+   Component: Action Dropdown (TailAdmin — Icon + Divider)
+   ================================================================ */
+.ta-action-dropdown {
+  position: relative;
+  display: inline-block;
+  text-align: left;
+}
+
+.ta-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+  white-space: nowrap;
+}
+.ta-action-btn:hover { background: #f9fafb; border-color: #9ca3af; }
+.ta-action-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+.ta-action-btn svg.ta-chevron {
+  width: 1rem; height: 1rem;
+  transition: transform 200ms;
+  color: #6b7280;
+}
+.ta-action-dropdown.open .ta-action-btn svg.ta-chevron {
+  transform: rotate(180deg);
+}
+
+.ta-action-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  z-index: 50;
+  min-width: 10rem;
+  margin-top: 0.375rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+  overflow: visible;
+}
+.ta-action-dropdown.open .ta-action-menu { display: block; }
+
+/* Position above when near bottom of viewport */
+.ta-action-dropdown.drop-up .ta-action-menu {
+  bottom: 100%;
+  top: auto;
+  margin-top: 0;
+  margin-bottom: 0.375rem;
+}
+
+.ta-action-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 100ms;
+  white-space: nowrap;
+}
+.ta-action-menu-item:hover { background: #f3f4f6; }
+.ta-action-menu-item:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+}
+.ta-action-menu-item svg {
+  width: 1rem; height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Semantic color variants */
+.ta-action-menu-item.green  { color: #15803d; }
+.ta-action-menu-item.green:hover  { background: #f0fdf4; }
+.ta-action-menu-item.blue   { color: #1d4ed8; }
+.ta-action-menu-item.blue:hover   { background: #eff6ff; }
+.ta-action-menu-item.red    { color: #b91c1c; }
+.ta-action-menu-item.red:hover    { background: #fef2f2; }
+
+.ta-action-divider {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: #e5e7eb;
+}
+
+/* Dark mode */
+body.dark .ta-action-btn,
+.dark .ta-action-btn {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+body.dark .ta-action-btn:hover,
+.dark .ta-action-btn:hover { background: #334155; border-color: #64748b; }
+body.dark .ta-action-btn:focus-visible,
+.dark .ta-action-btn:focus-visible { outline-color: #60a5fa; }
+
+body.dark .ta-action-menu,
+.dark .ta-action-menu {
+  background: #1e293b;
+  border-color: #334155;
+}
+body.dark .ta-action-menu-item,
+.dark .ta-action-menu-item { color: #e2e8f0; }
+body.dark .ta-action-menu-item:hover,
+.dark .ta-action-menu-item:hover { background: #334155; }
+body.dark .ta-action-menu-item:focus-visible,
+.dark .ta-action-menu-item:focus-visible { outline-color: #60a5fa; }
+body.dark .ta-action-menu-item.green,
+.dark .ta-action-menu-item.green { color: #4ade80; }
+body.dark .ta-action-menu-item.green:hover,
+.dark .ta-action-menu-item.green:hover { background: #064e3b33; }
+body.dark .ta-action-menu-item.blue,
+.dark .ta-action-menu-item.blue { color: #60a5fa; }
+body.dark .ta-action-menu-item.blue:hover,
+.dark .ta-action-menu-item.blue:hover { background: #1e3a5f55; }
+body.dark .ta-action-menu-item.red,
+.dark .ta-action-menu-item.red { color: #f87171; }
+body.dark .ta-action-menu-item.red:hover,
+.dark .ta-action-menu-item.red:hover { background: #7f1d1d33; }
+body.dark .ta-action-divider,
+.dark .ta-action-divider { background: #334155; }

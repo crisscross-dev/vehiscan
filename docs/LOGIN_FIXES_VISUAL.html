@@ -102,65 +102,65 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔧 VehiScan Login System - Fixes Applied</h1>
+        <h1><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/></svg> VehiScan Login System - Fixes Applied</h1>
         
         <div class="summary">
-            <h2 style="margin-top: 0;">✅ All Issues Resolved</h2>
+            <h2 style="margin-top: 0;"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> All Issues Resolved</h2>
             <p><strong>4 Critical Fixes Applied</strong></p>
             <ul>
-                <li>✅ Password toggle button functionality restored</li>
-                <li>✅ Login authentication now works correctly</li>
-                <li>✅ Admin approvals page loads without errors</li>
-                <li>✅ Guard visitor page displays properly</li>
+                <li><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Password toggle button functionality restored</li>
+                <li><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Login authentication now works correctly</li>
+                <li><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Admin approvals page loads without errors</li>
+                <li><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Guard visitor page displays properly</li>
             </ul>
         </div>
 
         <!-- Issue 1 -->
         <div class="issue-card">
-            <h2><span class="icon">🔴</span>Issue #1: Password Toggle Button Not Working</h2>
+            <h2><span class="icon"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='#ef4444'/></svg></span>Issue #1: Password Toggle Button Not Working</h2>
             <p><span class="badge badge-error">CRITICAL</span> <span class="badge badge-info">JavaScript</span></p>
-            <p><strong>Symptom:</strong> Clicking the eye icon (👁) didn't show/hide password</p>
+            <p><strong>Symptom:</strong> Clicking the eye icon (<svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/><circle cx='12' cy='12' r='3'/></svg>) didn't show/hide password</p>
             <p><strong>Root Cause:</strong> JavaScript selector mismatch</p>
         </div>
 
         <div class="comparison">
             <div class="before">
-                <h3>❌ Before (BROKEN)</h3>
+                <h3><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Before (BROKEN)</h3>
                 <pre>// assets/js/login.js
 function initializePasswordToggle() {
   const passwordInput = document.getElementById('password');
   const toggleButton = document.querySelector('.toggle-password');
-  // ❌ Looking for CLASS selector
+  // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Looking for CLASS selector
   
   if (!passwordInput || !toggleButton) return;
-  // ❌ Button never found, returns early
+  // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Button never found, returns early
 }</pre>
             </div>
             <div class="after">
-                <h3>✅ After (FIXED)</h3>
+                <h3><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> After (FIXED)</h3>
                 <pre>// assets/js/login.js
 function initializePasswordToggle() {
   const passwordInput = document.getElementById('password');
   const toggleButton = document.getElementById('togglePassword');
-  // ✅ Correct ID selector
+  // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Correct ID selector
   
   if (!passwordInput || !toggleButton) {
     console.warn('Password toggle elements not found');
     return;
   }
-  // ✅ Button found, functionality works
+  // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Button found, functionality works
 }</pre>
             </div>
         </div>
 
         <div class="fix-card">
-            <strong>✅ Fix Applied:</strong> Changed selector from <code>.toggle-password</code> to <code>#togglePassword</code>
+            <strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Fix Applied:</strong> Changed selector from <code>.toggle-password</code> to <code>#togglePassword</code>
             <br><strong>File:</strong> assets/js/login.js (line 70)
         </div>
 
         <!-- Issue 2 -->
         <div class="issue-card">
-            <h2><span class="icon">🔴</span>Issue #2: Login Not Working (Undefined Variable)</h2>
+            <h2><span class="icon"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='#ef4444'/></svg></span>Issue #2: Login Not Working (Undefined Variable)</h2>
             <p><span class="badge badge-error">CRITICAL</span> <span class="badge badge-info">PHP</span></p>
             <p><strong>Symptom:</strong> Login fails, PHP warnings about undefined variable <code>$username</code></p>
             <p><strong>Root Cause:</strong> Variable <code>$usernameOrEmail</code> incorrectly referenced as <code>$username</code></p>
@@ -168,11 +168,11 @@ function initializePasswordToggle() {
 
         <div class="comparison">
             <div class="before">
-                <h3>❌ Before (BROKEN)</h3>
+                <h3><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Before (BROKEN)</h3>
                 <pre>// auth/login.php (Line 47)
 try {
     AuditLogger::logAuth('super_admin_login', true, $username);
-    // ❌ $username is NEVER defined!
+    // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> $username is NEVER defined!
 } catch (Exception $e) {
     // Audit logger not available
 }
@@ -180,14 +180,14 @@ try {
 // Line 265
 $rateLimiter->recordAttempt($ipAddress, 'login', 
     ['username' => $username, 'success' => false]);
-// ❌ Undefined variable error</pre>
+// <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Undefined variable error</pre>
             </div>
             <div class="after">
-                <h3>✅ After (FIXED)</h3>
+                <h3><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> After (FIXED)</h3>
                 <pre>// auth/login.php (Line 49)
 try {
     AuditLogger::logAuth('super_admin_login', true, $usernameOrEmail);
-    // ✅ Correct variable name
+    // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Correct variable name
 } catch (Exception $e) {
     // Audit logger not available
 }
@@ -195,18 +195,18 @@ try {
 // Line 265
 $rateLimiter->recordAttempt($ipAddress, 'login', 
     ['username' => $usernameOrEmail, 'success' => false]);
-// ✅ Works correctly</pre>
+// <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Works correctly</pre>
             </div>
         </div>
 
         <div class="fix-card">
-            <strong>✅ Fix Applied:</strong> Changed all 4 instances of <code>$username</code> to <code>$usernameOrEmail</code>
+            <strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Fix Applied:</strong> Changed all 4 instances of <code>$username</code> to <code>$usernameOrEmail</code>
             <br><strong>File:</strong> auth/login.php (lines 49, 64, 265, 270)
         </div>
 
         <!-- Issue 3 -->
         <div class="issue-card">
-            <h2><span class="icon">🔴</span>Issue #3: Admin Approvals Page Network Error</h2>
+            <h2><span class="icon"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='#ef4444'/></svg></span>Issue #3: Admin Approvals Page Network Error</h2>
             <p><span class="badge badge-error">HIGH</span> <span class="badge badge-info">SQL</span></p>
             <p><strong>Symptom:</strong> "Error: Network response was not ok" in admin panel</p>
             <p><strong>Root Cause:</strong> Database column name mismatch</p>
@@ -214,13 +214,13 @@ $rateLimiter->recordAttempt($ipAddress, 'login',
 
         <div class="comparison">
             <div class="before">
-                <h3>❌ Before (BROKEN)</h3>
+                <h3><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Before (BROKEN)</h3>
                 <pre>// admin/api/get_pending_accounts.php
 SELECT 
     h.id,
     h.name,
     h.email,
-    h.contact,  // ❌ Column doesn't exist!
+    h.contact,  // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Column doesn't exist!
     h.address
 FROM homeowners h
 WHERE h.account_status = 'pending'
@@ -228,50 +228,50 @@ WHERE h.account_status = 'pending'
 // SQL Error: Unknown column 'h.contact'</pre>
             </div>
             <div class="after">
-                <h3>✅ After (FIXED)</h3>
+                <h3><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> After (FIXED)</h3>
                 <pre>// admin/api/get_pending_accounts.php
 SELECT 
     h.id,
     h.name,
     h.email,
-    h.contact_number,  // ✅ Correct column name
+    h.contact_number,  // <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Correct column name
     h.address
 FROM homeowners h
 WHERE h.account_status = 'pending'
 
-// ✅ Query executes successfully</pre>
+// <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Query executes successfully</pre>
             </div>
         </div>
 
         <div class="fix-card">
-            <strong>✅ Fix Applied:</strong> Changed column from <code>contact</code> to <code>contact_number</code>
+            <strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Fix Applied:</strong> Changed column from <code>contact</code> to <code>contact_number</code>
             <br><strong>File:</strong> admin/api/get_pending_accounts.php (line 20)
             <br><strong>Database Schema:</strong> Confirmed column is <code>contact_number</code> in homeowners table
         </div>
 
         <!-- Issue 4 -->
         <div class="issue-card">
-            <h2><span class="icon">🟡</span>Issue #4: Guard Visitor Page Errors</h2>
+            <h2><span class="icon"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='#eab308'/></svg></span>Issue #4: Guard Visitor Page Errors</h2>
             <p><span class="badge badge-error">MEDIUM</span> <span class="badge badge-info">Error Handling</span></p>
             <p><strong>Symptom:</strong> "Error: Failed to fetch visitor passes" with 500 status</p>
             <p><strong>Root Cause:</strong> Insufficient error logging</p>
         </div>
 
         <div class="fix-card">
-            <strong>✅ Enhancement Applied:</strong> Added detailed error logging
+            <strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Enhancement Applied:</strong> Added detailed error logging
             <br><strong>File:</strong> guard/fetch/fetch_visitors.php
             <br><strong>Added:</strong> Stack trace logging and detailed error messages for debugging
         </div>
 
         <!-- Testing Section -->
         <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 8px;">
-            <h2 style="color: #667eea;">🧪 Test the Fixes</h2>
+            <h2 style="color: #667eea;"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M9 3v6l-2 4v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4l-2-4V3'/><path d='M8 3h8'/></svg> Test the Fixes</h2>
             
             <h3>1. Test Login Page</h3>
             <a href="../auth/login.php" class="test-button">Open Login Page</a>
             <ul>
                 <li>Enter your username and password</li>
-                <li>Click the eye icon (👁) to toggle password visibility</li>
+                <li>Click the eye icon (<svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/><circle cx='12' cy='12' r='3'/></svg>) to toggle password visibility</li>
                 <li>Password should switch between visible and hidden</li>
                 <li>Click "Sign in to VehiScan"</li>
                 <li>Should redirect to appropriate portal based on your role</li>
@@ -305,7 +305,7 @@ WHERE h.account_status = 'pending'
 
         <!-- Summary -->
         <div style="margin-top: 40px; border-top: 3px solid #667eea; padding-top: 30px;">
-            <h2 style="color: #28a745;">✅ Summary of Changes</h2>
+            <h2 style="color: #28a745;"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Summary of Changes</h2>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr style="background: #f8f9fa;">
                     <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6;">File</th>
@@ -336,7 +336,7 @@ WHERE h.account_status = 'pending'
         </div>
 
         <div style="margin-top: 30px; padding: 20px; background: #d4edda; border-radius: 8px; text-align: center;">
-            <h2 style="color: #155724; margin-top: 0;">🎉 All Fixes Complete!</h2>
+            <h2 style="color: #155724; margin-top: 0;"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/></svg> All Fixes Complete!</h2>
             <p style="font-size: 18px; color: #155724;">
                 Your VehiScan login system is now fully functional and ready to use.
             </p>
@@ -346,7 +346,7 @@ WHERE h.account_status = 'pending'
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px;">
-            <strong>📝 Note:</strong> If you encounter any issues, check the browser console (F12) and PHP error logs at: 
+            <strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M8 7h8M8 12h8M8 17h4'/></svg> Note:</strong> If you encounter any issues, check the browser console (F12) and PHP error logs at: 
             <code>C:\xampp\apache\logs\error.log</code>
         </div>
     </div>

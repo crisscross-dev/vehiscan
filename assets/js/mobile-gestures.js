@@ -6,6 +6,9 @@
 (function () {
     'use strict';
 
+    const DEBUG = !!(window.vehiscanConfig && window.vehiscanConfig.debug);
+    const debugLog = (...args) => { if (DEBUG) console.log(...args); };
+
     // Only activate on mobile devices
     if (window.innerWidth >= 768) {
         return;
@@ -19,11 +22,12 @@
     const TIME_THRESHOLD = 300; // milliseconds
 
     // Get sidebar and toggle button
+    // Support both admin (sidebar-toggle) and guard/homeowner (mobile-menu-btn) button IDs
     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarToggle = document.getElementById('sidebar-toggle') || document.getElementById('mobile-menu-btn');
 
     if (!sidebar || !sidebarToggle) {
-        console.warn('[Mobile Gestures] Sidebar or toggle button not found');
+        console.warn('[Mobile Gestures] Sidebar or toggle button not found (checked for both sidebar-toggle and mobile-menu-btn)');
         return;
     }
 
@@ -101,5 +105,5 @@
         }, { passive: true });
     }
 
-    console.log('[Mobile Gestures] Initialized - Swipe from left edge to open sidebar');
+    debugLog('[Mobile Gestures] Initialized - Swipe from left edge to open sidebar');
 })();

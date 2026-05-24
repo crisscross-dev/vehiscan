@@ -1,6 +1,6 @@
-# VEHISCAN DEPLOYMENT GUIDE - INFINITYFREE HOSTING
-**Target Platform:** InfinityFree  
-**Deployment Date:** December 4, 2025  
+﻿# VEHISCAN DEPLOYMENT GUIDE - INFINITYFREE HOSTING
+**Target Platform:** InfinityFree 
+**Deployment Date:** December 4, 2025 
 **Estimated Time:** 30-45 minutes
 
 ---
@@ -8,10 +8,10 @@
 ## PREREQUISITES
 
 Before starting, have ready:
-- ✅ Email address for InfinityFree account
-- ✅ Desired subdomain name (e.g., `vehiscan-demo`)
-- ✅ FTP client installed (FileZilla recommended) OR use web File Manager
-- ✅ Your project files ready
+- Email address for InfinityFree account
+- Desired subdomain name (e.g., `vehiscan-demo`)
+- FTP client installed (FileZilla recommended) OR use web File Manager
+- Your project files ready
 
 ---
 
@@ -326,29 +326,29 @@ VALUES ('Administrator', '$2y$10$YourBcryptHashHere');
 
 ### Step 4: Test Core Features
 
-✅ **Authentication:**
+ **Authentication:**
 - Login to each portal
 - Logout works
 - Session timeout (wait 30 minutes)
 
-✅ **CRUD Operations:**
+ **CRUD Operations:**
 - Create new homeowner
 - Edit existing homeowner
 - Delete homeowner (test account)
 - Create employee
 - Edit employee role
 
-✅ **Visitor Passes:**
+ **Visitor Passes:**
 - Request visitor pass (as homeowner)
 - Approve pass (as admin)
 - Check pass appears in guard panel
 
-✅ **File Uploads:**
+ **File Uploads:**
 - Upload homeowner image
 - Upload vehicle image
 - Verify images display
 
-✅ **QR Codes:**
+ **QR Codes:**
 - Check if QR codes generate
 - Try scanning with phone camera
 
@@ -390,42 +390,42 @@ The session files already check for HTTPS and set secure cookies.
 
 ### Security Checklist:
 
-- [ ] ✅ `.env` file is NOT publicly accessible
+- [ ] `.env` file is NOT publicly accessible
   - Test: `https://your-site.com/.env` should show 403 error
-- [ ] ✅ `config.php` is NOT directly accessible
+- [ ] `config.php` is NOT directly accessible
   - Test: Should show 403 or blank page
-- [ ] ✅ Database credentials are secure
-- [ ] ✅ APP_DEBUG is set to `false`
-- [ ] ✅ HTTPS is working
-- [ ] ✅ Session cookies are secure
-- [ ] ✅ File upload directories have correct permissions
-- [ ] ✅ Sensitive files are protected
-- [ ] ✅ Directory listing is disabled
+- [ ] Database credentials are secure
+- [ ] APP_DEBUG is set to `false`
+- [ ] HTTPS is working
+- [ ] Session cookies are secure
+- [ ] File upload directories have correct permissions
+- [ ] Sensitive files are protected
+- [ ] Directory listing is disabled
 
 ### Performance Checks:
 
-- [ ] ✅ Pages load within 3 seconds
-- [ ] ✅ Images load properly
-- [ ] ✅ No broken links
-- [ ] ✅ Database queries are fast
-- [ ] ✅ QR codes generate successfully
+- [ ] Pages load within 3 seconds
+- [ ] Images load properly
+- [ ] No broken links
+- [ ] Database queries are fast
+- [ ] QR codes generate successfully
 
 ### Functionality Checks:
 
-- [ ] ✅ All three portals accessible
-- [ ] ✅ Login/logout working
-- [ ] ✅ CRUD operations functional
-- [ ] ✅ Visitor pass workflow complete
-- [ ] ✅ Employee management working
-- [ ] ✅ Logs displaying correctly
-- [ ] ✅ CSV exports working
-- [ ] ✅ QR/RFID scanning operational
+- [ ] All three portals accessible
+- [ ] Login/logout working
+- [ ] CRUD operations functional
+- [ ] Visitor pass workflow complete
+- [ ] Employee management working
+- [ ] Logs displaying correctly
+- [ ] CSV exports working
+- [ ] QR/RFID scanning operational
 
 ---
 
 ## TROUBLESHOOTING COMMON ISSUES
 
-### ❌ Issue: "500 Internal Server Error"
+### Issue: "500 Internal Server Error"
 
 **Solution:**
 1. Check `.htaccess` syntax
@@ -434,7 +434,7 @@ The session files already check for HTTPS and set secure cookies.
 4. Test if site loads
 5. Add directives back one by one
 
-### ❌ Issue: "Database Connection Failed"
+### Issue: "Database Connection Failed"
 
 **Solution:**
 1. Verify database credentials in `.env`
@@ -443,7 +443,7 @@ The session files already check for HTTPS and set secure cookies.
 4. Test connection using phpMyAdmin
 5. Check if database exists
 
-### ❌ Issue: "File Upload Not Working"
+### Issue: "File Upload Not Working"
 
 **Solution:**
 1. Check folder permissions (755 or 777)
@@ -453,7 +453,7 @@ The session files already check for HTTPS and set secure cookies.
 3. Check PHP upload limits in .htaccess
 4. Test with small image first (< 1MB)
 
-### ❌ Issue: "Session Not Persisting"
+### Issue: "Session Not Persisting"
 
 **Solution:**
 1. Check if cookies are enabled in browser
@@ -462,7 +462,7 @@ The session files already check for HTTPS and set secure cookies.
 4. Clear browser cookies
 5. Try different browser
 
-### ❌ Issue: "CSS/JS Not Loading"
+### Issue: "CSS/JS Not Loading"
 
 **Solution:**
 1. Check file paths (relative vs absolute)
@@ -471,7 +471,7 @@ The session files already check for HTTPS and set secure cookies.
 4. Clear browser cache (Ctrl + Shift + R)
 5. Check .htaccess isn't blocking files
 
-### ❌ Issue: "QR Codes Not Generating"
+### Issue: "QR Codes Not Generating"
 
 **Solution:**
 1. Check if `/phpqrcode/` library uploaded
@@ -480,7 +480,7 @@ The session files already check for HTTPS and set secure cookies.
 4. Test with simple QR code first
 5. Check error logs
 
-### ❌ Issue: "Rate Limiting Not Working"
+### Issue: "Rate Limiting Not Working"
 
 **Solution:**
 1. Check `rate_limits` table exists
@@ -653,7 +653,7 @@ Use this checklist to track your progress:
 
 ---
 
-**Deployment Complete!** 🎉
+**Deployment Complete!** 
 
 Your VehiScan RFID system is now live on InfinityFree.
 
@@ -665,6 +665,6 @@ Your VehiScan RFID system is now live on InfinityFree.
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** December 4, 2025  
+**Document Version:** 1.0 
+**Last Updated:** December 4, 2025 
 **Status:** Ready for Deployment

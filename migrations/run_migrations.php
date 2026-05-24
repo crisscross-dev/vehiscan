@@ -17,7 +17,7 @@
         <h1 class="text-3xl font-bold mb-6">Database Migrations</h1>
         
         <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-            <p class="text-yellow-800 font-semibold">⚠️ WARNING: This will modify your database structure!</p>
+            <p class="text-yellow-800 font-semibold"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg> WARNING: This will modify your database structure!</p>
             <p class="text-sm text-yellow-700 mt-2">Backup your database before proceeding.</p>
         </div>
 

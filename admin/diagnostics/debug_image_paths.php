@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
@@ -23,7 +23,7 @@ header('Content-Type: text/html; charset=UTF-8');
     </style>
 </head>
 <body>
-<h1>🔍 Image Path Debug Report</h1>
+<h1>Image Path Debug Report</h1>
 
 <?php
 try {
@@ -34,7 +34,7 @@ try {
     $stmt = $pdo->query("SELECT id, name, plate_number, owner_img, car_img FROM homeowners WHERE name IS NOT NULL ORDER BY id ASC LIMIT 20");
     $homeowners = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    echo "<h2>📊 First 20 Homeowners</h2>";
+    echo "<h2><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M18 20V10M12 20V4M6 20v-6'/></svg> First 20 Homeowners</h2>";
     echo "<table>";
     echo "<tr><th>ID</th><th>Name</th><th>Plate</th><th>Owner Image (raw DB)</th><th>Normalized</th><th>File Exists?</th><th>Car Image (raw DB)</th><th>Normalized</th><th>File Exists?</th></tr>";
     
@@ -70,7 +70,7 @@ try {
             $serverPath = $uploadsDir . '/' . $rel;
             $ownerExists = is_readable($serverPath) && is_file($serverPath);
             $statusClass = $ownerExists ? 'exists' : 'missing';
-            echo "<td class='$statusClass'>" . ($ownerExists ? '✓ YES' : '✗ NO') . "<br><span class='path'>$serverPath</span></td>";
+            echo "<td class='$statusClass'>" . ($ownerExists ? '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline;color:green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> YES' : '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline;color:red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg> NO') . "<br><span class='path'>$serverPath</span></td>";
         } else {
             echo "<td>-</td>";
         }
@@ -101,7 +101,7 @@ try {
             $serverPath2 = $uploadsDir . '/' . $rel2;
             $carExists = is_readable($serverPath2) && is_file($serverPath2);
             $statusClass = $carExists ? 'exists' : 'missing';
-            echo "<td class='$statusClass'>" . ($carExists ? '✓ YES' : '✗ NO') . "<br><span class='path'>$serverPath2</span></td>";
+            echo "<td class='$statusClass'>" . ($carExists ? '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline;color:green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> YES' : '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline;color:red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg> NO') . "<br><span class='path'>$serverPath2</span></td>";
         } else {
             echo "<td>-</td>";
         }
@@ -112,7 +112,7 @@ try {
     echo "</table>";
     
     // Show actual files in uploads/homeowners
-    echo "<h2>📁 Actual Files in uploads/homeowners/</h2>";
+    echo "<h2><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z'/></svg> Actual Files in uploads/homeowners/</h2>";
     $homeownerFiles = glob($uploadsDir . '/homeowners/*');
     if ($homeownerFiles) {
         echo "<ul>";
@@ -127,7 +127,7 @@ try {
     }
     
     // Show actual files in uploads/vehicles
-    echo "<h2>🚗 Actual Files in uploads/vehicles/</h2>";
+    echo "<h2><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M5 17h14M6 17l1-5h10l1 5M8 12l1-4h6l1 4'/><circle cx='7.5' cy='17' r='1.5'/><circle cx='16.5' cy='17' r='1.5'/></svg> Actual Files in uploads/vehicles/</h2>";
     $vehicleFiles = glob($uploadsDir . '/vehicles/*');
     if ($vehicleFiles) {
         echo "<ul>";

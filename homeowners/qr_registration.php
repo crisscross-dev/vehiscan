@@ -292,6 +292,24 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
         display: none;
       }
     }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .bg-decoration, .copy-btn, .action-btn, .print-btn, .tips, .notice {
+        display: none !important;
+      }
+      .qr-shell {
+        box-shadow: none;
+        padding: 1.5rem;
+        max-width: 100%;
+      }
+      .link-box {
+        border: 1px solid #ccc;
+      }
+    }
   </style>
 </head>
 <body>
@@ -308,22 +326,28 @@ $isLocalFallback = in_array($hostName, $loopbackHosts, true);
       <p class="subtitle">Scan the QR code or open the link to register your vehicle</p>
     </header>
 
-    <section class="qr-card" aria-label="Homeowner registration QR code">
+    <section class="qr-card" aria-label="Homeowner registration QR code" style="position:relative;">
       <img
         src="../phpqrcode/generate_qr.php?url=<?= urlencode($registrationUrl) ?>"
         alt="QR code linking to homeowner registration"
       >
+      <img src="../assets/images/ville_de_palme.png" alt="Logo" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:18%; height:18%; object-fit:contain; border-radius:50%; background:#fff; padding:4px; box-shadow:0 2px 8px rgba(0,0,0,0.15); pointer-events:none;">
     </section>
 
     <div class="link-box" aria-label="Direct registration link">
-      <span><?= htmlspecialchars($registrationUrl) ?></span>
-      <button class="copy-btn" type="button" data-copy="<?= htmlspecialchars($registrationUrl) ?>">COPY</button>
+      <span><?= htmlspecialchars($registrationUrl ?? '') ?></span>
+      <button class="copy-btn" type="button" data-copy="<?= htmlspecialchars($registrationUrl ?? '') ?>">COPY</button>
     </div>
 
-    <a class="action-btn" href="<?= htmlspecialchars($registrationUrl) ?>" target="_blank" rel="noopener">
+    <a class="action-btn" href="<?= htmlspecialchars($registrationUrl ?? '') ?>" target="_blank" rel="noopener">
       <span>Open Registration Form</span>
       <span aria-hidden="true">↗</span>
     </a>
+
+    <button class="action-btn print-btn" type="button" onclick="window.print()" style="background:#3b82f6;">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm0-16h6v4H9V3z"/></svg>
+      <span>Print</span>
+    </button>
 
     <section class="tips" aria-label="Usage tips">
       <strong>Tips:</strong>

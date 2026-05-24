@@ -1,8 +1,13 @@
 <?php
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+require_once __DIR__ . '/../../includes/request_method_helper.php';
+
+requireRequestMethod('GET');
+
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 require_once __DIR__ . '/../../db.php';
@@ -20,11 +25,12 @@ if ($id) {
 $isEdit = !empty($employee);
 ?>
 
-<div class="p-6">
+<div class="p-2 md:p-3">
     <h3 class="text-2xl font-bold text-gray-900 mb-6"><?= $isEdit ? 'Edit Employee' : 'Create New Employee' ?></h3>
 
-    <form id="employeeForm" class="space-y-6" action="/Vehiscan-RFID/admin/api/employee_save.php" method="POST">
+    <form id="employeeForm" class="space-y-6" action="api/employee_save.php" method="POST">
         <input type="hidden" name="id" value="<?= $employee['id'] ?? '' ?>">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
         
         <!-- Username -->
         <div>
@@ -33,7 +39,7 @@ $isEdit = !empty($employee);
                    id="employee_username"
                    name="username" 
                    value="<?= htmlspecialchars($employee['username'] ?? '') ?>" 
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                   class="ta-input" 
                    placeholder="Enter username (min 3 characters)"
                    autocomplete="username"
                    required <?= $isEdit ? 'readonly' : '' ?>>
@@ -45,11 +51,11 @@ $isEdit = !empty($employee);
         <!-- Role Selection -->
         <div>
             <label for="employee_role" class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
-            <select id="employee_role" name="role" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" autocomplete="off" required>
+            <select id="employee_role" name="role" class="ta-select" autocomplete="off" required>
                 <option value="">Select role...</option>
                 <option value="admin" <?= ($employee['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
                 <option value="guard" <?= ($employee['role'] ?? '') === 'guard' ? 'selected' : '' ?>>Guard</option>
-                <option value="owner" <?= ($employee['role'] ?? '') === 'owner' ? 'selected' : '' ?>>Homeowner</option>
+                <option value="homeowner" <?= in_array(($employee['role'] ?? ''), ['homeowner', 'owner'], true) ? 'selected' : '' ?>>Homeowner</option>
             </select>
             <p class="text-sm text-gray-500 mt-2">
                 <strong>Admin:</strong> Full access • <strong>Guard:</strong> Guard panel • <strong>Homeowner:</strong> Registration only
@@ -63,21 +69,21 @@ $isEdit = !empty($employee);
             <input type="password" 
                    id="employee_password"
                    name="password" 
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                   placeholder="Enter password (min 8 characters)"
+                   class="ta-input" 
+                   placeholder="Enter password (min 12 characters)"
                    autocomplete="new-password"
-                   required minlength="8">
+                   required minlength="12">
         </div>
         
-        <div>
+                <div>
             <label for="employee_confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
             <input type="password" 
                    id="employee_confirm_password"
                    name="confirm_password" 
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                     class="ta-input" 
                    placeholder="Confirm password"
                    autocomplete="new-password"
-                   required minlength="8">
+                     required minlength="12">
         </div>
         
         <?php else: ?>
@@ -94,20 +100,20 @@ $isEdit = !empty($employee);
                 <div>
                     <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
                     <input type="password" id="new_password" name="new_password" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                           placeholder="Enter new password (min 8 characters)"
-                           minlength="8">
+                           class="ta-input" 
+                           placeholder="Enter new password (min 12 characters)"
+                           minlength="12">
                 </div>
             </div>
         </div>
         <?php endif; ?>
         
         <!-- Submit Buttons -->
-        <div class="flex items-center justify-end space-x-4 pt-4">
-            <button type="button" onclick="closeModal()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+        <div class="form-actions">
+            <button type="button" onclick="closeModal()" class="ta-btn ta-btn-secondary cancel-btn">
                 Cancel
             </button>
-            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg font-medium">
+            <button type="submit" class="ta-btn ta-btn-primary">
                 <?= $isEdit ? 'Update Employee' : 'Create Employee' ?>
             </button>
         </div>

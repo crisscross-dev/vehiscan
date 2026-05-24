@@ -29,20 +29,165 @@ function initializeKeyboardShortcuts() {
     // Ctrl+Enter to submit
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      const form = document.getElementById('registrationForm');
-      if (form) {
-        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      const nextBtn = document.getElementById('wizardNextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (nextBtn && !nextBtn.hidden) {
+        nextBtn.click();
+      } else if (submitBtn && !submitBtn.hidden) {
+        submitBtn.click();
       }
     }
+  });
+}
+
+// Three-step registration wizard
+function initializeRegistrationWizard() {
+  const form = document.getElementById('registrationForm');
+  if (!form) return;
+
+  const panels = Array.from(form.querySelectorAll('.wizard-panel'));
+  const stepButtons = Array.from(document.querySelectorAll('#registrationWizardSteps .wizard-step'));
+  const prevBtn = document.getElementById('wizardPrevBtn');
+  const nextBtn = document.getElementById('wizardNextBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const progressBar = document.getElementById('wizardProgressBar');
+  const keyboardHintAction = document.getElementById('keyboardHintAction');
+
+  if (!panels.length || !prevBtn || !nextBtn || !submitBtn) return;
+
+  let currentStep = 1;
+  const totalSteps = panels.length;
+
+  function validateStep(stepNumber) {
+    const panel = panels.find((p) => Number(p.dataset.step || '0') === stepNumber);
+    if (!panel) return true;
+
+    const fields = Array.from(panel.querySelectorAll('input, select, textarea')).filter((el) => !el.disabled);
+    
+    // Special validation for step 2 (Vehicle Information) - check plate availability
+    if (stepNumber === 2) {
+      const plateInput = panel.querySelector('input[name="plate_number"]');
+      if (plateInput && plateInput.value.length >= 3) {
+        // Check if plate was marked as unavailable
+        if (plateInput.dataset.plateAvailable === 'false') {
+          plateInput.reportValidity();
+          plateInput.focus();
+          return false;
+        }
+      }
+    }
+    
+    for (const field of fields) {
+      if (!field.checkValidity()) {
+        field.reportValidity();
+        field.focus();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function validateCurrentStep() {
+    return validateStep(currentStep);
+  }
+
+  function showStep(step) {
+    currentStep = Math.min(Math.max(step, 1), totalSteps);
+
+    panels.forEach((panel) => {
+      const panelStep = Number(panel.dataset.step || '0');
+      panel.hidden = panelStep !== currentStep;
+    });
+
+    stepButtons.forEach((btn) => {
+      const btnStep = Number(btn.dataset.step || '0');
+      btn.classList.toggle('active', btnStep === currentStep);
+      btn.classList.toggle('completed', btnStep < currentStep);
+      btn.setAttribute('aria-current', btnStep === currentStep ? 'step' : 'false');
+    });
+
+    if (progressBar) {
+      progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
+    }
+
+    prevBtn.hidden = currentStep === 1;
+    nextBtn.hidden = currentStep === totalSteps;
+    submitBtn.hidden = currentStep !== totalSteps;
+
+    nextBtn.textContent = currentStep === totalSteps - 1 ? 'Continue to Photos' : 'Next';
+    if (keyboardHintAction) {
+      keyboardHintAction.textContent = currentStep === totalSteps ? 'submit' : 'continue';
+    }
+  }
+
+  prevBtn.addEventListener('click', () => showStep(currentStep - 1));
+  nextBtn.addEventListener('click', () => {
+    if (!validateCurrentStep()) return;
+    showStep(currentStep + 1);
+  });
+
+  stepButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = Number(btn.dataset.step || '1');
+      if (target <= currentStep) {
+        showStep(target);
+        return;
+      }
+
+      for (let s = currentStep; s < target; s += 1) {
+        if (!validateStep(s)) return;
+      }
+
+      showStep(target);
+    });
+  });
+
+  form.addEventListener('submit', (e) => {
+    if (currentStep !== totalSteps) {
+      e.preventDefault();
+      if (validateCurrentStep()) showStep(currentStep + 1);
+    }
+  });
+
+  form.__registrationWizard = {
+    showStep,
+    getCurrentStep: () => currentStep
+  };
+
+  showStep(1);
+}
+
+function initializeTailAdminFormClasses() {
+  const form = document.getElementById('registrationForm');
+  if (!form) return;
+
+  form.querySelectorAll('.form-group').forEach((group) => {
+    group.classList.add('ta-form-group');
+  });
+
+  form.querySelectorAll('input, textarea, select').forEach((field) => {
+    if (field.type === 'file' || field.type === 'hidden') return;
+    if (field.tagName === 'SELECT') {
+      field.classList.add('ta-select');
+    } else {
+      field.classList.add('ta-input');
+    }
+  });
+
+  document.querySelectorAll('.camera-btn, .gallery-btn').forEach((btn) => {
+    btn.classList.add('ta-btn', 'ta-btn-outline-primary', 'ta-btn-sm');
   });
 }
 
 // Real-time validation
 function initializeValidation() {
   const nameInput = document.getElementById('nameInput');
-  const contactInput = document.getElementById('contactInput');
+  const contactInput = document.getElementById('contactInput') || document.getElementById('contact');
   const plateInput = document.getElementById('plateInput');
   const addressInput = document.getElementById('addressInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const confirmPasswordInput = document.getElementById('confirmPasswordInput');
 
   if (nameInput) {
     nameInput.addEventListener('input', function() {
@@ -50,17 +195,23 @@ function initializeValidation() {
       if (this.value.length >= 3) {
         this.classList.add('valid');
         this.classList.remove('invalid');
-        hint.textContent = '✓ Name looks good';
-        hint.style.color = '#10b981';
+        if (hint) {
+          hint.textContent = 'Name looks good';
+          hint.style.color = '#10b981';
+        }
       } else if (this.value.length > 0) {
         this.classList.add('invalid');
         this.classList.remove('valid');
-        hint.textContent = '✗ Name too short (min 3 characters)';
-        hint.style.color = '#ef4444';
+        if (hint) {
+          hint.textContent = 'Name too short (min 3 characters)';
+          hint.style.color = '#ef4444';
+        }
       } else {
         this.classList.remove('valid', 'invalid');
-        hint.textContent = 'Enter your complete legal name';
-        hint.style.color = '';
+        if (hint) {
+          hint.textContent = 'Enter your complete legal name';
+          hint.style.color = '';
+        }
       }
     });
   }
@@ -83,39 +234,84 @@ function initializeValidation() {
       if (value.length === 11) {
         this.classList.add('valid');
         this.classList.remove('invalid');
-        hint.textContent = '✓ Valid contact number';
-        hint.style.color = '#10b981';
+        if (hint) {
+          hint.textContent = 'Valid contact number';
+          hint.style.color = '#10b981';
+        }
       } else if (value.length > 0) {
         this.classList.add('invalid');
         this.classList.remove('valid');
-        hint.textContent = `✗ ${11 - value.length} more digit${11 - value.length !== 1 ? 's' : ''} needed`;
-        hint.style.color = '#ef4444';
+        if (hint) {
+          hint.textContent = `${11 - value.length} more digit${11 - value.length !== 1 ? 's' : ''} needed`;
+          hint.style.color = '#ef4444';
+        }
       } else {
         this.classList.remove('valid', 'invalid');
-        hint.textContent = "We'll use this for important notifications";
-        hint.style.color = '';
+        if (hint) {
+          hint.textContent = "We'll use this for important notifications";
+          hint.style.color = '';
+        }
       }
     });
   }
 
   if (plateInput) {
+    let plateCheckTimeout;
+    let lastCheckedPlate = '';
+    
     plateInput.addEventListener('input', function() {
       const hint = document.getElementById('plateHint');
-      const value = this.value.toUpperCase();
+      const value = this.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '').slice(0, 7);
+      this.value = value;
+      
+      // Clear previous timeout
+      clearTimeout(plateCheckTimeout);
+      
       if (value.length >= 3) {
         this.classList.add('valid');
         this.classList.remove('invalid');
-        hint.textContent = '✓ Plate number accepted';
+        hint.textContent = `Plate number accepted (${value.length}/7)`;
         hint.style.color = '#10b981';
+        
+        // Check for duplicates if plate changed
+        if (value !== lastCheckedPlate && value.length >= 3) {
+          lastCheckedPlate = value;
+          plateCheckTimeout = setTimeout(async () => {
+            try {
+              const response = await fetch(`../api/check_plate.php?plate=${encodeURIComponent(value)}`);
+              const result = await response.json();
+              
+              if (result.success && !result.available) {
+                this.classList.add('invalid');
+                this.classList.remove('valid');
+                hint.textContent = result.message || 'Plate number already registered';
+                hint.style.color = '#ef4444';
+                // Store validation state
+                this.dataset.plateAvailable = 'false';
+              } else if (result.success && result.available) {
+                this.classList.add('valid');
+                this.classList.remove('invalid');
+                hint.textContent = 'Plate number available';
+                hint.style.color = '#10b981';
+                this.dataset.plateAvailable = 'true';
+              }
+            } catch (error) {
+              console.error('Plate check error:', error);
+              // Don't show error to user, just let validation proceed
+            }
+          }, 500);
+        }
       } else if (value.length > 0) {
         this.classList.add('invalid');
         this.classList.remove('valid');
-        hint.textContent = '✗ Too short (min 3 characters)';
+        hint.textContent = 'Too short (min 3 characters)';
         hint.style.color = '#ef4444';
+        this.dataset.plateAvailable = '';
       } else {
         this.classList.remove('valid', 'invalid');
         hint.textContent = 'Used for gate access verification (auto-uppercase)';
         hint.style.color = '';
+        this.dataset.plateAvailable = '';
       }
     });
   }
@@ -127,29 +323,102 @@ function initializeValidation() {
       if (this.value.length >= 10) {
         this.classList.add('valid');
         this.classList.remove('invalid');
-        hint.textContent = `✓ ${remaining} characters remaining`;
-        hint.style.color = '#10b981';
+        if (hint) {
+          hint.textContent = `${remaining} characters remaining`;
+          hint.style.color = '#10b981';
+        }
       } else if (this.value.length > 0) {
         this.classList.add('invalid');
         this.classList.remove('valid');
-        hint.textContent = '✗ Address too short';
-        hint.style.color = '#ef4444';
+        if (hint) {
+          hint.textContent = 'Address too short';
+          hint.style.color = '#ef4444';
+        }
       } else {
         this.classList.remove('valid', 'invalid');
-        hint.textContent = 'Include complete address within subdivision';
-        hint.style.color = '';
+        if (hint) {
+          hint.textContent = 'Include complete address within subdivision';
+          hint.style.color = '';
+        }
       }
     });
+  }
+
+  if (passwordInput && confirmPasswordInput) {
+    const validatePasswords = () => {
+      const pass = passwordInput.value;
+      const confirm = confirmPasswordInput.value;
+
+      if (!confirm) {
+        confirmPasswordInput.classList.remove('valid', 'invalid');
+        confirmPasswordInput.setCustomValidity('');
+        return;
+      }
+
+      if (pass === confirm) {
+        confirmPasswordInput.classList.add('valid');
+        confirmPasswordInput.classList.remove('invalid');
+        confirmPasswordInput.setCustomValidity('');
+      } else {
+        confirmPasswordInput.classList.add('invalid');
+        confirmPasswordInput.classList.remove('valid');
+        confirmPasswordInput.setCustomValidity('Passwords do not match');
+      }
+    };
+
+    passwordInput.addEventListener('input', validatePasswords);
+    confirmPasswordInput.addEventListener('input', validatePasswords);
   }
 }
 
 // Initialize plate number auto-uppercase
 function initializePlateInput() {
   const plateInput = document.getElementById('plateInput');
-  if (plateInput) {
+    if (plateInput) {
     plateInput.addEventListener('input', function(e) {
-      e.target.value = e.target.value.toUpperCase();
+      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '').slice(0, 7);
     });
+  }
+}
+
+function initializeVehicleColorOtherFields() {
+  const vehicleTypeInput = document.getElementById('vehicleTypeInput');
+  const vehicleTypeOtherInput = document.getElementById('vehicleTypeOtherInput');
+  const colorInput = document.getElementById('colorInput');
+  const colorOtherInput = document.getElementById('colorOtherInput');
+
+  const syncOtherField = (selectEl, otherEl) => {
+    if (!selectEl || !otherEl) return;
+    const isOther = selectEl.value === 'Other';
+    otherEl.style.display = isOther ? 'block' : 'none';
+    otherEl.required = isOther;
+    if (!isOther) {
+      otherEl.value = '';
+      otherEl.setCustomValidity('');
+    }
+  };
+
+  if (vehicleTypeInput && vehicleTypeOtherInput) {
+    vehicleTypeInput.addEventListener('change', () => syncOtherField(vehicleTypeInput, vehicleTypeOtherInput));
+    syncOtherField(vehicleTypeInput, vehicleTypeOtherInput);
+    // Make plate optional when E-bike is selected
+    const plateInput = document.getElementById('plateInput');
+    const plateHint = document.getElementById('plateHint');
+    const updatePlateRequirement = () => {
+      if (!plateInput) return;
+      const isEbike = vehicleTypeInput.value === 'E-bike';
+      plateInput.required = !isEbike;
+      if (plateHint) {
+        plateHint.textContent = isEbike ? 'Plate number is optional for E-bike' : 'Required for automated gate recognition (optional for E-bike)';
+      }
+    };
+    vehicleTypeInput.addEventListener('change', updatePlateRequirement);
+    updatePlateRequirement();
+  }
+
+  if (colorInput && colorOtherInput) {
+    colorInput.addEventListener('change', () => syncOtherField(colorInput, colorOtherInput));
+    syncOtherField(colorInput, colorOtherInput);
   }
 }
 
@@ -173,8 +442,9 @@ function initializeCameraButtons() {
     // Create a dedicated file input positioned over the button
     const cameraInput = document.createElement('input');
     cameraInput.type = 'file';
-    cameraInput.accept = 'image/*';
-    cameraInput.capture = 'environment';
+    // Encourage mobile browsers to open the camera directly where supported
+    cameraInput.accept = 'image/*;capture=camera';
+    cameraInput.setAttribute('capture', 'environment');
     cameraInput.id = inputName + '_cameraInput';
     cameraInput.className = 'hidden-file-input';
     cameraInput.style.cssText = `
@@ -352,7 +622,7 @@ function initializeFileInputLabels() {
             if (label) {
               const sizeKB = (file.size / 1024).toFixed(0);
               const dimensions = `${img.width}x${img.height}`;
-              label.innerHTML = `<span style="color: #10b981;">✓</span> ${file.name} <span style="color: #6b7280;">(${sizeKB}KB • ${dimensions}px)</span>`;
+              label.innerHTML = `<svg style="width:0.85em;height:0.85em;vertical-align:-0.1em;display:inline;color:#10b981" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> ${file.name} <span style="color: #6b7280;">(${sizeKB}KB &bull; ${dimensions}px)</span>`;
             }
           };
           
@@ -481,7 +751,7 @@ function initializeFileInputLabels() {
       if (input.name === 'owner_img') {
         label.innerHTML = 'Owner photo is required for verification';
       } else {
-        label.innerHTML = 'Helps guards identify your vehicle';
+        label.innerHTML = 'Vehicle photo is required for verification';
       }
     }
   }
@@ -540,6 +810,8 @@ function initializeFormSubmission() {
     const firstNameInput = e.target.querySelector('input[name="first_name"]');
     const lastNameInput = e.target.querySelector('input[name="last_name"]');
     const plateInput = e.target.querySelector('input[name="plate_number"]');
+    const passwordInput = e.target.querySelector('input[name="password"]');
+    const confirmPasswordInput = e.target.querySelector('input[name="confirm_password"]');
     
     if (!firstNameInput || !lastNameInput) {
       hideLoading();
@@ -580,6 +852,21 @@ function initializeFormSubmission() {
       });
       return;
     }
+
+    if (passwordInput && confirmPasswordInput && passwordInput.value !== confirmPasswordInput.value) {
+      hideLoading();
+      submitBtn.disabled = false;
+      if (btnText) btnText.style.display = 'inline';
+      if (btnLoading) btnLoading.style.display = 'none';
+      confirmPasswordInput.focus();
+      Swal.fire({
+        icon: 'error',
+        title: 'Password Mismatch',
+        text: 'Confirm password must match your password.',
+        confirmButtonColor: '#ef4444'
+      });
+      return;
+    }
     
     updateProgress(20);
     
@@ -598,6 +885,18 @@ function initializeFormSubmission() {
         icon: 'error',
         title: 'Owner Photo Required',
         text: 'Please upload a photo of the homeowner',
+        confirmButtonColor: '#ef4444'
+      });
+      return;
+    }
+    
+    if (!vehicleImg) {
+      hideLoading();
+      submitBtn.disabled = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Vehicle Photo Required',
+        text: 'Please upload a photo of your vehicle',
         confirmButtonColor: '#ef4444'
       });
       return;
@@ -651,7 +950,6 @@ function initializeFormSubmission() {
       
       if (json.success) {
         const fullName = `${formData.get('first_name')} ${formData.get('last_name')}`;
-        const username = json.username || formData.get('username');
         const email = json.email || formData.get('email');
         const plateNum = json.plate_number || formData.get('plate_number');
         
@@ -661,32 +959,37 @@ function initializeFormSubmission() {
           html: `
             <div style="text-align:left;padding:10px;font-size:14px;">
               <p><b>Name:</b> ${fullName}</p>
-              <p><b>Username:</b> ${username}</p>
               <p><b>Email:</b> ${email}</p>
               <p><b>Plate:</b> ${plateNum}</p>
               <hr style="margin:15px 0;">
               <p style="background:#fef3c7;padding:12px;border-radius:4px;border-left:4px solid #f59e0b;">
-                <strong style="color:#92400e;">⏳ Pending Admin Approval</strong><br>
+                <strong style="color:#92400e;">Pending admin approval</strong><br>
                 <span style="color:#78350f;font-size:13px;">Your account will be reviewed. You'll receive an email once approved.</span>
               </p>
               <p style="text-align:center;margin-top:10px;">
-                <small style="color:#6b7280;">Status: <strong style="color:#d97706;">PENDING APPROVAL</strong></small>
+                <small style="color:#6b7280;">Status: <strong style="color:#d97706;">Pending approval</strong></small>
               </p>
             </div>
           `,
           confirmButtonText: 'OK',
-          confirmButtonColor: '#2563eb'
+          confirmButtonColor: '#3b82f6'
         });
         e.target.reset();
+
+        initializeVehicleColorOtherFields();
+
+        if (e.target.__registrationWizard && typeof e.target.__registrationWizard.showStep === 'function') {
+          e.target.__registrationWizard.showStep(1);
+        }
         
         // Reset file input labels
         const ownerLabel = document.getElementById('ownerImgLabel');
         const carLabel = document.getElementById('carImgLabel');
         if (ownerLabel) {
-          ownerLabel.textContent = 'Required. Choose from gallery or use camera (JPG, PNG, WEBP, max 4 MB).';
+          ownerLabel.textContent = 'Owner photo is required for verification';
         }
         if (carLabel) {
-          carLabel.textContent = 'Optional. Choose from gallery or use camera (same limits as owner photo).';
+          carLabel.textContent = 'Vehicle photo is required for verification';
         }
       } else {
         Swal.fire({
@@ -720,7 +1023,7 @@ function initializeFormSubmission() {
 
 // Auto-focus first input
 function initializeAutoFocus() {
-  const firstInput = document.getElementById('nameInput');
+  const firstInput = document.getElementById('firstNameInput');
   if (firstInput) {
     setTimeout(() => firstInput.focus(), 100);
   }
@@ -728,10 +1031,13 @@ function initializeAutoFocus() {
 
 // Initialize all functionality when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Registration page initialized');
+  console.log('Registration page initialized');
+  initializeTailAdminFormClasses();
+  initializeRegistrationWizard();
   initializeKeyboardShortcuts();
   initializeValidation();
   initializePlateInput();
+  initializeVehicleColorOtherFields();
   initializeCameraButtons();
   initializeGalleryButtons();
   initializeFileInputLabels();

@@ -1,6 +1,14 @@
 <?php
 // auth/logout.php
 // Universal logout handler - handles all session types
+ob_start(); // Buffer output to prevent warnings from blocking setcookie()
+
+// Isolate from other XAMPP apps to prevent cross-app GC
+$appSavePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'vehiscan_sessions';
+if (!is_dir($appSavePath)) { mkdir($appSavePath, 0700, true); }
+ini_set('session.save_path', $appSavePath);
+ini_set('session.gc_maxlifetime', 3600);
+
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/audit_logger.php';
 
@@ -9,13 +17,17 @@ $username = null;
 $role = null;
 try {
     AuditLogger::init($pdo);
-    
-    // Try to get username from any active session
-    foreach (['vehiscan_superadmin', 'vehiscan_admin', 'vehiscan_guard', 'vehiscan_session'] as $sName) {
+
+    // Try to get username from any active session (only check cookies that exist)
+    foreach (['vehiscan_superadmin', 'vehiscan_admin', 'vehiscan_guard', 'vehiscan_homeowner', 'vehiscan_session'] as $sName) {
+        if (!isset($_COOKIE[$sName])) {
+            continue;
+        }
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_write_close();
         }
         session_name($sName);
+        session_id($_COOKIE[$sName]);
         session_start();
         if (isset($_SESSION['username'])) {
             $username = $_SESSION['username'];
@@ -31,30 +43,33 @@ try {
 
 // Function to destroy a specific session
 function destroySessionByName($sessionName) {
+    // Only process if the browser actually has this cookie
+    if (!isset($_COOKIE[$sessionName])) {
+        return;
+    }
+
     // Close current session if active
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
-    
-    // Start the specific session
+
+    // Open the exact session the cookie points to
     session_name($sessionName);
+    session_id($_COOKIE[$sessionName]);
     session_start();
-    
+
     // Destroy session data
     $_SESSION = array();
     session_unset();
     session_destroy();
-    
-    // Clear session cookie
-    if (isset($_COOKIE[$sessionName])) {
-        setcookie($sessionName, '', time() - 3600, '/');
-    }
-    
-    session_write_close();
+
+    // Expire the cookie
+    setcookie($sessionName, '', time() - 3600, '/');
+    unset($_COOKIE[$sessionName]);
 }
 
 // Destroy all possible session types (including Super Admin)
-$sessionTypes = ['vehiscan_superadmin', 'vehiscan_admin', 'vehiscan_guard', 'vehiscan_session'];
+$sessionTypes = ['vehiscan_superadmin', 'vehiscan_admin', 'vehiscan_guard', 'vehiscan_homeowner', 'vehiscan_session'];
 
 foreach ($sessionTypes as $sessionName) {
     destroySessionByName($sessionName);

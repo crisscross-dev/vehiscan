@@ -1,10 +1,10 @@
-# 🗄️ Backup Directory
+﻿# Backup Directory
 
 This directory contains all database and system backups for the Vehiscan RFID Management System.
 
 ---
 
-## 📦 Backup Archives
+## Backup Archives
 
 ### Available Backups
 
@@ -44,7 +44,7 @@ Each backup typically contains:
 
 ---
 
-## 📋 Restore Instructions
+## Restore Instructions
 
 ### Database Restore
 ```bash
@@ -63,7 +63,7 @@ Copy-Item -Path "backups/[backup_name]/*" -Destination "../" -Recurse
 
 ---
 
-## ⚠️ Important Notes
+## Important Notes
 
 - **Always create a backup before major changes**
 - **Test restored backups in a development environment first**
@@ -72,7 +72,7 @@ Copy-Item -Path "backups/[backup_name]/*" -Destination "../" -Recurse
 
 ---
 
-## 🔄 Creating New Backups
+## Creating New Backups
 
 Use the admin panel's backup feature:
 1. Login to admin panel

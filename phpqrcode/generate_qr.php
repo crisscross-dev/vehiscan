@@ -18,6 +18,20 @@ function buildFallbackUrl(): string
         $port = (int)($_SERVER['SERVER_PORT'] ?? 80);
     }
 
+    // Resolve LAN IP when host is loopback (so QR works on mobile devices)
+    $loopbackHosts = ['localhost', '127.0.0.1', '::1'];
+    if (in_array(strtolower($host), $loopbackHosts, true)) {
+        $serverAddr = $_SERVER['SERVER_ADDR'] ?? '';
+        if ($serverAddr && !in_array($serverAddr, $loopbackHosts, true)) {
+            $host = $serverAddr;
+        } else {
+            $lanIp = @gethostbyname(gethostname());
+            if ($lanIp && !in_array($lanIp, $loopbackHosts, true) && filter_var($lanIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $host = $lanIp;
+            }
+        }
+    }
+
     $portSegment = ($port && !in_array($port, [80, 443], true)) ? ':' . $port : '';
 
     $script = $_SERVER['SCRIPT_NAME'] ?? '';

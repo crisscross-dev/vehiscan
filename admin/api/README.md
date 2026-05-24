@@ -1,15 +1,15 @@
-# 🎫 Admin API Endpoints
+﻿# Admin API Endpoints
 
 This directory contains admin-only API endpoints for visitor pass management.
 
 ---
 
-## 📁 Files
+## Files
 
 ### create_visitor_pass.php
-**Purpose:** Create a new visitor pass  
-**Method:** POST  
-**Access:** Admin only (AJAX + CSRF protected)  
+**Purpose:** Create a new visitor pass 
+**Method:** POST 
+**Access:** Admin only (AJAX + CSRF protected) 
 **Called by:** `admin/fetch/fetch_visitors.php`
 
 **Parameters:**
@@ -45,9 +45,9 @@ csrf: string (required)
 ---
 
 ### cancel_visitor_pass.php
-**Purpose:** Cancel an existing visitor pass  
-**Method:** POST  
-**Access:** Admin only (AJAX + CSRF protected)  
+**Purpose:** Cancel an existing visitor pass 
+**Method:** POST 
+**Access:** Admin only (AJAX + CSRF protected) 
 **Called by:** `admin/fetch/fetch_visitors.php`
 
 **Parameters:**
@@ -98,7 +98,7 @@ if ($_SESSION['role'] !== 'admin') {
 
 ---
 
-## 🔄 Integration
+## Integration
 
 ### Frontend Integration
 Visitor pass modal in `admin/fetch/fetch_visitors.php` contains inline JavaScript that calls these endpoints:
@@ -115,7 +115,7 @@ const res = await fetch('../api/create_visitor_pass.php', {
 ```javascript
 const res = await fetch('../api/cancel_visitor_pass.php', {
     method: 'POST',
-    body: formData  
+    body: formData 
 });
 ```
 
@@ -136,7 +136,7 @@ visitor_passes (
 
 ---
 
-## 📊 Status Values
+## Status Values
 
 - **active** - Pass is currently valid
 - **expired** - Valid period has passed (auto-updated)
@@ -144,7 +144,7 @@ visitor_passes (
 
 ---
 
-## 🧪 Testing
+## Testing
 
 **Test File:**
 - `_testing/test_features.html`
@@ -159,7 +159,7 @@ visitor_passes (
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **"Invalid CSRF token" error:**
 - Session may have expired
@@ -178,7 +178,7 @@ visitor_passes (
 
 ---
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 Consider adding:
 - [ ] QR code generation for passes

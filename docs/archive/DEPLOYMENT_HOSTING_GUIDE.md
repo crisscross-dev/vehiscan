@@ -36,10 +36,10 @@ The QR codes will automatically use your hosting domain because:
 
 ### Current Configuration
 
-Your InfinityFree hosting details:
-- **Domain**: `yourdomain.infinityfreeapp.com` (update with actual domain)
-- **Database Host**: `sql100.infinityfree.com`
-- **Database**: `if0_40595877_vehiscan`
+Your hosting details:
+- **Domain**: `yourdomain.example.com` (update with actual domain)
+- **Database Host**: `your-db-host.example.com`
+- **Database**: `your_database_name`
 
 ### Troubleshooting
 

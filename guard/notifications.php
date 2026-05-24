@@ -2,30 +2,48 @@
 require_once __DIR__ . '/../includes/session_guard.php';
 require_once __DIR__ . '/../db.php';
 
-// OPTIONAL: Restrict access (e.g., only guards or admins)
-if (!isset($_SESSION['role'])) {
+// Restrict access to guards only
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
     header("Location: ../auth/login.php");
     exit();
 }
 
-// Handle mark-all-as-read
-if (isset($_POST['mark_all_read'])) {
-    $pdo->query("UPDATE notifications SET is_read = 1");
+$guardId = $_SESSION['guard_id'] ?? $_SESSION['user_id'] ?? 0;
+
+// Ensure CSRF token exists
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf = $_SESSION['csrf_token'];
+
+// Handle mark-all-as-read (POST with CSRF + user scope)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_all_read'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($csrf, $_POST['csrf_token'])) {
+        http_response_code(403);
+        exit('Invalid security token');
+    }
+    $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ? OR user_id IS NULL");
+    $stmt->execute([$guardId]);
     header("Location: notifications.php");
     exit();
 }
 
-// Handle mark single notification as read
-if (isset($_GET['mark_read'])) {
-    $id = intval($_GET['mark_read']);
-    $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE id = ?");
-    $stmt->execute([$id]);
+// Handle mark single notification as read (POST only with CSRF)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_read'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($csrf, $_POST['csrf_token'])) {
+        http_response_code(403);
+        exit('Invalid security token');
+    }
+    $id = intval($_POST['mark_read']);
+    $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE id = ? AND (user_id = ? OR user_id IS NULL)");
+    $stmt->execute([$id, $guardId]);
     header("Location: notifications.php");
     exit();
 }
 
-// Fetch all notifications
-$stmt = $pdo->query("SELECT * FROM notifications ORDER BY created_at DESC");
+// Fetch notifications scoped to this guard
+$stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? OR user_id IS NULL ORDER BY created_at DESC");
+$stmt->execute([$guardId]);
 $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -99,11 +117,12 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="top-bar">
     <form method="POST" style="margin:0;">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
         <button type="submit" name="mark_all_read" class="btn btn-all-read">
             Mark All as Read
         </button>
     </form>
-    <a href="user_side.php" class="btn btn-back">← Back</a>
+    <a href="pages/guard_side.php" class="btn btn-back">← Back</a>
 </div>
 
 <table>
@@ -124,17 +143,19 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php else: ?>
             <?php foreach ($notifications as $n): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($n['type']); ?></td>
-                    <td><?php echo htmlspecialchars($n['message']); ?></td>
-                    <td><?php echo htmlspecialchars($n['created_at']); ?></td>
+                    <td><?php echo htmlspecialchars($n['type'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($n['message'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($n['created_at'] ?? ''); ?></td>
                     <td class="<?php echo $n['is_read'] ? 'status-read' : 'status-unread'; ?>">
                         <?php echo $n['is_read'] ? 'Read' : 'Unread'; ?>
                     </td>
                     <td>
                         <?php if (!$n['is_read']): ?>
-                            <a href="notifications.php?mark_read=<?php echo $n['id']; ?>" class="btn btn-read">
-                                Mark as Read
-                            </a>
+                            <form method="POST" style="display:inline;margin:0;">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
+                                <input type="hidden" name="mark_read" value="<?php echo $n['id']; ?>">
+                                <button type="submit" class="btn btn-read">Mark as Read</button>
+                            </form>
                         <?php else: ?>
                             -
                         <?php endif; ?>

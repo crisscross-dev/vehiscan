@@ -2,10 +2,23 @@
 /**
  * RFID SIMULATOR DIAGNOSTIC TOOL
  * Place this file in your admin folder and access it directly
- * Example: http://localhost/Vehiscan-RFID/admin/RFID_DIAGNOSTIC.php
+ * Access via: {APP_URL}/admin/diagnostics/RFID_DIAGNOSTIC.php (configure APP_URL in .env)
  */
 
-echo "<h1>🔍 RFID Simulator Diagnostic</h1>";
+require_once __DIR__ . '/../../includes/session_admin_unified.php';
+require_once __DIR__ . '/../../config.php';
+
+if (!defined('APP_DEBUG') || APP_DEBUG !== true) {
+    http_response_code(404);
+    exit('Not Found');
+}
+
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin'], true)) {
+    http_response_code(403);
+    exit('Unauthorized');
+}
+
+echo "<h1>RFID Simulator Diagnostic</h1>";
 echo "<pre>";
 
 require_once __DIR__ . '/../../db.php';
@@ -13,9 +26,9 @@ require_once __DIR__ . '/../../db.php';
 echo "\n=== DATABASE CONNECTION ===\n";
 try {
     $pdo->query("SELECT 1");
-    echo "✅ Database connected successfully\n";
+    echo "[OK] Database connected successfully\n";
 } catch (Exception $e) {
-    echo "❌ Database connection failed: " . $e->getMessage() . "\n";
+    echo "[FAIL] Database connection failed: " . $e->getMessage() . "\n";
     exit;
 }
 
@@ -25,34 +38,34 @@ echo "\n=== TABLE STRUCTURE CHECK ===\n";
 try {
     $stmt = $pdo->query("DESCRIBE recent_logs");
     $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    echo "✅ recent_logs table exists\n";
+    echo "[OK] recent_logs table exists\n";
     echo "   Columns: " . implode(", ", $columns) . "\n";
     
     if (!in_array('log_time', $columns)) {
-        echo "   ⚠️  WARNING: 'log_time' column not found!\n";
+        echo "   [WARN]  WARNING: 'log_time' column not found!\n";
     }
     if (!in_array('created_at', $columns)) {
-        echo "   ℹ️  INFO: 'created_at' column not found (this is OK)\n";
+        echo "   [INFO]  INFO: 'created_at' column not found (this is OK)\n";
     }
 } catch (Exception $e) {
-    echo "❌ recent_logs table error: " . $e->getMessage() . "\n";
+    echo "[FAIL] recent_logs table error: " . $e->getMessage() . "\n";
 }
 
 // Check rfid_simulator table
 try {
     $stmt = $pdo->query("DESCRIBE rfid_simulator");
-    echo "✅ rfid_simulator table exists\n";
+    echo "[OK] rfid_simulator table exists\n";
 } catch (Exception $e) {
-    echo "❌ rfid_simulator table does NOT exist: " . $e->getMessage() . "\n";
+    echo "[FAIL] rfid_simulator table does NOT exist: " . $e->getMessage() . "\n";
 }
 
 // Check homeowners table
 try {
     $stmt = $pdo->query("SELECT COUNT(*) FROM homeowners");
     $count = $stmt->fetchColumn();
-    echo "✅ homeowners table exists ($count homeowners)\n";
+    echo "[OK] homeowners table exists ($count homeowners)\n";
 } catch (Exception $e) {
-    echo "❌ homeowners table error: " . $e->getMessage() . "\n";
+    echo "[FAIL] homeowners table error: " . $e->getMessage() . "\n";
 }
 
 echo "\n=== TEST INSERT ===\n";
@@ -73,32 +86,32 @@ try {
         $success = $insertStmt->execute([$realPlate, 'ALLOWED']);
         
         if ($success) {
-            echo "✅ Successfully inserted test log!\n";
+            echo "[OK] Successfully inserted test log!\n";
             $insertId = $pdo->lastInsertId();
             echo "   Insert ID: $insertId\n";
             
             // Verify it appears
-            $verifyStmt = $pdo->prepare("SELECT * FROM recent_logs WHERE id = ?");
+            $verifyStmt = $pdo->prepare("SELECT * FROM recent_logs WHERE log_id = ?");
             $verifyStmt->execute([$insertId]);
             $row = $verifyStmt->fetch(PDO::FETCH_ASSOC);
             
             if ($row) {
-                echo "✅ Log entry verified:\n";
+                echo "[OK] Log entry verified:\n";
                 echo "   " . print_r($row, true) . "\n";
                 
                 // Clean up test entry
-                $pdo->prepare("DELETE FROM recent_logs WHERE id = ?")->execute([$insertId]);
-                echo "✅ Test entry cleaned up\n";
+                $pdo->prepare("DELETE FROM recent_logs WHERE log_id = ?")->execute([$insertId]);
+                echo "[OK] Test entry cleaned up\n";
             }
         } else {
-            echo "❌ Insert failed\n";
+            echo "[FAIL] Insert failed\n";
         }
     } else {
-        echo "⚠️  No homeowners found in database\n";
+        echo "[WARN]  No homeowners found in database\n";
     }
     
 } catch (Exception $e) {
-    echo "❌ Test insert failed: " . $e->getMessage() . "\n";
+    echo "[FAIL] Test insert failed: " . $e->getMessage() . "\n";
 }
 
 echo "\n=== FETCH LOGS SIMULATION ===\n";
@@ -106,7 +119,7 @@ echo "\n=== FETCH LOGS SIMULATION ===\n";
 try {
     $stmt = $pdo->query("
         SELECT 
-            DATE_FORMAT(r.log_time, '%H:%i:%s') AS time,
+            DATE_FORMAT(r.log_time, '%h:%i:%s %p') AS time,
             r.plate_number, 
             r.status,
             h.name
@@ -118,42 +131,46 @@ try {
     $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     if (count($logs) > 0) {
-        echo "✅ Found " . count($logs) . " recent logs:\n";
+        echo "[OK] Found " . count($logs) . " recent logs:\n";
         foreach ($logs as $log) {
             echo "   - {$log['time']} | {$log['plate_number']} | {$log['status']} | " . ($log['name'] ?? 'Unknown') . "\n";
         }
     } else {
-        echo "ℹ️  No logs in database yet\n";
+        echo "[INFO]  No logs in database yet\n";
     }
 } catch (Exception $e) {
-    echo "❌ Fetch logs failed: " . $e->getMessage() . "\n";
+    echo "[FAIL] Fetch logs failed: " . $e->getMessage() . "\n";
 }
 
 echo "\n=== FILE CHECKS ===\n";
 
 $files = [
-    'simulate_rfid_scan.php' => __DIR__ . '/simulate_rfid_scan.php',
-    'get_recent_simulations.php' => __DIR__ . '/get_recent_simulations.php',
-    'admin_panel.js' => __DIR__ . '/admin_panel.js',
-    'fetch_simulator.php' => __DIR__ . '/fetch/fetch_simulator.php'
+    'simulate_rfid_scan.php' => dirname(__DIR__) . '/simulation/simulate_rfid_scan.php',
+    'get_recent_simulations.php' => dirname(__DIR__) . '/simulation/get_recent_simulations.php',
+    'admin_panel.js' => dirname(__DIR__, 2) . '/assets/js/admin/admin_panel.js',
+    'fetch_simulator.php' => dirname(__DIR__) . '/fetch/fetch_simulator.php'
 ];
 
 foreach ($files as $name => $path) {
     if (file_exists($path)) {
-        echo "✅ $name exists\n";
+        echo "[OK] $name exists\n";
     } else {
-        echo "❌ $name NOT FOUND at: $path\n";
+        echo "[FAIL] $name NOT FOUND at: $path\n";
     }
 }
 
 echo "\n=== SESSION CHECK ===\n";
-session_start();
+if (PHP_SAPI === 'cli' || headers_sent()) {
+    echo "[INFO]  Session check skipped in CLI/output mode\n";
+} elseif (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 if (isset($_SESSION['role'])) {
-    echo "✅ Session active\n";
+    echo "[OK] Session active\n";
     echo "   Role: {$_SESSION['role']}\n";
     echo "   Username: " . ($_SESSION['username'] ?? 'N/A') . "\n";
-} else {
-    echo "⚠️  No active session\n";
+} elseif (PHP_SAPI !== 'cli') {
+    echo "[WARN]  No active session\n";
 }
 
 echo "\n=== RECOMMENDATIONS ===\n";
@@ -166,7 +183,7 @@ echo "\n</pre>";
 ?>
 
 <hr>
-<h2>🧪 Manual RFID Scan Test</h2>
+<h2>[TEST] Manual RFID Scan Test</h2>
 <form method="POST" action="simulate_rfid_scan.php" target="_blank">
     <label>Select Plate:</label>
     <select name="plate_number" required>
@@ -181,7 +198,7 @@ echo "\n</pre>";
         }
         ?>
     </select>
-    <button type="submit">🧪 Test Scan</button>
+    <button type="submit">[TEST] Test Scan</button>
 </form>
 
 <style>

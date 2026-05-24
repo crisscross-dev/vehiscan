@@ -5,15 +5,43 @@
 
 (function() {
   'use strict';
+
+  function registerEscapeHandler(modal) {
+    if (window.keyboardShortcuts && typeof window.keyboardShortcuts.register === 'function') {
+      window.keyboardShortcuts.register('escape', function() {
+        if (!modal.classList.contains('active')) return false;
+        closeQRZoom();
+        return true;
+      }, {
+        id: 'admin.qrmodal.escape',
+        description: 'Close QR zoom modal',
+        preventDefault: false,
+        allowWhileTyping: true
+      });
+      return;
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeQRZoom();
+      }
+    });
+  }
   
   // Create modal on page load
   function createQRModal() {
+    if (document.getElementById('qrZoomModal')) return;
+
     const modal = document.createElement('div');
     modal.id = 'qrZoomModal';
+    modal.setAttribute('aria-hidden', 'true');
     modal.innerHTML = `
       <div class="qr-modal-content">
-        <button class="qr-modal-close" onclick="closeQRZoom()" aria-label="Close">&times;</button>
-        <img id="qrZoomImage" class="qr-modal-image" src="" alt="QR Code">
+        <button type="button" class="qr-modal-close" onclick="closeQRZoom()" aria-label="Close">&times;</button>
+        <div class="qr-modal-image-wrapper">
+          <img id="qrZoomImage" class="qr-modal-image" src="" alt="QR Code">
+          <img class="qr-modal-logo" src="../assets/images/ville_de_palme.png" alt="Logo">
+        </div>
         <div class="qr-modal-info">
           <p>Click outside or press ESC to close</p>
         </div>
@@ -28,12 +56,7 @@
       }
     });
     
-    // Close on ESC key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.classList.contains('active')) {
-        closeQRZoom();
-      }
-    });
+    registerEscapeHandler(modal);
   }
   
   // Open QR zoom modal
@@ -46,7 +69,8 @@
     if (modal && img) {
       img.src = src;
       modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
     }
   };
   
@@ -55,7 +79,8 @@
     const modal = document.getElementById('qrZoomModal');
     if (modal) {
       modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
     }
   };
   

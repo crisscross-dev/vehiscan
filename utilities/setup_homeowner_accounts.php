@@ -13,7 +13,7 @@ $password_hash = password_hash($default_password, PASSWORD_DEFAULT);
 try {
     // Get all homeowners without auth accounts
     $stmt = $pdo->query("
-        SELECT h.id, h.name, h.address, h.contact
+        SELECT h.id, h.name, h.address, h.contact_number
         FROM homeowners h
         LEFT JOIN homeowner_auth ha ON h.id = ha.homeowner_id
         WHERE ha.id IS NULL
@@ -23,7 +23,7 @@ try {
     $homeowners = $stmt->fetchAll();
     
     if (empty($homeowners)) {
-        echo "✓ All homeowners already have accounts!\n";
+        echo "[OK] All homeowners already have accounts!\n";
         exit(0);
     }
     
@@ -56,7 +56,7 @@ try {
         
         $stmt->execute([$h['id'], $username, $password_hash, $email]);
         
-        echo "✓ Created account for: {$h['name']}\n";
+        echo "[OK] Created account for: {$h['name']}\n";
         echo "  Username: $username\n";
         echo "  Password: $default_password\n";
         echo "  Address: {$h['address']}\n\n";
@@ -67,7 +67,8 @@ try {
     echo "\n" . str_repeat("=", 60) . "\n";
     echo "SUCCESS: Created $created homeowner accounts!\n";
     echo str_repeat("=", 60) . "\n\n";
-    echo "Access Portal: http://localhost/Vehiscan-RFID/homeowners/login.php\n";
+    $appUrl = getAppUrl();
+    echo "Access Portal: " . $appUrl . "/auth/login.php\n";
     echo "Default Password: $default_password\n";
     echo "\nIMPORTANT: Users should change their passwords after first login!\n";
     

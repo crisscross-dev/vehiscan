@@ -22,7 +22,7 @@ echo "<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <h1>🚀 Performance Indexes Migration</h1>
+    <h1><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M5 12h14M12 5l7 7-7 7'/></svg> Performance Indexes Migration</h1>
     <p class='info'>This migration adds database indexes to improve query performance by up to 10x.</p>
 ";
 
@@ -42,10 +42,10 @@ try {
             $existingIndexes[$table][] = $index['Key_name'];
         }
 
-        echo "<div class='step'>✓ Checked indexes for table: <code>$table</code></div>";
+        echo "<div class='step'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Checked indexes for table: <code>$table</code></div>";
     }
 
-    echo "<div class='success'>✓ Index check complete</div><br>";
+    echo "<div class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Index check complete</div><br>";
 
     // Add indexes
     echo "<h2>Step 2: Adding Performance Indexes</h2>";
@@ -98,18 +98,18 @@ try {
 
         // Check if index already exists
         if (isset($existingIndexes[$table]) && in_array($name, $existingIndexes[$table])) {
-            echo "<div class='step'>⊘ Skipped (already exists): <code>$name</code> on <code>$table.$index[column]</code></div>";
+            echo "<div class='step'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m4.93 4.93 14.14 14.14'/></svg> Skipped (already exists): <code>$name</code> on <code>$table.$index[column]</code></div>";
             $skipped++;
             continue;
         }
 
         try {
             $pdo->exec($index['sql']);
-            echo "<div class='success'>✓ Added: <code>$name</code> on <code>$table.$index[column]</code></div>";
+            echo "<div class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added: <code>$name</code> on <code>$table.$index[column]</code></div>";
             $added++;
         } catch (PDOException $e) {
             if (strpos($e->getMessage(), 'Duplicate key name') !== false) {
-                echo "<div class='step'>⊘ Skipped (already exists): <code>$name</code></div>";
+                echo "<div class='step'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m4.93 4.93 14.14 14.14'/></svg> Skipped (already exists): <code>$name</code></div>";
                 $skipped++;
             } else {
                 throw $e;
@@ -117,7 +117,7 @@ try {
         }
     }
 
-    echo "<br><div class='success'>✓ Index creation complete</div>";
+    echo "<br><div class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Index creation complete</div>";
     echo "<div class='info'>Added: $added indexes | Skipped: $skipped indexes</div><br>";
 
     // Verify indexes
@@ -132,16 +132,16 @@ try {
         $result = $stmt->fetch();
 
         if ($result) {
-            echo "<div class='success'>✓ Verified: <code>$name</code> on <code>$table</code></div>";
+            echo "<div class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Verified: <code>$name</code> on <code>$table</code></div>";
         } else {
-            echo "<div class='error'>✗ Missing: <code>$name</code> on <code>$table</code></div>";
+            echo "<div class='error'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Missing: <code>$name</code> on <code>$table</code></div>";
         }
     }
 
-    echo "<br><div class='success'>✓ All indexes verified successfully!</div>";
+    echo "<br><div class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> All indexes verified successfully!</div>";
 
     // Show performance tips
-    echo "<h2>📊 Performance Impact</h2>";
+    echo "<h2><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><rect x='14' y='14' width='7' height='7'/></svg> Performance Impact</h2>";
     echo "<ul>";
     echo "<li><strong>Recent Logs:</strong> Queries filtering by timestamp or homeowner_id will be 10-50x faster</li>";
     echo "<li><strong>Visitor Passes:</strong> Status filtering and homeowner lookups will be significantly faster</li>";
@@ -149,12 +149,12 @@ try {
     echo "<li><strong>Authentication:</strong> Username lookups will be faster (login performance)</li>";
     echo "</ul>";
 
-    echo "<h2>✅ Migration Complete!</h2>";
+    echo "<h2><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Migration Complete!</h2>";
     echo "<p class='success'>Database performance indexes have been successfully added.</p>";
     echo "<p class='info'>You can now delete this migration file or keep it for reference.</p>";
 
 } catch (PDOException $e) {
-    echo "<div class='error'>✗ Error: " . htmlspecialchars($e->getMessage()) . "</div>";
+    echo "<div class='error'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Error: " . htmlspecialchars($e->getMessage()) . "</div>";
     echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
 }
 

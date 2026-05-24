@@ -26,10 +26,10 @@ foreach ($indexesToAdd as $sql) {
         // Extract index name for display
         preg_match('/idx_[a-z_]+/', $sql, $matches);
         $indexName = $matches[0] ?? 'unknown';
-        echo "✓ Added/Verified: $indexName\n";
+        echo "[OK] Added/Verified: $indexName\n";
         $success++;
     } catch (PDOException $e) {
-        echo "✗ Failed: " . $e->getMessage() . "\n";
+        echo "[FAIL] Failed: " . $e->getMessage() . "\n";
         $failed++;
     }
 }
@@ -38,9 +38,9 @@ echo "\n=== Migration Complete ===\n";
 echo "Success: $success | Failed: $failed\n";
 
 if ($failed === 0) {
-    echo "\n✅ All indexes added successfully!\n";
+    echo "\n[OK] All indexes added successfully!\n";
     echo "Expected performance improvement: 10-50x on indexed queries\n";
 } else {
-    echo "\n⚠️  Some indexes failed. Check errors above.\n";
+    echo "\n[WARN]  Some indexes failed. Check errors above.\n";
 }
 ?>

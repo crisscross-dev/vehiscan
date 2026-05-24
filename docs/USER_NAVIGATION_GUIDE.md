@@ -1,7 +1,7 @@
-# VEHISCAN RFID SYSTEM - USER NAVIGATION GUIDE
-**Version:** 1.0  
-**Last Updated:** December 4, 2025  
-**System Status:** ✅ Production Ready
+﻿# VEHISCAN RFID SYSTEM - USER NAVIGATION GUIDE
+**Version:** 1.0 
+**Last Updated:** December 4, 2025 
+**System Status:** Production Ready
 
 ---
 
@@ -22,8 +22,8 @@
 VehiScan RFID is a comprehensive vehicle and visitor management system designed for residential communities. The system provides three main portals for different user roles:
 
 - **🏠 Homeowner Portal** - For residents to manage their information and request visitor passes
-- **🛡️ Guard Panel** - For security personnel to scan RFID/QR codes and monitor access
-- **⚙️ Admin Panel** - For administrators to manage the entire system
+- ** Guard Panel** - For security personnel to scan RFID/QR codes and monitor access
+- ** Admin Panel** - For administrators to manage the entire system
 
 **System URL:** `http://localhost/Vehiscan-RFID/`
 
@@ -165,7 +165,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 ### Navigation Menu:
 
-#### 📊 **Dashboard**
+#### **Dashboard**
 - System overview statistics
 - Recent activity
 - Quick stats: Total homeowners, logs today, visitor passes
@@ -179,14 +179,14 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 - Search and filter functionality
 - Pagination for large datasets
 
-#### 📝 **Access Logs**
+#### **Access Logs**
 - View complete access history
 - Filter by date, status, homeowner
 - Search by name or plate
 - Delete individual log entries
 - Export to CSV
 
-#### 🎫 **Visitor Passes**
+#### **Visitor Passes**
 - View all visitor pass requests
 - Approve pending requests
 - Reject requests with reason
@@ -200,13 +200,13 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 - Reset employee passwords
 - Delete employees
 
-#### 🎮 **RFID Simulator**
+#### **RFID Simulator**
 - Test RFID scanning without hardware
 - Simulate vehicle entries
 - Generate demo logs for testing
 - View recent simulations
 
-#### 📋 **Audit Logs**
+#### **Audit Logs**
 - Track all administrative actions
 - See who did what and when
 - Monitor system changes
@@ -243,7 +243,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 4. Select role:
    - **Admin:** Full access to admin panel
    - **Guard:** Access to guard panel only
-   - **Owner:** Homeowner-level access
+   - **Homeowner:** Homeowner-level access
 5. Click "Create Employee"
 
 **Editing Employee Roles:**
@@ -275,7 +275,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 ### For Homeowners:
 
-**✅ Requesting a Visitor Pass**
+** Requesting a Visitor Pass**
 ```
 1. Login to Homeowner Portal
 2. Navigate to Visitor Passes section
@@ -286,7 +286,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 7. Wait for approval (check status periodically)
 ```
 
-**✅ Updating Your Profile**
+** Updating Your Profile**
 ```
 1. Login to portal
 2. Click "Edit Profile"
@@ -294,7 +294,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 4. Click "Save Changes"
 ```
 
-**✅ Changing Your Password**
+** Changing Your Password**
 ```
 1. Login to portal
 2. Go to "Profile Settings"
@@ -307,7 +307,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 ### For Guards:
 
-**✅ Processing a Vehicle Entry**
+** Processing a Vehicle Entry**
 ```
 1. Login to Guard Panel
 2. Click "Scan RFID/QR"
@@ -317,7 +317,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 6. Entry is automatically logged
 ```
 
-**✅ Verifying a Visitor Pass**
+** Verifying a Visitor Pass**
 ```
 1. Ask visitor for pass details
 2. Search in access logs or check visitor passes
@@ -328,7 +328,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 4. Grant or deny entry
 ```
 
-**✅ Checking Recent Activity**
+** Checking Recent Activity**
 ```
 1. View main logs page
 2. Recent entries appear at top
@@ -338,7 +338,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 ### For Admins:
 
-**✅ Adding a New Homeowner**
+** Adding a New Homeowner**
 ```
 1. Login to Admin Panel
 2. Go to "Manage Records"
@@ -350,7 +350,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 8. Save
 ```
 
-**✅ Handling Visitor Pass Requests**
+** Handling Visitor Pass Requests**
 ```
 1. Go to "Visitor Passes"
 2. Look for "Pending" status
@@ -362,7 +362,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
    - Provide reason for homeowner
 ```
 
-**✅ Creating Guard Accounts**
+** Creating Guard Accounts**
 ```
 1. Go to "Employee Management"
 2. Click "Create New Employee"
@@ -373,7 +373,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 7. Provide credentials to guard staff
 ```
 
-**✅ Generating Reports**
+** Generating Reports**
 ```
 1. Go to desired section (Logs, Audit, etc.)
 2. Set date range filters
@@ -386,7 +386,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 ## SECURITY FEATURES
 
-### 🔒 Authentication & Authorization
+### Authentication & Authorization
 
 **Multi-Factor Security:**
 - Unique usernames required
@@ -415,7 +415,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 - 5 attempts per 15 minutes per IP
 - Works in conjunction with account lockout
 
-### ⏱️ Session Management
+### Session Management
 
 **Automatic Timeout:**
 - 30-minute inactivity timeout
@@ -458,61 +458,61 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 ### Common Issues & Solutions:
 
-#### ❌ **"Invalid CSRF Token"**
-**Problem:** Form submission rejected  
+#### **"Invalid CSRF Token"**
+**Problem:** Form submission rejected 
 **Solution:**
 - Refresh the page before submitting
 - Clear browser cache and cookies
 - Check if session hasn't expired
 
-#### ❌ **"Account Locked"**
-**Problem:** Too many failed login attempts  
+#### **"Account Locked"**
+**Problem:** Too many failed login attempts 
 **Solution:**
 - Wait 30 minutes for automatic unlock
 - Or contact administrator to manually unlock
 - Ensure correct password before retrying
 
-#### ❌ **"Rate Limit Exceeded"**
-**Problem:** Too many requests in short time  
+#### **"Rate Limit Exceeded"**
+**Problem:** Too many requests in short time 
 **Solution:**
 - Wait for the cooldown period (shown in message)
 - Check if you're submitting duplicate requests
 - Contact admin if legitimate use is blocked
 
-#### ❌ **"Session Expired"**
-**Problem:** Logged out automatically  
+#### **"Session Expired"**
+**Problem:** Logged out automatically 
 **Solution:**
 - Sessions timeout after 30 minutes of inactivity
 - Log in again
 - Use "Stay Logged In" when warning appears
 - Enable "Remember Me" if available
 
-#### ❌ **QR Code Scanner Not Working**
-**Problem:** Camera doesn't activate  
+#### **QR Code Scanner Not Working**
+**Problem:** Camera doesn't activate 
 **Solution:**
 1. Check browser permissions (allow camera access)
 2. Ensure using HTTPS (required for camera)
 3. Try different browser (Chrome/Firefox recommended)
 4. Check if camera is being used by another app
 
-#### ❌ **Image Upload Fails**
-**Problem:** Photos won't upload  
+#### **Image Upload Fails**
+**Problem:** Photos won't upload 
 **Solution:**
 - Check file size (max 5MB recommended)
 - Use supported formats: JPG, JPEG, PNG
 - Ensure `uploads/` directories have write permissions
 - Check available disk space on server
 
-#### ❌ **Visitor Pass Not Showing**
-**Problem:** Approved pass doesn't appear  
+#### **Visitor Pass Not Showing**
+**Problem:** Approved pass doesn't appear 
 **Solution:**
 - Refresh the page
 - Check if pass is within valid date range
 - Verify pass was actually approved (check status)
 - Contact admin to verify in database
 
-#### ❌ **Can't Create New Employee**
-**Problem:** Employee creation fails  
+#### **Can't Create New Employee**
+**Problem:** Employee creation fails 
 **Solution:**
 - Ensure username is unique
 - Password must be at least 8 characters
@@ -540,7 +540,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 ## BEST PRACTICES
 
 ### For Security:
-✅ **DO:**
+ **DO:**
 - Log out when finished
 - Use strong, unique passwords
 - Change passwords regularly
@@ -548,7 +548,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 - Keep session timeout warnings enabled
 - Verify visitor identities before approving passes
 
-❌ **DON'T:**
+ **DON'T:**
 - Share login credentials
 - Leave workstation unattended while logged in
 - Approve visitor passes without verification
@@ -556,28 +556,28 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 - Disable security features
 
 ### For Data Management:
-✅ **DO:**
+ **DO:**
 - Export logs regularly for backup
 - Keep homeowner information up to date
 - Delete old logs periodically
 - Use consistent naming conventions
 - Verify RFID tags are unique before creating homeowners
 
-❌ **DON'T:**
+ **DON'T:**
 - Delete logs without exporting first
 - Use duplicate RFID tags or plate numbers
 - Create test accounts in production
 - Modify database directly
 
 ### For Operations:
-✅ **DO:**
+ **DO:**
 - Train guards on proper scanning procedures
 - Establish visitor pass approval workflow
 - Monitor system activity regularly
 - Test RFID scanner periodically
 - Communicate with homeowners about pass process
 
-❌ **DON'T:**
+ **DON'T:**
 - Ignore pending visitor pass requests
 - Grant blanket approvals without review
 - Skip regular system checks
@@ -644,7 +644,7 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 **For Users:**
 - Contact your community administrator
 - Check this guide first
-- Use in-app help buttons (❓ icons)
+- Use in-app help buttons ( icons)
 
 ---
 
@@ -652,18 +652,18 @@ VehiScan RFID is a comprehensive vehicle and visitor management system designed 
 
 Before going live, ensure:
 
-- [ ] ✅ All security tests passing (94.4%+)
-- [ ] ✅ HTTPS enabled with valid SSL certificate
-- [ ] ✅ `.htaccess.production` renamed to `.htaccess`
-- [ ] ✅ Database credentials secured in `.env`
-- [ ] ✅ `APP_DEBUG=false` in `.env`
-- [ ] ✅ File permissions set correctly (644 files, 755 dirs)
-- [ ] ✅ Upload directories writable
-- [ ] ✅ Super admin account created with strong password
-- [ ] ✅ Test all three portals (Homeowner, Guard, Admin)
-- [ ] ✅ Backup strategy in place
-- [ ] ✅ Guards trained on system use
-- [ ] ✅ Homeowners notified about registration process
+- [ ] All security tests passing (94.4%+)
+- [ ] HTTPS enabled with valid SSL certificate
+- [ ] `.htaccess.production` renamed to `.htaccess`
+- [ ] Database credentials secured in `.env`
+- [ ] `APP_DEBUG=false` in `.env`
+- [ ] File permissions set correctly (644 files, 755 dirs)
+- [ ] Upload directories writable
+- [ ] Super admin account created with strong password
+- [ ] Test all three portals (Homeowner, Guard, Admin)
+- [ ] Backup strategy in place
+- [ ] Guards trained on system use
+- [ ] Homeowners notified about registration process
 
 ---
 
@@ -689,7 +689,7 @@ Before going live, ensure:
 | Super Admin | `super_admin` | All features | Admins, Guards, Homeowners |
 | Admin | `admin` | Admin panel | Guards, Homeowners |
 | Guard | `guard` | Guard panel only | Nothing |
-| Homeowner | `owner` | Homeowner portal | Visitor passes |
+| Homeowner | `homeowner` | Homeowner portal | Visitor passes |
 
 ### Status Codes:
 
@@ -719,6 +719,6 @@ Before going live, ensure:
 
 *For technical support or system administration questions, refer to the technical documentation or contact your system administrator.*
 
-**System Status:** ✅ OPERATIONAL  
-**Last System Test:** December 4, 2025 - 94.4% Pass Rate  
+**System Status:** OPERATIONAL 
+**Last System Test:** December 4, 2025 - 94.4% Pass Rate 
 **Security Score:** 95/100

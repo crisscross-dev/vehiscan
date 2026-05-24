@@ -69,8 +69,8 @@ DROP COLUMN `password_hash`;
 ```
 
 ## Status
-✅ Migration ready to apply
-✅ CSS errors fixed
-✅ Form fields added
-✅ Backend validation implemented
-✅ Redirect functionality added
+[x] Migration ready to apply
+[x] CSS errors fixed
+[x] Form fields added
+[x] Backend validation implemented
+[x] Redirect functionality added

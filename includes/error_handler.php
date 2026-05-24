@@ -14,6 +14,13 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
         return false;
     }
 
+    // Don't treat deprecation notices and minor warnings as fatal
+    $nonFatalErrors = [E_DEPRECATED, E_USER_DEPRECATED, E_NOTICE, E_USER_NOTICE, E_STRICT];
+    if (in_array($errno, $nonFatalErrors)) {
+        // Log but don't display or kill the page
+        return true;
+    }
+
     // Display based on environment
     if (defined('APP_DEBUG') && APP_DEBUG) {
         // Development: Show detailed error

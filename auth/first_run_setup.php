@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/security_headers.php';
 
 // Check if already installed
 try {
@@ -25,7 +26,26 @@ try {
 $errors = [];
 $success = false;
 
+// Session + CSRF for setup form
+if (session_status() === PHP_SESSION_NONE) {
+    $appSavePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'vehiscan_sessions';
+    if (!is_dir($appSavePath)) { mkdir($appSavePath, 0700, true); }
+    ini_set('session.save_path', $appSavePath);
+    ini_set('session.gc_maxlifetime', 3600);
+    session_start();
+}
+if (empty($_SESSION['setup_csrf'])) {
+    $_SESSION['setup_csrf'] = bin2hex(random_bytes(32));
+}
+$setupCsrf = $_SESSION['setup_csrf'];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF validation
+    $postedCsrf = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($setupCsrf, $postedCsrf)) {
+        $errors[] = 'Invalid security token. Please refresh and try again.';
+    }
+
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $fullName = trim($_POST['full_name'] ?? '');
@@ -112,7 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($e->getCode() == 23000) {
                 $errors[] = "Username or email already exists";
             } else {
-                $errors[] = "Database error: " . $e->getMessage();
+                error_log('[SETUP] Database error: ' . $e->getMessage());
+                $errors[] = "An unexpected database error occurred. Please check the server logs.";
             }
         }
     }
@@ -278,22 +299,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="setup-container">
         <div class="setup-header">
             <div class="logo">
-                <img src="../assets/images/vehiscan-logo.png" alt="VehiScan" onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem;\'>🚗</span>'">
+                <img src="../assets/images/vehiscan-logo.png" alt="VehiScan" onerror="this.parentElement.innerHTML='<svg style=\'width:2rem;height:2rem;display:inline\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M5 17h14M6 17l1-5h10l1 5M8 12l1-4h6l1 4\'/><circle cx=\'7.5\' cy=\'17\' r=\'1.5\'/><circle cx=\'16.5\' cy=\'17\' r=\'1.5\'/></svg>'">
             </div>
-            <h1>🚀 Welcome to VehiScan</h1>
+            <h1><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M5 12h14M12 5l7 7-7 7'/></svg> Welcome to VehiScan</h1>
             <p>Let's set up your Super Admin account</p>
         </div>
         
         <div class="setup-content">
             <?php if ($success): ?>
                 <div class="success-message">
-                    ✅ Super Admin account created successfully!<br>
+                    <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/></svg> Super Admin account created successfully!<br>
                     <small>Redirecting to login page...</small>
                 </div>
             <?php else: ?>
                 <?php if (!empty($errors)): ?>
                     <div class="error-list">
-                        <strong>⚠️ Please fix the following errors:</strong>
+                        <strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg> Please fix the following errors:</strong>
                         <ul>
                             <?php foreach ($errors as $error): ?>
                                 <li><?php echo htmlspecialchars($error); ?></li>
@@ -303,8 +324,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
                 
                 <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($setupCsrf); ?>">
                     <div class="form-group">
-                        <label for="username">👤 Username</label>
+                        <label for="username"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg> Username</label>
                         <input type="text" id="username" name="username" required 
                                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
                                pattern="[a-zA-Z0-9_]+" title="Only letters, numbers, and underscores">
@@ -312,41 +334,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">📧 Email Address</label>
+                        <label for="email"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/></svg> Email Address</label>
                         <input type="email" id="email" name="email" required 
                                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
                         <div class="hint">For password recovery and system notifications.</div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="full_name">🎫 Full Name</label>
+                        <label for="full_name"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='2' y='2' width='20' height='20' rx='2'/><path d='M7 10h10M7 14h6'/></svg> Full Name</label>
                         <input type="text" id="full_name" name="full_name" required 
                                value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
                         <div class="hint">Your full name as it will appear in the system.</div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="password">🔒 Password</label>
+                        <label for="password"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg> Password</label>
                         <input type="password" id="password" name="password" required minlength="12">
                         <div class="password-requirements">
                             <h4>Password Requirements:</h4>
                             <ul>
-                                <li>✓ At least 12 characters</li>
-                                <li>✓ One uppercase letter (A-Z)</li>
-                                <li>✓ One lowercase letter (a-z)</li>
-                                <li>✓ One number (0-9)</li>
-                                <li>✓ One special character (!@#$%^&*)</li>
+                                <li>At least 12 characters</li>
+                                <li>One uppercase letter (A-Z)</li>
+                                <li>One lowercase letter (a-z)</li>
+                                <li>One number (0-9)</li>
+                                <li>One special character (!@#$%^&*)</li>
                             </ul>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="confirm_password">🔒 Confirm Password</label>
+                        <label for="confirm_password"><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg> Confirm Password</label>
                         <input type="password" id="confirm_password" name="confirm_password" required minlength="12">
                     </div>
                     
                     <button type="submit" class="btn">
-                        🚀 Create Super Admin Account
+                        <svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M5 12h14M12 5l7 7-7 7'/></svg> Create Super Admin Account
                     </button>
                 </form>
             <?php endif; ?>

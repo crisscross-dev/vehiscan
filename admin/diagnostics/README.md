@@ -1,20 +1,20 @@
-# 🔧 Admin Diagnostics
+﻿# Admin Diagnostics
 
 This directory contains diagnostic and debugging tools for the Vehiscan RFID system.
 
 ---
 
-## 📁 Files
+## Files
 
 ### RFID_DIAGNOSTIC.php
-**Purpose:** Comprehensive RFID simulator diagnostic tool  
-**Access:** Direct browser access  
-**URL:** `http://localhost/Vehiscan-RFID/admin/diagnostics/RFID_DIAGNOSTIC.php`
+**Purpose:** Comprehensive RFID simulator diagnostic tool 
+**Access:** Direct browser access 
+**URL:** `{APP_URL}/admin/diagnostics/RFID_DIAGNOSTIC.php` (configure APP_URL in .env)
 
 **Checks:**
 - Database connection status
 - `recent_logs` table structure
-- `homeowners` table records  
+- `homeowners` table records 
 - RFID scan simulation test
 - Session status
 - Recent scans display
@@ -24,8 +24,8 @@ This directory contains diagnostic and debugging tools for the Vehiscan RFID sys
 ---
 
 ### debug_image_paths.php
-**Purpose:** Debug homeowner image paths and verify uploads  
-**Access:** Requires admin session  
+**Purpose:** Debug homeowner image paths and verify uploads 
+**Access:** Requires admin session 
 **Features:**
 - Lists all homeowners with image paths
 - Checks if image files exist on filesystem
@@ -37,8 +37,8 @@ This directory contains diagnostic and debugging tools for the Vehiscan RFID sys
 ---
 
 ### image_diagnostic.php
-**Purpose:** Visual diagnostic for homeowner images  
-**Access:** Requires admin session  
+**Purpose:** Visual diagnostic for homeowner images 
+**Access:** Requires admin session 
 **Features:**
 - Displays all homeowner images with thumbnails
 - Shows database paths vs actual file locations
@@ -49,19 +49,19 @@ This directory contains diagnostic and debugging tools for the Vehiscan RFID sys
 
 ---
 
-## 🔒 Security
+## Security
 
 All diagnostic tools require:
 - Admin session (`session_admin.php`)
 - Database connection (`db.php`)
 - Admin role verification
 
-**⚠️ Production Warning:**  
+** Production Warning:** 
 These tools should be restricted or removed in production environments for security.
 
 ---
 
-## 🛠️ Adding New Diagnostics
+## Adding New Diagnostics
 
 When creating new diagnostic tools:
 

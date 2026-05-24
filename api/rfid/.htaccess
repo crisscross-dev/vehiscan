@@ -1,0 +1,7 @@
+# RFID API - Allow POST and GET only
+<LimitExcept GET POST OPTIONS>
+    Deny from all
+</LimitExcept>
+
+# Prevent directory listing
+Options -Indexes

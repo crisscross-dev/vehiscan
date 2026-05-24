@@ -1,4 +1,4 @@
-# Testing & Development Utilities
+﻿# Testing & Development Utilities
 
 This folder contains test files and development utilities moved from the root directory to keep the project organized.
 
@@ -50,7 +50,7 @@ php check_tables.php
 
 ## Security
 
-⚠️ **Important:** If deploying to production, ensure this directory is blocked in your web server configuration or remove it entirely.
+ **Important:** If deploying to production, ensure this directory is blocked in your web server configuration or remove it entirely.
 
 Add to `.htaccess` in production:
 ```apache

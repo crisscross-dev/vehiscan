@@ -14,6 +14,12 @@ Disallow: /utilities/
 Disallow: /uploads/
 Disallow: /backups/
 Disallow: /_testing/
+Disallow: /_archive/
+Disallow: /config/
+Disallow: /docs/
+Disallow: /vendor/
+Disallow: /sse/
+Disallow: /error_pages/
 Disallow: /phpqrcode/
 Disallow: /visitor/
 

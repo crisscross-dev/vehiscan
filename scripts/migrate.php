@@ -2,10 +2,20 @@
 /**
  * Database Migration Runner
  * Run from command line: php scripts/migrate.php
- * Or access via browser: http://localhost/Vehiscan-RFID/scripts/migrate.php
+ * Or access via browser (requires admin session)
  */
 
 require_once __DIR__ . '/../db.php';
+
+// Restrict to CLI or authenticated admin
+if (php_sapi_name() !== 'cli') {
+    require_once __DIR__ . '/../includes/session_admin_unified.php';
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
+        http_response_code(403);
+        echo 'Access denied. Admin authentication required.';
+        exit();
+    }
+}
 
 // Set appropriate headers
 header('Content-Type: text/html; charset=utf-8');
@@ -35,14 +45,14 @@ class MigrationRunner {
     
     private function log($message, $type = 'info') {
         $icons = [
-            'info' => '🔄',
-            'success' => '✅',
-            'error' => '❌',
-            'skip' => '⏭️',
-            'warning' => '⚠️'
+            'info' => '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>',
+            'success' => '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+            'error' => '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6m0-6 6 6"/></svg>',
+            'skip' => '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>',
+            'warning' => '<svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
         ];
         
-        $icon = $icons[$type] ?? '•';
+        $icon = $icons[$type] ?? '&bull;';
         $this->output[] = ['type' => $type, 'message' => "$icon $message"];
         echo "<div class='log-$type'>$icon $message</div>\n";
         flush();
@@ -303,7 +313,7 @@ class MigrationRunner {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🗄️ Database Migrations</h1>
+            <h1><svg style="width:1.2em;height:1.2em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg> Database Migrations</h1>
             <p>VehiScan RFID System Migration Runner</p>
         </div>
         
@@ -315,16 +325,16 @@ class MigrationRunner {
                     $success = $runner->run();
                     
                     if ($success) {
-                        echo "<div class='log-success'>🎉 All migrations completed successfully!</div>";
+                        echo "<div class='log-success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/></svg> All migrations completed successfully!</div>";
                     }
                 } catch (Exception $e) {
-                    echo "<div class='log-error'>❌ Migration error: " . htmlspecialchars($e->getMessage()) . "</div>";
+                    echo "<div class='log-error'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='m15 9-6 6m0-6 6 6'/></svg> Migration error: " . htmlspecialchars($e->getMessage()) . "</div>";
                 }
                 ?>
             </div>
             
             <div class="migration-list">
-                <h3>📋 Migration History</h3>
+                <h3><svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 7h8M8 12h8M8 17h4"/></svg> Migration History</h3>
                 <?php
                 try {
                     $migrations = $runner->getExecutedMigrations();
@@ -355,8 +365,8 @@ class MigrationRunner {
             </div>
             
             <div class="actions">
-                <a href="../auth/first_run_setup.php" class="btn">🚀 Continue to First-Run Setup</a>
-                <a href="../admin/admin_panel.php" class="btn" style="margin-left: 1rem; background: #48bb78;">📊 Go to Admin Panel</a>
+                <a href="../auth/first_run_setup.php" class="btn"><svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Continue to First-Run Setup</a>
+                <a href="../admin/admin_panel.php" class="btn" style="margin-left: 1rem; background: #48bb78;"><svg style="width:1em;height:1em;vertical-align:-0.15em;display:inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Go to Admin Panel</a>
             </div>
         </div>
     </div>

@@ -54,9 +54,14 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 3rem;
   width: 100%;
-  max-width: 480px;
+  max-width: 780px;
   position: relative;
   z-index: 1;
+}
+
+.registration-container.ta-card {
+  border: 1px solid var(--ta-card-border);
+  box-shadow: var(--ta-card-shadow);
 }
 
 .logo-container {
@@ -87,6 +92,141 @@ h1 {
   font-size: 0.875rem;
   margin-bottom: 2.5rem;
   text-align: center;
+}
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: -0.15rem 0 1rem;
+  width: 100%;
+}
+
+.wizard-step {
+  position: relative;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 999px;
+  padding: 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex: 1 1 0;
+  transition: color 0.2s ease;
+}
+
+.wizard-step::after {
+  content: '';
+  position: absolute;
+  top: 0.9rem;
+  left: calc(50% + 1rem);
+  width: calc(100% - 2rem);
+  height: 2px;
+  background: #e2e8f0;
+  pointer-events: none;
+}
+
+.wizard-step:last-child::after {
+  display: none;
+}
+
+.wizard-step-index {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  border: 2px solid #e2e8f0;
+  color: #9ca3af;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  background: #f8fafc;
+}
+
+.wizard-step-label {
+  display: none;
+}
+
+.wizard-step.active {
+  color: #4f46e5;
+}
+
+.wizard-step.active .wizard-step-index {
+  border-color: #4f46e5;
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.wizard-step.completed {
+  color: #4f46e5;
+}
+
+.wizard-step.completed .wizard-step-index {
+  border-color: #4f46e5;
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.wizard-step.completed::after {
+  background: #4f46e5;
+}
+
+.wizard-step:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.wizard-progress {
+  display: none;
+}
+
+#registrationForm [hidden] {
+  display: none !important;
+}
+
+.wizard-progress-bar {
+  height: 100%;
+  width: 33.3333%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  transition: width 0.25s ease;
+}
+
+@media (max-width: 760px) {
+  .wizard-steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .wizard-step {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .wizard-step::after {
+    display: none;
+  }
+
+  .wizard-step-label {
+    display: inline;
+    text-align: left;
+    color: inherit;
+  }
 }
 
 fieldset {
@@ -618,6 +758,33 @@ input[type="file"]::-webkit-file-upload-button:hover {
   cursor: not-allowed;
 }
 
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.btn-secondary {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  color: #18181b;
+  border-radius: 6px;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #f4f4f5;
+}
+
+#submitBtn {
+  margin-top: 0.75rem;
+}
+
 .btn-spinner {
   width: 16px;
   height: 16px;
@@ -654,6 +821,10 @@ input[type="file"]::-webkit-file-upload-button:hover {
   border: 1px solid #e4e4e7;
   border-radius: 8px;
   margin-top: 1.25rem;
+}
+
+.info-box.ta-alert {
+  display: block;
 }
 
 .info-box-text {
@@ -778,15 +949,21 @@ input[type="file"]::-webkit-file-upload-button:hover {
 }
 
 .swal2-confirm {
-  background: #000 !important;
+  background: var(--swal2-confirm-button-background-color, #3b82f6) !important;
+  color: #fff !important;
   border-radius: 6px;
   padding: 0.625rem 1.5rem;
   font-weight: 500;
   font-size: 0.875rem;
 }
 
+.swal2-cancel {
+  background: var(--ta-swal-cancel, #6b7280) !important;
+  color: #fff !important;
+}
+
 .swal2-confirm:hover {
-  background: #1f1f1f !important;
+  filter: brightness(1.1);
 }
 
 /* Form animations */
@@ -853,6 +1030,7 @@ textarea:focus::placeholder {
 
   .registration-container {
     padding: 1.5rem;
+    max-width: 100%;
   }
 
   .logo-image {
@@ -868,6 +1046,10 @@ textarea:focus::placeholder {
   }
 
   .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-steps {
     grid-template-columns: 1fr;
   }
 

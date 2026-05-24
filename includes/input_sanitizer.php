@@ -207,6 +207,10 @@ class InputSanitizer {
         if (!isset($_SESSION['csrf_token'])) {
             return false;
         }
+
+        if (!is_string($_SESSION['csrf_token']) || !is_string($token) || $token === '') {
+            return false;
+        }
         
         return hash_equals($_SESSION['csrf_token'], $token);
     }

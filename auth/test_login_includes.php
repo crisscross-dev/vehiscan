@@ -58,7 +58,7 @@ try {
     exit(1);
 }
 
-echo "\n✅ All includes loaded successfully!\n";
+echo "\n[OK] All includes loaded successfully!\n";
 echo "\nChecking constants:\n";
 echo "MAX_LOGIN_ATTEMPTS: " . (defined('MAX_LOGIN_ATTEMPTS') ? MAX_LOGIN_ATTEMPTS : 'NOT DEFINED') . "\n";
 echo "LOGIN_LOCKOUT_MINUTES: " . (defined('LOGIN_LOCKOUT_MINUTES') ? LOGIN_LOCKOUT_MINUTES : 'NOT DEFINED') . "\n";

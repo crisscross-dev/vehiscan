@@ -1,4 +1,4 @@
-# QR Code HTTPS Redirect Issue - Troubleshooting Guide
+﻿# QR Code HTTPS Redirect Issue - Troubleshooting Guide
 
 ## Problem
 When scanning QR codes on mobile devices, Chrome shows "Your connection is not private" error (NET::ERR_CERT_AUTHORITY_INVALID) even though the system is configured for HTTP on local network.
@@ -9,19 +9,19 @@ Chrome's HSTS (HTTP Strict Transport Security) cache is forcing HTTPS even thoug
 ## Fixes Applied
 
 ### 1. Security Headers Updated (`includes/security_headers.php`)
-- ✅ Changed to use `HTTP_HOST` instead of `SERVER_NAME` (more reliable)
-- ✅ Added port number stripping
-- ✅ Added debug logging
-- ✅ Confirmed local network IP detection (192.168.x.x) is working
+- Changed to use `HTTP_HOST` instead of `SERVER_NAME` (more reliable)
+- Added port number stripping
+- Added debug logging
+- Confirmed local network IP detection (192.168.x.x) is working
 
 ### 2. QR Codes Regenerated
-- ✅ All 6 visitor pass QR codes regenerated with correct WiFi IP
-- ✅ URLs now point to: `http://192.168.1.39/Vehiscan-RFID/visitor/view_pass.php?token=xxx`
+- All 6 visitor pass QR codes regenerated with correct WiFi IP
+- URLs now point to: `http://192.168.1.39/Vehiscan-RFID/visitor/view_pass.php?token=xxx`
 
 ### 3. Session Configurations Updated
-- ✅ All session files updated to allow HTTP cookies on local network
-- ✅ Changed `SameSite` from `Strict` to `Lax`
-- ✅ Disabled `secure` flag for local testing
+- All session files updated to allow HTTP cookies on local network
+- Changed `SameSite` from `Strict` to `Lax`
+- Disabled `secure` flag for local testing
 
 ## Solutions to Try
 
@@ -74,9 +74,9 @@ php C:\xampp\htdocs\Vehiscan-RFID\_testing\regenerate_all_qr_codes.php
 ```
 
 ## Status
-✅ Server-side configuration: **CORRECT**
-⚠️  Browser HSTS cache: **NEEDS CLEARING**
-✅ QR codes: **REGENERATED WITH CORRECT URLs**
-✅ Session handling: **UPDATED FOR LOCAL NETWORK**
+ Server-side configuration: **CORRECT**
+  Browser HSTS cache: **NEEDS CLEARING**
+ QR codes: **REGENERATED WITH CORRECT URLs**
+ Session handling: **UPDATED FOR LOCAL NETWORK**
 
 The system is properly configured. The error you're seeing is entirely due to Chrome's cached HSTS policy.

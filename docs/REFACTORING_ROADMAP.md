@@ -1,6 +1,6 @@
-# 🚀 VehiScan RFID - Complete System Refactoring Roadmap
+﻿# VehiScan RFID - Complete System Refactoring Roadmap
 
-## 📋 Overview
+## Overview
 This document outlines the complete refactoring plan to transform VehiScan RFID into a production-ready, secure, and unified system.
 
 **Estimated Timeline:** 3-4 weeks for full implementation
@@ -10,7 +10,7 @@ This document outlines the complete refactoring plan to transform VehiScan RFID 
 
 ## 🎯 Refactoring Goals
 
-### 1. **Security Hardening** 🔒
+### 1. **Security Hardening** 
 - Replace multi-admin with Single Super Admin role
 - Remove all default credentials
 - Implement first-run setup wizard
@@ -22,7 +22,7 @@ This document outlines the complete refactoring plan to transform VehiScan RFID 
 - Rate limiting on auth endpoints
 - Brute force protection
 
-### 2. **Full-System Backup** 💾
+### 2. **Full-System Backup** 
 - Database backup with compression
 - File uploads backup (images, documents)
 - Configuration files backup
@@ -41,7 +41,7 @@ This document outlines the complete refactoring plan to transform VehiScan RFID 
 - Consistent navigation patterns
 - Mobile-first approach
 
-### 4. **Enhanced Audit System** 📊
+### 4. **Enhanced Audit System** 
 - Comprehensive activity logging
 - User action tracking
 - Failed login attempts
@@ -50,7 +50,7 @@ This document outlines the complete refactoring plan to transform VehiScan RFID 
 - Backup operations
 - Export operations
 
-### 5. **Database Migrations** 🗄️
+### 5. **Database Migrations** 🗄
 - Super admin table structure
 - Enhanced audit logs
 - Backup metadata table
@@ -60,9 +60,9 @@ This document outlines the complete refactoring plan to transform VehiScan RFID 
 
 ---
 
-## 📅 Implementation Phases
+## Implementation Phases
 
-### **PHASE 1: CRITICAL SECURITY (Week 1)** 🔴
+### **PHASE 1: CRITICAL SECURITY (Week 1)** 
 
 #### 1.1 Super Admin System
 **Files to Create:**
@@ -115,12 +115,12 @@ CREATE TABLE failed_login_attempts (
 ```
 
 **Key Features:**
-- ✅ No default credentials
-- ✅ First-run setup wizard
-- ✅ Strong password requirements (12+ chars, special, number, upper, lower)
-- ✅ Account lockout after 5 failed attempts
-- ✅ Password expiry policy (90 days)
-- ✅ 2FA support (TOTP)
+- No default credentials
+- First-run setup wizard
+- Strong password requirements (12+ chars, special, number, upper, lower)
+- Account lockout after 5 failed attempts
+- Password expiry policy (90 days)
+- 2FA support (TOTP)
 
 ---
 
@@ -211,7 +211,7 @@ class CSRF {
 
 ---
 
-### **PHASE 2: FULL-SYSTEM BACKUP (Week 1-2)** 🟡
+### **PHASE 2: FULL-SYSTEM BACKUP (Week 1-2)** 
 
 #### 2.1 Backup System Architecture
 **Files to Create:**
@@ -327,7 +327,7 @@ class BackupManager {
 
 ---
 
-### **PHASE 3: UI UNIFICATION (Week 2-3)** 🟢
+### **PHASE 3: UI UNIFICATION (Week 2-3)** 
 
 #### 3.1 Guard Panel Redesign
 **Files to Modify:**
@@ -587,11 +587,11 @@ class MigrationRunner {
             $stmt->execute([$name]);
             
             if ($stmt->fetch()) {
-                echo "⏭️  Skipping: $name (already executed)\n";
+                echo "⏭ Skipping: $name (already executed)\n";
                 continue;
             }
             
-            echo "🔄 Running: $name\n";
+            echo " Running: $name\n";
             
             try {
                 $sql = file_get_contents($file);
@@ -601,9 +601,9 @@ class MigrationRunner {
                 $stmt = $this->pdo->prepare("INSERT INTO migrations (migration_name) VALUES (?)");
                 $stmt->execute([$name]);
                 
-                echo "✅ Completed: $name\n";
+                echo " Completed: $name\n";
             } catch (Exception $e) {
-                echo "❌ Failed: $name - " . $e->getMessage() . "\n";
+                echo " Failed: $name - " . $e->getMessage() . "\n";
                 break;
             }
         }
@@ -640,14 +640,14 @@ $runner->run();
 
 ---
 
-## 🔧 Implementation Priority Order
+## Implementation Priority Order
 
 1. **IMMEDIATE (Do First):**
-   - ✅ Remove default credentials
-   - ✅ Implement Super Admin system
-   - ✅ HTTPS enforcement
-   - ✅ Enhanced CSRF protection
-   - ✅ First-run setup wizard
+   - Remove default credentials
+   - Implement Super Admin system
+   - HTTPS enforcement
+   - Enhanced CSRF protection
+   - First-run setup wizard
 
 2. **HIGH (Week 1-2):**
    - Backup system with encryption
@@ -669,7 +669,7 @@ $runner->run();
 
 ---
 
-## ⚠️ Breaking Changes
+## Breaking Changes
 
 ### For Existing Installations:
 1. **Database Schema Changes** - Requires migration
@@ -695,31 +695,31 @@ php scripts/test_runner.php
 
 ---
 
-## 📦 Deliverables
+## Deliverables
 
 ### Code:
-- ✅ Super Admin authentication system
-- ✅ Full-system backup with encryption
-- ✅ Unified UI components
-- ✅ Enhanced security infrastructure
-- ✅ Comprehensive audit logging
-- ✅ Migration scripts
-- ✅ Test suite
+- Super Admin authentication system
+- Full-system backup with encryption
+- Unified UI components
+- Enhanced security infrastructure
+- Comprehensive audit logging
+- Migration scripts
+- Test suite
 
 ### Documentation:
-- ✅ Updated README
-- ✅ Security guidelines
-- ✅ Deployment guide
-- ✅ API documentation
-- ✅ Migration guide
-- ✅ Troubleshooting guide
+- Updated README
+- Security guidelines
+- Deployment guide
+- API documentation
+- Migration guide
+- Troubleshooting guide
 
 ### Testing:
-- ✅ Unit tests
-- ✅ Integration tests
-- ✅ Security tests
-- ✅ Performance tests
-- ✅ UI/UX tests
+- Unit tests
+- Integration tests
+- Security tests
+- Performance tests
+- UI/UX tests
 
 ---
 
@@ -756,7 +756,7 @@ test: Add backup system tests
 
 ---
 
-## 📊 Estimated Effort
+## Estimated Effort
 
 | Phase | Effort | Priority |
 |-------|--------|----------|

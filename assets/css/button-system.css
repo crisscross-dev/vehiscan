@@ -8,33 +8,33 @@
 
 :root {
   /* Primary Colors - Main actions */
-  --btn-primary-bg: #3b82f6;
-  --btn-primary-hover: #2563eb;
+  --btn-primary-bg: #2563eb;
+  --btn-primary-hover: #1d4ed8;
   --btn-primary-text: #ffffff;
   
   /* Secondary Colors - Cancel, Back */
-  --btn-secondary-bg: #6b7280;
-  --btn-secondary-hover: #4b5563;
+  --btn-secondary-bg: #64748b;
+  --btn-secondary-hover: #475569;
   --btn-secondary-text: #ffffff;
   
   /* Success Colors - Approve, Activate, Confirm */
-  --btn-success-bg: #10b981;
-  --btn-success-hover: #059669;
+  --btn-success-bg: #16a34a;
+  --btn-success-hover: #15803d;
   --btn-success-text: #ffffff;
   
   /* Danger Colors - Delete, Reject, Remove */
-  --btn-danger-bg: #ef4444;
-  --btn-danger-hover: #dc2626;
+  --btn-danger-bg: #dc2626;
+  --btn-danger-hover: #b91c1c;
   --btn-danger-text: #ffffff;
   
   /* Warning Colors - Suspend, Flag, Caution */
-  --btn-warning-bg: #f59e0b;
-  --btn-warning-hover: #d97706;
+  --btn-warning-bg: #d97706;
+  --btn-warning-hover: #b45309;
   --btn-warning-text: #ffffff;
   
   /* Info Colors - Details, View, Export */
-  --btn-info-bg: #14b8a6;
-  --btn-info-hover: #0d9488;
+  --btn-info-bg: #0891b2;
+  --btn-info-hover: #0e7490;
   --btn-info-text: #ffffff;
   
   /* SweetAlert2 Button Colors (for confirmButtonColor) */
@@ -59,7 +59,7 @@
   border-radius: 0.5rem;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -97,6 +97,7 @@
 .btn-secondary {
   background-color: var(--btn-secondary-bg);
   color: var(--btn-secondary-text);
+  border: 1px solid rgba(15, 23, 42, 0.15);
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -246,11 +247,12 @@
 }
 
 /* ===== DARK MODE SUPPORT ===== */
-body.dark-mode .btn-secondary {
+body.dark .btn-secondary {
   background-color: #374151;
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
-body.dark-mode .btn-secondary:hover:not(:disabled) {
+body.dark .btn-secondary:hover:not(:disabled) {
   background-color: #1f2937;
 }
 

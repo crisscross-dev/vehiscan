@@ -1,10 +1,10 @@
 # VehiScan RFID Access Control System
 
-🚗 **Modern Access Control System** for residential subdivisions using RFID technology and QR codes.
+ **Modern Access Control System** for residential subdivisions using RFID technology and QR codes.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 1. **Requirements:**
    - PHP 8.0+
@@ -27,7 +27,7 @@
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 All comprehensive documentation is located in the **`docs/`** folder:
 
@@ -42,30 +42,30 @@ All comprehensive documentation is located in the **`docs/`** folder:
 ## 🎯 Features
 
 ### Authentication & Security
-- ✅ Email + Username login
-- ✅ Auto role detection (Admin/Guard/Homeowner)
-- ✅ Account approval workflow
-- ✅ Rate limiting & session management
-- ✅ CSRF protection
+- Email + Username login
+- Auto role detection (Admin/Guard/Homeowner)
+- Account approval workflow
+- Rate limiting & session management
+- CSRF protection
 
 ### Access Control
-- ✅ RFID-based vehicle scanning
-- ✅ Real-time access logging
-- ✅ Guard panel with live updates
-- ✅ Visitor pass management with QR codes
+- RFID-based vehicle scanning
+- Real-time access logging
+- Guard panel with live updates
+- Visitor pass management with QR codes
 
 ### Management
-- ✅ Admin dashboard with analytics
-- ✅ Employee management
-- ✅ Homeowner portal
-- ✅ Multi-vehicle support
-- ✅ Activity tracking & charts
+- Admin dashboard with analytics
+- Employee management
+- Homeowner portal
+- Multi-vehicle support
+- Activity tracking & charts
 
 ### UI/UX
-- ✅ Responsive design (mobile-friendly)
-- ✅ DataTables integration (search/sort/filter)
-- ✅ Real-time notifications
-- ✅ Dark mode support
+- Responsive design (mobile-friendly)
+- DataTables integration (search/sort/filter)
+- Real-time notifications
+- Dark mode support
 
 ---
 
@@ -80,29 +80,29 @@ All comprehensive documentation is located in the **`docs/`** folder:
 
 ---
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 Vehiscan-RFID/
-├── admin/          # Admin panel (dashboard, management)
-├── guard/          # Guard panel (access logs, scanning)
-├── homeowners/     # Homeowner portal (vehicles, visitor passes)
-├── auth/           # Authentication (login, logout, registration)
-├── api/            # API endpoints (legacy - being consolidated)
-├── assets/         # CSS, JS, images
-├── includes/       # Core PHP classes & utilities
-├── migrations/     # Database migrations
-├── backups/        # Database backups
-├── docs/           # Documentation
-├── uploads/        # Uploaded files (vehicle images, etc.)
-├── config.php      # Database configuration
-├── db.php          # Database connection
-└── index.php       # Landing page
+├── admin/ # Admin panel (dashboard, management)
+├── guard/ # Guard panel (access logs, scanning)
+├── homeowners/ # Homeowner portal (vehicles, visitor passes)
+├── auth/ # Authentication (login, logout, registration)
+├── api/ # API endpoints (legacy - being consolidated)
+├── assets/ # CSS, JS, images
+├── includes/ # Core PHP classes & utilities
+├── migrations/ # Database migrations
+├── backups/ # Database backups
+├── docs/ # Documentation
+├── uploads/ # Uploaded files (vehicle images, etc.)
+├── config.php # Database configuration
+├── db.php # Database connection
+└── index.php # Landing page
 ```
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Database Setup
 
@@ -124,16 +124,16 @@ define('DB_PASS', '');
 
 ---
 
-## 🛠️ System Status
+## System Status
 
-**Implementation:** ✅ **100% Complete** (32/32 requirements)  
-**Security:** ✅ **No vulnerabilities**  
-**Code Quality:** ✅ **95% compliant**  
-**Status:** ✅ **Production Ready**
+**Implementation:** **100% Complete** (32/32 requirements) 
+**Security:** **No vulnerabilities** 
+**Code Quality:** **95% compliant** 
+**Status:** **Production Ready**
 
 ---
 
-## 📊 Technology Stack
+## Technology Stack
 
 - **Backend:** PHP 8+, MySQL, PDO
 - **Frontend:** Tailwind CSS, JavaScript (ES6+)
@@ -147,7 +147,7 @@ define('DB_PASS', '');
 
 ---
 
-## 🔧 Maintenance
+## Maintenance
 
 ### Database Backups
 Automatic backups stored in `backups/` directory.
@@ -171,7 +171,7 @@ For detailed information:
 
 ---
 
-## 📝 License
+## License
 
 Proprietary - All rights reserved
 
@@ -206,6 +206,6 @@ Proprietary - All rights reserved
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** December 14, 2025  
-**Status:** Production Ready ✅
+**Version:** 1.0.0 
+**Last Updated:** May 10, 2026 
+**Status:** Production Ready 

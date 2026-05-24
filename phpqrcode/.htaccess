@@ -1,0 +1,13 @@
+# Block direct access to QR code cache, temp, and log files
+<FilesMatch "\.(txt|log)$">
+    Require all denied
+</FilesMatch>
+
+# Block directory listings
+Options -Indexes
+
+# Block access to cache and temp directories
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(cache|temp)/ - [F,L]
+</IfModule>

@@ -46,21 +46,21 @@ try {
                 echo "<p>Creating index: <strong>$indexName</strong>... ";
                 
                 $pdo->exec($statement);
-                echo "<span class='success'>✓ Success</span></p>";
+                echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Success</span></p>";
                 $successCount++;
             } else {
                 echo "<p>Executing statement... ";
                 $pdo->exec($statement);
-                echo "<span class='success'>✓ Success</span></p>";
+                echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Success</span></p>";
                 $successCount++;
             }
         } catch (PDOException $e) {
             // Check if error is because index already exists
             if (strpos($e->getMessage(), 'Duplicate key name') !== false) {
-                echo "<span class='info'>ℹ Already exists</span></p>";
+                echo "<span class='info'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 16v-4M12 8h.01'/></svg> Already exists</span></p>";
                 $successCount++;
             } else {
-                echo "<span class='error'>✗ Error: " . htmlspecialchars($e->getMessage()) . "</span></p>";
+                echo "<span class='error'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Error: " . htmlspecialchars($e->getMessage()) . "</span></p>";
                 $errorCount++;
             }
         }
@@ -68,9 +68,9 @@ try {
     
     echo "<hr>";
     echo "<h2>Migration Summary</h2>";
-    echo "<p class='success'>✓ Successful: $successCount</p>";
+    echo "<p class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Successful: $successCount</p>";
     if ($errorCount > 0) {
-        echo "<p class='error'>✗ Errors: $errorCount</p>";
+        echo "<p class='error'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Errors: $errorCount</p>";
     }
     
     // Show index information
@@ -104,11 +104,11 @@ try {
     }
     
     echo "<hr>";
-    echo "<p class='success'><strong>✓ Migration completed successfully!</strong></p>";
+    echo "<p class='success'><strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Migration completed successfully!</strong></p>";
     echo "<p><a href='../admin/admin_panel.php'>← Back to Admin Panel</a></p>";
     
 } catch (Exception $e) {
-    echo "<p class='error'><strong>✗ Migration failed:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p class='error'><strong><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> Migration failed:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
     echo "<p><a href='../admin/admin_panel.php'>← Back to Admin Panel</a></p>";
 }
 

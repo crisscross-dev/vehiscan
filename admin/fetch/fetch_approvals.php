@@ -1,11 +1,13 @@
 <?php
 // Fetch approvals page component
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+require_once __DIR__ . '/../../includes/request_method_helper.php';
 
-// Check authorization - allow both admin and super_admin
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
+requireRequestMethod('GET');
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
     http_response_code(403);
-    echo '<div class="p-6 text-center text-red-600">Unauthorized - Admin access required</div>';
+    echo '<div class="p-6 text-center text-red-600">Unauthorized - Super admin access required</div>';
     exit();
 }
 

@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/session_config.php';
-if ($_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
+require_once __DIR__ . '/../includes/session_admin_unified.php';
+require_once __DIR__ . '/../includes/security_headers.php';
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
+    header("Location: login.php");
     exit();
 }
 
@@ -16,26 +17,53 @@ $csrf = $_SESSION['csrf_token'];
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token
-    $posted_csrf = $_POST['csrf'] ?? '';
+    $posted_csrf = $_POST['csrf_token'] ?? '';
     if (!hash_equals($csrf, (string)$posted_csrf)) {
         $message = 'Invalid security token. Please refresh and try again.';
     } else {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
-    $role = $_POST['role'];
+    $role = $_POST['role'] ?? '';
+    $email = trim($_POST['email'] ?? '');
+    $fullName = trim($_POST['full_name'] ?? '');
+    if ($role === 'owner') {
+        $role = 'homeowner';
+    }
+    $allowedRoles = ['admin', 'guard', 'homeowner', 'super_admin'];
 
     if (!$username || !$password || !$role) {
         $message = "All fields required.";
+    } elseif (!in_array($role, $allowedRoles, true)) {
+        $message = "Invalid role selected.";
+    } elseif ($role === 'super_admin' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || $fullName === '')) {
+        $message = "Super Admin requires valid email and full name.";
+    } elseif (strlen($password) < (defined('PASSWORD_MIN_LENGTH') ? PASSWORD_MIN_LENGTH : 12)) {
+        $minLen = defined('PASSWORD_MIN_LENGTH') ? PASSWORD_MIN_LENGTH : 12;
+        $message = "Password must be at least {$minLen} characters long.";
+    } elseif (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+        $message = "Password must contain uppercase, lowercase, and a number.";
     } else {
-        $check = $pdo->prepare("SELECT id FROM users WHERE username=?");
-        $check->execute([$username]);
+        if ($role === 'super_admin') {
+            $check = $pdo->prepare("SELECT id FROM super_admin WHERE username = ? OR email = ? LIMIT 1");
+            $check->execute([$username, $email]);
+        } else {
+            $check = $pdo->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+            $check->execute([$username]);
+        }
+
         if ($check->fetch()) {
-            $message = "Username already exists.";
+            $message = $role === 'super_admin' ? "Username or email already exists." : "Username already exists.";
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username,password,role) VALUES (?,?,?)");
-            $stmt->execute([$username,$hash,$role]);
-            $message = "✅ Account created successfully.";
+            if ($role === 'super_admin') {
+                $stmt = $pdo->prepare("INSERT INTO super_admin (username, email, full_name, password_hash, password_changed_at, is_setup_complete) VALUES (?, ?, ?, ?, NOW(), 1)");
+                $stmt->execute([$username, $email, $fullName, $hash]);
+                $message = "Super Admin account created successfully.";
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO users (username,password,role) VALUES (?,?,?)");
+                $stmt->execute([$username,$hash,$role]);
+                $message = "Account created successfully.";
+            }
         }
     }
     }
@@ -55,19 +83,43 @@ button:hover{background:#2980b9;}
 <body>
 <div class="container">
 <h2>Create Account</h2>
-<?php if($message) echo "<p class='message'>$message</p>"; ?>
+<?php if($message) echo "<p class='message'>" . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . "</p>"; ?>
 <form method="POST">
-  <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
+  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
   <input name="username" placeholder="Username" required>
   <input type="password" name="password" placeholder="Password" required>
   <select name="role" required>
     <option value="">Select Role</option>
     <option value="admin">Admin</option>
     <option value="guard">Guard</option>
-    <option value="owner">Owner</option>
+        <option value="homeowner">Homeowner</option>
+        <option value="super_admin">Super Admin</option>
   </select>
+    <div id="superAdminFields" style="display:none;">
+        <input name="full_name" placeholder="Full Name (Super Admin only)">
+        <input type="email" name="email" placeholder="Email (Super Admin only)">
+    </div>
   <button type="submit">Create</button>
   <button type="button" onclick="location.href='../admin/admin_panel.php'">Cancel</button>
 </form>
 </div>
+<script>
+    (function () {
+        var roleSelect = document.querySelector('select[name="role"]');
+        var superAdminFields = document.getElementById('superAdminFields');
+        if (!roleSelect || !superAdminFields) return;
+
+        function syncSuperAdminFields() {
+            var isSuperAdmin = roleSelect.value === 'super_admin';
+            superAdminFields.style.display = isSuperAdmin ? 'block' : 'none';
+            var fullNameInput = superAdminFields.querySelector('input[name="full_name"]');
+            var emailInput = superAdminFields.querySelector('input[name="email"]');
+            if (fullNameInput) fullNameInput.required = isSuperAdmin;
+            if (emailInput) emailInput.required = isSuperAdmin;
+        }
+
+        roleSelect.addEventListener('change', syncSuperAdminFields);
+        syncSuperAdminFields();
+    })();
+</script>
 </body></html>

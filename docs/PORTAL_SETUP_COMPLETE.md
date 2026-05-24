@@ -1,20 +1,20 @@
-# 🚀 User & Visitor Portal - Quick Start Guide
+﻿# User & Visitor Portal - Quick Start Guide
 
-## ✅ Setup Complete!
+## Setup Complete!
 
-### 📋 What Was Done:
+### What Was Done:
 
-1. **✅ Database Migration Executed**
+1. ** Database Migration Executed**
    - Created `homeowner_auth` table
    - Created `visitor_auth_tokens` table
    - Enhanced `visitor_passes` table with approval workflow
 
-2. **✅ Homeowner Accounts Created**
+2. ** Homeowner Accounts Created**
    - 11 homeowner accounts generated
    - Default password: `homeowner123`
    - Usernames auto-generated from names
 
-3. **✅ All Portal Pages Ready**
+3. ** All Portal Pages Ready**
    - Homeowner Portal
    - Visitor Portal
    - Admin Approval Dashboard
@@ -33,11 +33,11 @@
 
 ---
 
-## 🌐 Access URLs
+## Access URLs
 
 ### For Homeowners:
 ```
-http://localhost/Vehiscan-RFID/homeowners/login.php
+http://localhost/Vehiscan-RFID/auth/login.php
 ```
 
 ### For Visitors (via QR code):
@@ -52,10 +52,10 @@ Admin Panel → Visitors Section
 
 ---
 
-## 📝 Testing Workflow
+## Testing Workflow
 
 ### Step 1: Homeowner Creates Visitor Pass
-1. Navigate to: `http://localhost/Vehiscan-RFID/homeowners/login.php`
+1. Navigate to: `http://localhost/Vehiscan-RFID/auth/login.php`
 2. Login with: `kyle_jansen` / `homeowner123`
 3. Click **"+ Add Visitor Pass"**
 4. Fill in:
@@ -71,7 +71,7 @@ Admin Panel → Visitors Section
 1. Login to Admin Panel
 2. Navigate to **Visitor Passes** section
 3. You'll see the pending request from KYLE JANSEN
-4. Click **✅ Approve** button
+4. Click ** Approve** button
 5. Pass status changes to **APPROVED**
 
 ### Step 3: Visitor Views Pass
@@ -81,21 +81,21 @@ Admin Panel → Visitors Section
    ```
 2. Visit: `http://localhost/Vehiscan-RFID/visitor/view_pass.php?token={TOKEN}`
 3. Visitor sees:
-   - ✅ Pass status (ACTIVE/EXPIRED)
+   - Pass status (ACTIVE/EXPIRED)
    - 📍 Homeowner's address
    - 📞 Contact information
-   - ⏰ Validity period
+   - Validity period
 
 ---
 
-## 🔧 Admin Features
+## Admin Features
 
 ### Approve Visitor Pass:
-- Click ✅ **Approve** → Pass becomes active
+- Click **Approve** → Pass becomes active
 - Visitor can now access via QR code
 
 ### Reject Visitor Pass:
-- Click ❌ **Reject**
+- Click **Reject**
 - Must provide rejection reason
 - Homeowner sees reason on portal
 
@@ -104,48 +104,48 @@ Admin Panel → Visitors Section
 ## 🎯 Homeowner Features
 
 ### Profile View:
-- ✓ Personal information
-- ✓ Address
-- ✓ Contact number
-- ✓ Vehicle details (type, color, plate)
+- Personal information
+- Address
+- Contact number
+- Vehicle details (type, color, plate)
 
 ### Visitor Pass Management:
-- ✓ Create new passes
-- ✓ View all passes
-- ✓ Track status (pending/approved/rejected/expired)
-- ✓ See rejection reasons
+- Create new passes
+- View all passes
+- Track status (pending/approved/rejected/expired)
+- See rejection reasons
 
 ---
 
 ## 👥 Visitor Portal Features
 
 ### What Visitors Can See:
-- ✅ **Pass Status**: Active or Expired badge
+- **Pass Status**: Active or Expired badge
 - 📍 **Destination Address**: Full address only
-- 👤 **Homeowner Name**: Who they're visiting
+- **Homeowner Name**: Who they're visiting
 - 📞 **Contact**: Homeowner's phone (if available)
-- ⏰ **Validity Period**: Start and end date/time
+- **Validity Period**: Start and end date/time
 
 ### What Visitors CANNOT See:
-- ❌ Homeowner's full profile
-- ❌ Other visitors' information
-- ❌ System internals
+- Homeowner's full profile
+- Other visitors' information
+- System internals
 
 ---
 
-## 🔒 Security Features
+## Security Features
 
-- ✅ Password hashing (bcrypt)
-- ✅ CSRF token protection
-- ✅ Session security
-- ✅ SQL injection prevention
-- ✅ Date validation (no past dates)
-- ✅ Token-based visitor access
-- ✅ Status-based access control
+- Password hashing (bcrypt)
+- CSRF token protection
+- Session security
+- SQL injection prevention
+- Date validation (no past dates)
+- Token-based visitor access
+- Status-based access control
 
 ---
 
-## 📊 Database Tables
+## Database Tables
 
 ### `homeowner_auth`
 - Stores login credentials for homeowners
@@ -162,7 +162,7 @@ Admin Panel → Visitors Section
 
 ---
 
-## ⚠️ Important Notes
+## Important Notes
 
 1. **Default Password**: All accounts use `homeowner123`
    - Users should change passwords after first login
@@ -178,7 +178,7 @@ Admin Panel → Visitors Section
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Can't login to homeowner portal?
 ```sql
@@ -212,7 +212,7 @@ For issues or questions, check:
 
 ---
 
-## 🎉 Success Checklist
+## Success Checklist
 
 - [x] Migration executed
 - [x] 11 homeowner accounts created
@@ -227,4 +227,4 @@ For issues or questions, check:
 
 ---
 
-**Next: Start testing with the workflow above!** 🚀
+**Next: Start testing with the workflow above!** 

@@ -1,4 +1,4 @@
-# Salt & Pepper Color Scheme Implementation
+﻿# Salt & Pepper Color Scheme Implementation
 
 ## Theme Overview
 A sophisticated monochromatic palette with warm gray accents, perfect for professional applications.
@@ -7,30 +7,30 @@ A sophisticated monochromatic palette with warm gray accents, perfect for profes
 
 ### Light Mode (Salt)
 ```css
---salt-white: #FAFAFA    /* Lightest background */
---salt-light: #F5F5F5    /* Card backgrounds */
---salt-gray: #E5E7EB     /* Borders, dividers */
+--salt-white: #FAFAFA /* Lightest background */
+--salt-light: #F5F5F5 /* Card backgrounds */
+--salt-gray: #E5E7EB /* Borders, dividers */
 ```
 
 ### Dark Mode (Pepper)
 ```css
---pepper-charcoal: #1F2937   /* Primary dark background */
---pepper-dark: #111827       /* Deepest black */
---pepper-slate: #374151      /* Secondary dark elements */
+--pepper-charcoal: #1F2937 /* Primary dark background */
+--pepper-dark: #111827 /* Deepest black */
+--pepper-slate: #374151 /* Secondary dark elements */
 ```
 
 ### Accent Colors (Warm Grays)
 ```css
---accent: #6B7280           /* Primary accent - warm gray */
---accent-dark: #4B5563      /* Hover states */
---accent-warm: #78716C      /* Alternative warm tone */
+--accent: #6B7280 /* Primary accent - warm gray */
+--accent-dark: #4B5563 /* Hover states */
+--accent-warm: #78716C /* Alternative warm tone */
 ```
 
 ### Status Colors (Muted)
 ```css
---success: #16A34A          /* Success states */
---warn: #DC2626             /* Warnings/errors */
---warning: #F59E0B          /* Caution */
+--success: #16A34A /* Success states */
+--warn: #DC2626 /* Warnings/errors */
+--warning: #F59E0B /* Caution */
 ```
 
 ## Usage Guidelines
@@ -93,12 +93,12 @@ Background: Pepper Charcoal (#1F2937)
 
 ## Benefits
 
-✅ **Professional** - Sophisticated monochromatic palette
-✅ **Accessible** - High contrast ratios (WCAG AAA compliant)
-✅ **Consistent** - Unified color language across all panels
-✅ **Timeless** - Classic black/white/gray never goes out of style
-✅ **Versatile** - Works with any brand or accent color
-✅ **Clean** - Reduces visual noise, focuses on content
+ **Professional** - Sophisticated monochromatic palette
+ **Accessible** - High contrast ratios (WCAG AAA compliant)
+ **Consistent** - Unified color language across all panels
+ **Timeless** - Classic black/white/gray never goes out of style
+ **Versatile** - Works with any brand or accent color
+ **Clean** - Reduces visual noise, focuses on content
 
 ## Alternative Color Scheme Ideas
 

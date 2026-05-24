@@ -2,47 +2,127 @@
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/input_sanitizer.php';
+require_once __DIR__ . '/../../includes/request_method_helper.php';
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+require_once __DIR__ . '/../../includes/email.php';
+require_once __DIR__ . '/../../includes/email_templates.php';
+require_once __DIR__ . '/../../includes/rate_limiter.php';
+require_once __DIR__ . '/../../config.php';
 
 header('Content-Type: application/json');
 
-// Check if user is admin or super admin
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate CSRF token
-    $csrfToken = InputSanitizer::post('csrf_token', 'string');
-    if (!InputSanitizer::validateCsrf($csrfToken)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid request']);
-        exit();
-    }
+// Rate limit: 30 account approvals/rejections per minute per user
+$rateLimiter = new RateLimiter($pdo);
+$approverId = (int)($_SESSION['user_id'] ?? $_SESSION['admin_id'] ?? 0);
+$approverName = trim((string)($_SESSION['username'] ?? ''));
+if ($approverId <= 0 && $approverName === '') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Invalid approver session']);
+    exit();
+}
+$approverRateKey = $approverId > 0 ? "approver_{$approverId}" : ('approver_' . md5((string)($_SESSION['username'] ?? session_id())));
+$limitCheck = $rateLimiter->check($approverRateKey, 'account_approval', 30, 1);
+if (!$limitCheck['allowed']) {
+    http_response_code(429); // Too Many Requests
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Too many account approvals. Please try again later.',
+        'retryAfter' => $limitCheck['reset_time']
+    ]);
+    exit();
+}
+
+requireRequestMethod('POST');
+
+// Validate CSRF token
+$csrfToken = InputSanitizer::post('csrf_token', 'string');
+if (!InputSanitizer::validateCsrf($csrfToken)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Invalid request']);
+    exit();
+}
     
-    // Sanitize inputs
-    $userId = InputSanitizer::post('user_id', 'int');
-    $action = InputSanitizer::post('action', 'string');
-    $reason = InputSanitizer::post('reason', 'string');
-    
-    if (!$userId || !$action) {
-        echo json_encode(['success' => false, 'message' => 'Missing required fields']);
-        exit();
-    }
-    
-    // Whitelist validation for action
-    if (!in_array($action, ['approve', 'reject'])) {
-        echo json_encode(['success' => false, 'message' => 'Invalid action']);
-        exit();
-    }
-    
-    try {
-        $pdo->beginTransaction();
-        
-        // First, check if this is a homeowner or regular user
-        $checkStmt = $pdo->prepare("SELECT id FROM homeowners WHERE id = ?");
+// Sanitize inputs
+$userId = InputSanitizer::post('user_id', 'int');
+$accountType = strtolower((string)InputSanitizer::post('account_type', 'string'));
+$action = InputSanitizer::post('action', 'string');
+$reason = InputSanitizer::post('reason', 'string');
+
+if (!$userId || !$action) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+    exit();
+}
+
+// Whitelist validation for action
+if (!in_array($action, ['approve', 'reject'], true)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid action']);
+    exit();
+}
+
+if ($accountType !== '' && !in_array($accountType, ['homeowner', 'user'], true)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid account type']);
+    exit();
+}
+
+try {
+    $pdo->beginTransaction();
+
+    $homeowner = null;
+    $user = null;
+
+    // Determine target table. Account type is preferred to avoid ID collisions.
+    if ($accountType === 'homeowner') {
+        $isHomeowner = true;
+    } elseif ($accountType === 'user') {
+        $isHomeowner = false;
+    } else {
+        // Backward compatibility path for older clients not sending account_type.
+        $checkStmt = $pdo->prepare("SELECT id, account_status FROM homeowners WHERE id = ? LIMIT 1 FOR UPDATE");
         $checkStmt->execute([$userId]);
-        $isHomeowner = $checkStmt->rowCount() > 0;
+        $homeownerRecord = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        $isHomeowner = (bool)$homeownerRecord;
+    }
+
+    if ($isHomeowner) {
+        $lockedStmt = $pdo->prepare("SELECT id, email, first_name, last_name, account_status FROM homeowners WHERE id = ? LIMIT 1 FOR UPDATE");
+        $lockedStmt->execute([$userId]);
+        $homeowner = $lockedStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$homeowner) {
+            throw new RuntimeException('Homeowner account not found');
+        }
+
+        if (($homeowner['account_status'] ?? '') !== 'pending') {
+            $pdo->rollBack();
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Account has already been processed']);
+            exit();
+        }
+    } else {
+        $lockedStmt = $pdo->prepare("SELECT id, email, username, account_status FROM users WHERE id = ? LIMIT 1 FOR UPDATE");
+        $lockedStmt->execute([$userId]);
+        $user = $lockedStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            throw new RuntimeException('User account not found');
+        }
+
+        if (($user['account_status'] ?? '') !== 'pending') {
+            $pdo->rollBack();
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Account has already been processed']);
+            exit();
+        }
+    }
         
         if ($action === 'approve') {
             if ($isHomeowner) {
@@ -53,6 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     WHERE id = ?
                 ");
                 $stmt->execute([$userId]);
+                if ($stmt->rowCount() !== 1) {
+                    throw new RuntimeException('Homeowner approval update failed');
+                }
                 
                 // Activate homeowner auth
                 $stmt = $pdo->prepare("
@@ -61,11 +144,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     WHERE homeowner_id = ?
                 ");
                 $stmt->execute([$userId]);
+                if ($stmt->rowCount() !== 1) {
+                    throw new RuntimeException('Homeowner auth activation failed');
+                }
                 
-                // Get homeowner info for notification
-                $stmt = $pdo->prepare("SELECT email, first_name, last_name FROM homeowners WHERE id = ?");
-                $stmt->execute([$userId]);
-                $homeowner = $stmt->fetch();
+                // Locked homeowner row already fetched above for notification.
                 
                 // Log the approval
                 try {
@@ -73,16 +156,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'homeowner', 'approved', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     // Table may not exist, continue anyway
                     error_log('Could not log approval: ' . $e->getMessage());
                 }
                 
                 $message = 'Homeowner account approved successfully';
-                
-                // TODO: Send email notification to homeowner
-                error_log("Homeowner approved: {$homeowner['email']} - {$homeowner['first_name']} {$homeowner['last_name']}");
                 
             } else {
                 // Approve regular user account
@@ -93,7 +173,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         approved_at = NOW()
                     WHERE id = ?
                 ");
-                $stmt->execute([$_SESSION['user_id'], $userId]);
+                $stmt->execute([$approverId, $userId]);
+                if ($stmt->rowCount() !== 1) {
+                    throw new RuntimeException('User approval update failed');
+                }
                 
                 // Log the approval
                 try {
@@ -101,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'user', 'approved', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     error_log('Could not log approval: ' . $e->getMessage());
                 }
@@ -118,6 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     WHERE id = ?
                 ");
                 $stmt->execute([$userId]);
+                if ($stmt->rowCount() !== 1) {
+                    throw new RuntimeException('Homeowner rejection update failed');
+                }
                 
                 // Deactivate homeowner auth
                 $stmt = $pdo->prepare("
@@ -126,11 +212,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     WHERE homeowner_id = ?
                 ");
                 $stmt->execute([$userId]);
+                if ($stmt->rowCount() !== 1) {
+                    throw new RuntimeException('Homeowner auth deactivation failed');
+                }
                 
-                // Get homeowner info
-                $stmt = $pdo->prepare("SELECT email, first_name, last_name FROM homeowners WHERE id = ?");
-                $stmt->execute([$userId]);
-                $homeowner = $stmt->fetch();
+                // Locked homeowner row already fetched above for notification.
                 
                 // Log the rejection
                 try {
@@ -138,15 +224,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'homeowner', 'rejected', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     error_log('Could not log rejection: ' . $e->getMessage());
                 }
                 
                 $message = 'Homeowner account rejected';
-                
-                // TODO: Send email notification to homeowner
-                error_log("Homeowner rejected: {$homeowner['email']} - Reason: $reason");
                 
             } else {
                 // Reject regular user
@@ -158,7 +241,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         rejection_reason = ?
                     WHERE id = ?
                 ");
-                $stmt->execute([$_SESSION['user_id'], $reason, $userId]);
+                $stmt->execute([$approverId, $reason, $userId]);
+                if ($stmt->rowCount() !== 1) {
+                    throw new RuntimeException('User rejection update failed');
+                }
                 
                 // Log the rejection
                 try {
@@ -166,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'user', 'rejected', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     error_log('Could not log rejection: ' . $e->getMessage());
                 }
@@ -178,13 +264,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Invalid action');
         }
         
-        $pdo->commit();
-        echo json_encode(['success' => true, 'message' => $message]);
-        
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    $pdo->commit();
+
+    if ($isHomeowner) {
+        $homeownerEmail = trim((string)($homeowner['email'] ?? ''));
+        $homeownerName = trim((string)(($homeowner['first_name'] ?? '') . ' ' . ($homeowner['last_name'] ?? '')));
+        if ($homeownerName === '') {
+            $homeownerName = $homeownerEmail !== '' ? $homeownerEmail : 'Homeowner';
+        }
+
+        $loginUrl = rtrim(getAppUrl(), '/') . '/auth/login.php';
+
+        try {
+            if ($homeownerEmail !== '') {
+                if ($action === 'approve') {
+                    EmailService::send(
+                        $homeownerEmail,
+                        'Account Approved — VehiScan RFID',
+                        EmailTemplates::accountApprovedEmail($homeownerName, $loginUrl)
+                    );
+                } elseif ($action === 'reject') {
+                    EmailService::send(
+                        $homeownerEmail,
+                        'Account Rejected — VehiScan RFID',
+                        EmailTemplates::accountRejectedEmail($homeownerName, (string)$reason)
+                    );
+                }
+            }
+        } catch (Throwable $emailError) {
+            error_log('Approve user account email error: ' . $emailError->getMessage());
+        }
     }
-} else {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+
+    echo json_encode(['success' => true, 'message' => $message]);
+
+} catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('Approve user account error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'An error occurred. Please try again later.']);
 }

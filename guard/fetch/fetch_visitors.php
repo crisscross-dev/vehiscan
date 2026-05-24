@@ -1,8 +1,15 @@
 <?php
+require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/session_guard.php';
+require_once __DIR__ . '/../../includes/request_method_helper.php';
+
+header('Content-Type: application/json');
+
+requireRequestMethod('GET');
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 require_once __DIR__ . '/../../db.php';
@@ -11,7 +18,6 @@ try {
     // Check if visitor_passes table exists
     $checkTable = $pdo->query("SHOW TABLES LIKE 'visitor_passes'");
     if ($checkTable->rowCount() === 0) {
-        header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
             'passes' => [],
@@ -20,8 +26,8 @@ try {
         exit;
     }
     
-    // Build query to show ACTIVE visitor passes
-    // Filter by status = 'active' or 'approved' (approved by admin) within valid time range
+    // Build query to show only currently valid visitor passes.
+    // Keep active/approved passes visible only while the current time is inside the validity window.
     $query = "
         SELECT 
             vp.id,
@@ -36,18 +42,16 @@ try {
             COALESCE(h.name, CONCAT(h.first_name, ' ', h.last_name)) as homeowner_name
         FROM visitor_passes vp
         LEFT JOIN homeowners h ON vp.homeowner_id = h.id
-        WHERE vp.status IN ('active', 'approved')
-        ORDER BY vp.created_at DESC
+                WHERE vp.status IN ('active', 'approved')
+                    AND NOW() BETWEEN vp.valid_from AND vp.valid_until
+                ORDER BY vp.valid_until ASC, vp.created_at DESC
     ";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute();
     $passes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    error_log('Visitor passes fetched: ' . count($passes) . ' passes found');
-    
     // Return JSON response
-    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'passes' => $passes,
@@ -58,9 +62,8 @@ try {
     error_log('Visitor fetch error: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
     http_response_code(500);
-    header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'error' => 'Failed to fetch visitor passes: ' . $e->getMessage()
+        'message' => 'Failed to fetch visitor passes'
     ]);
 }

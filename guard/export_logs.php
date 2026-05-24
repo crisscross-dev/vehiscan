@@ -18,6 +18,14 @@ try {
     // Open output stream
     $output = fopen('php://output', 'w');
     
+    // Sanitize CSV values to prevent formula injection
+    $sanitize = function($value) {
+        if (is_string($value) && isset($value[0]) && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'" . $value;
+        }
+        return $value;
+    };
+
     // Add UTF-8 BOM for Excel compatibility
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
     
@@ -43,18 +51,19 @@ try {
         FROM recent_logs al
         LEFT JOIN homeowners h ON al.plate_number = h.plate_number
         ORDER BY al.created_at DESC, al.log_id DESC
+        LIMIT 50000
     ");
     
     // Write data rows
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        fputcsv($output, [
+        fputcsv($output, array_map($sanitize, [
             date('Y-m-d H:i:s', strtotime($row['timestamp'])),
             $row['homeowner_name'] ?? 'N/A',
             $row['plate_number'] ?? 'N/A',
             $row['status'] ?? 'Unknown',
             $row['vehicle_type'] ?? 'N/A',
             $row['color'] ?? 'N/A'
-        ]);
+        ]));
     }
     
     fclose($output);
@@ -69,7 +78,7 @@ try {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Export failed: ' . $e->getMessage()
+            'message' => 'Export failed. Please try again later.'
         ]);
     }
     exit();

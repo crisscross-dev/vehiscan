@@ -1,4 +1,4 @@
-# User & Visitor Portal System
+﻿# User & Visitor Portal System
 
 ## Overview
 This system provides separate portals for homeowners (users) and visitors with distinct functionalities.
@@ -50,8 +50,8 @@ This system provides separate portals for homeowners (users) and visitors with d
    - Check validity dates and purpose
 
 2. **Approval System**
-   - ✅ **Approve Button**: Grants access to visitor
-   - ❌ **Reject Button**: Denies with mandatory reason
+   - **Approve Button**: Grants access to visitor
+   - **Reject Button**: Denies with mandatory reason
    - Real-time status updates
 
 ## Database Structure
@@ -61,7 +61,7 @@ This system provides separate portals for homeowners (users) and visitors with d
 -- Homeowner authentication
 homeowner_auth (id, homeowner_id, username, password_hash, email, is_active)
 
--- Visitor access tokens  
+-- Visitor access tokens 
 visitor_auth_tokens (id, visitor_pass_id, token, expires_at)
 ```
 
@@ -91,7 +91,7 @@ VALUES (1, 'john_doe', '$2y$10$...', 'john@example.com');
 ```
 
 ### 3. Access Points
-- **Homeowner Login**: `/homeowners/login.php`
+- **Homeowner Login**: `/auth/login.php`
 - **Homeowner Portal**: `/homeowners/portal.php`
 - **Visitor View**: `/visitor/view_pass.php?token={QR_TOKEN}`
 - **Admin Approval**: Admin Panel → Visitor Passes
@@ -155,13 +155,13 @@ VALUES (1, 'john_doe', '$2y$10$...', 'john@example.com');
 - [ ] Pass override capability
 
 ## Security Features
-- ✅ CSRF token protection
-- ✅ SQL injection prevention (prepared statements)
-- ✅ Password hashing (bcrypt)
-- ✅ Session security
-- ✅ Date validation (past dates rejected)
-- ✅ Token-based visitor access
-- ✅ Status-based access control
+- CSRF token protection
+- SQL injection prevention (prepared statements)
+- Password hashing (bcrypt)
+- Session security
+- Date validation (past dates rejected)
+- Token-based visitor access
+- Status-based access control
 
 ## API Endpoints
 

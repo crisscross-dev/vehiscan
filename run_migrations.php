@@ -2,7 +2,17 @@
 /**
  * Quick Database Setup Script
  * Run this ONCE to create all required tables and columns
+ * RESTRICTED: Requires admin session
  */
+
+require_once __DIR__ . '/includes/session_admin_unified.php';
+
+// Verify admin access
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'] ?? '', ['admin', 'super_admin'])) {
+    http_response_code(403);
+    echo '<h1>403 Forbidden</h1><p>Admin access required to run database migrations.</p>';
+    exit();
+}
 
 require_once __DIR__ . '/db.php';
 
@@ -22,7 +32,7 @@ header('Content-Type: text/html; charset=utf-8');
     </style>
 </head>
 <body>
-<h1>🔧 VehiScan Database Setup</h1>
+<h1><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/></svg> VehiScan Database Setup</h1>
 <pre><?php
 
 try {
@@ -48,7 +58,7 @@ try {
             INDEX idx_status (account_status)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
-    echo "<span class='success'>✓ homeowner_auth table ready</span>\n\n";
+    echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> homeowner_auth table ready</span>\n\n";
     
     // Helper function to safely check column existence
     function columnExists($pdo, $table, $column) {
@@ -61,9 +71,9 @@ try {
     echo "<span class='info'>[2/5] Checking homeowners table...</span>\n";
     if (!columnExists($pdo, 'homeowners', 'account_status')) {
         $pdo->exec("ALTER TABLE homeowners ADD COLUMN account_status ENUM('pending','approved','rejected') DEFAULT 'approved' AFTER email");
-        echo "<span class='success'>✓ Added account_status column to homeowners</span>\n\n";
+        echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added account_status column to homeowners</span>\n\n";
     } else {
-        echo "<span class='success'>✓ account_status column already exists</span>\n\n";
+        echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> account_status column already exists</span>\n\n";
     }
     
     // 3. Add structured name fields if not exist
@@ -74,18 +84,18 @@ try {
             // Safe to interpolate specific whitelist values
             $size = $field === 'suffix' ? '10' : '50';
             $pdo->exec("ALTER TABLE homeowners ADD COLUMN `$field` VARCHAR($size) AFTER name");
-            echo "<span class='success'>✓ Added $field column</span>\n";
+            echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added $field column</span>\n";
         }
     }
-    echo "<span class='success'>✓ Name fields ready</span>\n\n";
+    echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Name fields ready</span>\n\n";
     
     // 4. Add email to homeowners if not exists
     echo "<span class='info'>[4/5] Checking email field...</span>\n";
     if (!columnExists($pdo, 'homeowners', 'email')) {
         $pdo->exec("ALTER TABLE homeowners ADD COLUMN email VARCHAR(100) UNIQUE AFTER contact");
-        echo "<span class='success'>✓ Added email column</span>\n\n";
+        echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added email column</span>\n\n";
     } else {
-        echo "<span class='success'>✓ Email column already exists</span>\n\n";
+        echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Email column already exists</span>\n\n";
     }
     
     // 5. Check visitor_passes table for subdivision logo support
@@ -99,17 +109,17 @@ try {
             // Try to add after qr_code column if it exists
             if (columnExists($pdo, 'visitor_passes', 'qr_code')) {
                 $pdo->exec("ALTER TABLE visitor_passes ADD COLUMN subdivision_logo VARCHAR(255) AFTER qr_code");
-                echo "<span class='success'>✓ Added subdivision_logo column</span>\n\n";
+                echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added subdivision_logo column</span>\n\n";
             } else {
                 // Just add it at the end
                 $pdo->exec("ALTER TABLE visitor_passes ADD COLUMN subdivision_logo VARCHAR(255)");
-                echo "<span class='success'>✓ Added subdivision_logo column</span>\n\n";
+                echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added subdivision_logo column</span>\n\n";
             }
         } else {
-            echo "<span class='success'>✓ Subdivision logo support already exists</span>\n\n";
+            echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Subdivision logo support already exists</span>\n\n";
         }
     } else {
-        echo "<span class='warning'>⚠ visitor_passes table not found (will be created when first pass is generated)</span>\n\n";
+        echo "<span class='warning'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 9v4m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 0 0 2.56 20h18.88a1 1 0 0 0 .87-1.28l-8.6-14.86a1 1 0 0 0-1.72 0z'/></svg> visitor_passes table not found (will be created when first pass is generated)</span>\n\n";
     }
     
     echo "\n<span class='info'>[6/5] Checking users table...</span>\n";
@@ -117,27 +127,45 @@ try {
         // Check for email
         if (!columnExists($pdo, 'users', 'email')) {
             $pdo->exec("ALTER TABLE users ADD COLUMN email VARCHAR(100) UNIQUE AFTER username");
-            echo "<span class='success'>✓ Added email column to users</span>\n";
+            echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added email column to users</span>\n";
         } else {
-            echo "<span class='success'>✓ Email column already exists in users</span>\n";
+            echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Email column already exists in users</span>\n";
         }
 
         // Check for account_status
         if (!columnExists($pdo, 'users', 'account_status')) {
             $pdo->exec("ALTER TABLE users ADD COLUMN account_status ENUM('active','pending','suspended') DEFAULT 'active' AFTER role");
-            echo "<span class='success'>✓ Added account_status column to users</span>\n";
+            echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> Added account_status column to users</span>\n";
         } else {
-            echo "<span class='success'>✓ account_status column already exists in users</span>\n";
+            echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> account_status column already exists in users</span>\n";
         }
     } else {
-        echo "<span class='warning'>⚠ users table not found!</span>\n";
+        echo "<span class='warning'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 9v4m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 0 0 2.56 20h18.88a1 1 0 0 0 .87-1.28l-8.6-14.86a1 1 0 0 0-1.72 0z'/></svg> users table not found!</span>\n";
     }
+
+    echo "\n<span class='info'>[7/5] Checking shared vehicle access table...</span>\n";
+    $pdo->exec("\
+        CREATE TABLE IF NOT EXISTS vehicle_shared_access (\
+            id INT AUTO_INCREMENT PRIMARY KEY,\
+            vehicle_id INT NOT NULL,\
+            homeowner_id INT NOT NULL,\
+            is_active TINYINT(1) NOT NULL DEFAULT 1,\
+            created_by INT NULL,\
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\
+            UNIQUE KEY uniq_vehicle_homeowner (vehicle_id, homeowner_id),\
+            INDEX idx_vehicle_active (vehicle_id, is_active),\
+            INDEX idx_homeowner_active (homeowner_id, is_active),\
+            CONSTRAINT fk_vehicle_shared_access_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,\
+            CONSTRAINT fk_vehicle_shared_access_homeowner FOREIGN KEY (homeowner_id) REFERENCES homeowners(id) ON DELETE CASCADE\
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4\
+    ");
+    echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> vehicle_shared_access table ready</span>\n";
     
     echo "\n<span class='success'>========================================</span>\n";
-    echo "<span class='success'>✓ DATABASE SETUP COMPLETE!</span>\n";
+    echo "<span class='success'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M20 6 9 17l-5-5'/></svg> DATABASE SETUP COMPLETE!</span>\n";
     echo "<span class='success'>========================================</span>\n\n";
     
-    echo "<span class='info'>📊 Database Summary:</span>\n";
+    echo "<span class='info'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><rect x='14' y='14' width='7' height='7'/></svg> Database Summary:</span>\n";
     
     // Count homeowners
     $homeownerCount = $pdo->query("SELECT COUNT(*) FROM homeowners")->fetchColumn();
@@ -157,7 +185,7 @@ try {
     echo "3. Check pending accounts at: Admin Panel → Account Approvals\n\n";
     
 } catch (PDOException $e) {
-    echo "<span class='error'>✗ ERROR: " . $e->getMessage() . "</span>\n";
+    echo "<span class='error'><svg style='width:1em;height:1em;vertical-align:-0.15em;display:inline' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><path d='M18 6 6 18M6 6l12 12'/></svg> ERROR: " . $e->getMessage() . "</span>\n";
     echo "<span class='error'>SQL State: " . $e->getCode() . "</span>\n";
 }
 

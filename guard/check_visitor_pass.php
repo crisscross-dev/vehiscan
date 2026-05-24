@@ -1,6 +1,14 @@
 <?php
+require_once __DIR__ . '/../includes/session_guard.php';
 require_once __DIR__ . '/../db.php';
 header('Content-Type: application/json');
+
+// Security: Only authenticated guards can check visitor passes
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
+    http_response_code(403);
+    echo json_encode(['has_pass' => false, 'error' => 'Unauthorized']);
+    exit;
+}
 
 $plate = strtoupper(trim($_GET['plate'] ?? ''));
 
@@ -23,10 +31,8 @@ try {
     $pass = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($pass) {
-        // Mark as used
-        $updateStmt = $pdo->prepare("UPDATE visitor_passes SET status = 'used' WHERE id = ?");
-        $updateStmt->execute([$pass['id']]);
-        
+        // Return pass info without automatically marking as used
+        // Only the RFID scan endpoint should mark passes as used
         echo json_encode([
             'has_pass' => true,
             'visitor_name' => $pass['visitor_name'],

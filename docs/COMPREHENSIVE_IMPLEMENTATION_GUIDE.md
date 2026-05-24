@@ -1,6 +1,6 @@
-# COMPREHENSIVE SYSTEM IMPROVEMENTS - IMPLEMENTATION GUIDE
+﻿# COMPREHENSIVE SYSTEM IMPROVEMENTS - IMPLEMENTATION GUIDE
 
-## 📋 Table of Contents
+## Table of Contents
 1. [Database Migrations](#database-migrations)
 2. [Login & Registration Enhancements](#login--registration-enhancements)
 3. [QR Code & Visitor Pass Improvements](#qr-code--visitor-pass-improvements)
@@ -13,7 +13,7 @@
 
 ---
 
-## 🗄️ Database Migrations
+## 🗄 Database Migrations
 
 ### Step 1: Run Comprehensive Migration
 
@@ -25,7 +25,7 @@ Run this file to apply all database changes:
 php migrations/comprehensive_system_migration.php
 ```
 
-###  Changes Applied:
+### Changes Applied:
 
 1. **Users Table Enhancements:**
    - Added `email` VARCHAR(255) UNIQUE
@@ -108,12 +108,12 @@ if ($authenticatedUser) {
 **File:** `auth/register.php` (CREATED)
 
 **Features Implemented:**
-- ✅ Email registration
-- ✅ Structured name fields (first, middle, last, suffix)
-- ✅ Auto-formatted contact numbers (0912-345-6789)
-- ✅ Account status defaults to 'pending'
-- ✅ Email verification token generation
-- ✅ Role-based field visibility
+- Email registration
+- Structured name fields (first, middle, last, suffix)
+- Auto-formatted contact numbers (0912-345-6789)
+- Account status defaults to 'pending'
+- Email verification token generation
+- Role-based field visibility
 
 **Usage:**
 Users register → Account created with status='pending' → Admin approves → User can login
@@ -124,7 +124,7 @@ Users register → Account created with status='pending' → Admin approves → 
 
 ```php
 <?php
-require_once __DIR__ . '/../../includes/session_admin.php';
+ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
 $userId = $_POST['user_id'] ?? 0;
@@ -213,7 +213,7 @@ async function approveAccount(userId) {
 
 ---
 
-## 🎫 QR Code & Visitor Pass Improvements
+## QR Code & Visitor Pass Improvements
 
 ### Requirement 4: Customizable QR with Subdivision Logo
 
@@ -398,7 +398,7 @@ Display format: `{first_name} {middle_name} {last_name} {suffix}`
 
 ---
 
-## 📊 Dashboard Charts & Data Visualization
+## Dashboard Charts & Data Visualization
 
 ### Requirement 8: Replace Summary Cards with Charts
 
@@ -490,7 +490,7 @@ async function loadVisitorActivityChart() {
 **API Endpoint:** `admin/api/get_visitor_activity.php`
 ```php
 <?php
-require_once __DIR__ . '/../../includes/session_admin.php';
+ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
 $days = $_GET['days'] ?? 7;
@@ -511,7 +511,7 @@ echo json_encode($stmt->fetchAll());
 
 ---
 
-## 🛡️ Guard Access & Security Controls
+## Guard Access & Security Controls
 
 ### Requirement 9: Restrict Guard Permissions
 
@@ -544,7 +544,7 @@ async function loadVisitorPasses() {
 
 ---
 
-## 📋 Records Management & UI Cleanup
+## Records Management & UI Cleanup
 
 ### Requirement 10: Searchable Data Tables
 
@@ -621,7 +621,7 @@ function formatRecordNumber($id) {
 
 ---
 
-## 🚗 Homeowner & Vehicle Management
+## Homeowner & Vehicle Management
 
 ### Requirement 13: Multi-Vehicle Support
 
@@ -673,7 +673,7 @@ async function loadVehicles() {
     
     document.getElementById('vehiclesList').innerHTML = vehicles.map((v, index) => `
         <div class="vehicle-card">
-            <div class="vehicle-icon">🚗</div>
+            <div class="vehicle-icon"></div>
             <div>
                 <h4>${v.plate_number} ${v.is_primary ? '<span class="badge-primary">Primary</span>' : ''}</h4>
                 <p>${v.brand} ${v.model} ${v.year ? `(${v.year})` : ''}</p>
@@ -836,7 +836,7 @@ visitorPassUpdater.start();
 
 ```php
 <?php
-require_once __DIR__ . '/../../includes/session_admin.php';
+ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
 $since = $_GET['since'] ?? null;
@@ -862,7 +862,7 @@ echo json_encode([
 
 ---
 
-## 🚀 Implementation Checklist
+## Implementation Checklist
 
 ### Phase 1: Database & Backend (Week 1)
 - [ ] Run comprehensive migration
@@ -942,7 +942,7 @@ echo json_encode([
 
 ---
 
-## ⚠️ Important Notes
+## Important Notes
 
 - **Data Safety:** All migrations preserve existing data
 - **Audit Trails:** Never delete audit_logs or access_logs

@@ -1,17 +1,17 @@
-# 🚀 Quick Start Guide - Super Admin System
+﻿# Quick Start Guide - Super Admin System
 
-## ✅ What's Been Completed
+## What's Been Completed
 
 ### Phase 1A & 1B: Super Admin Authentication (DONE)
 
 The system now has a **secure Super Admin authentication** system with:
 
-- ✅ **No default credentials** - First-run setup required
-- ✅ **Strong password enforcement** (12+ chars, complexity requirements)
-- ✅ **Account lockout** after 5 failed attempts (30 minutes)
-- ✅ **Failed login tracking** with IP and user agent logging
-- ✅ **Separate session management** for Super Admin vs regular users
-- ✅ **Enhanced security** with session regeneration
+- **No default credentials** - First-run setup required
+- **Strong password enforcement** (12+ chars, complexity requirements)
+- **Account lockout** after 5 failed attempts (30 minutes)
+- **Failed login tracking** with IP and user agent logging
+- **Separate session management** for Super Admin vs regular users
+- **Enhanced security** with session regeneration
 
 ---
 
@@ -62,7 +62,7 @@ http://localhost/Vehiscan-RFID/auth/first_run_setup.php
 
 ---
 
-## 📊 Database Tables Created
+## Database Tables Created
 
 ### `super_admin`
 Stores Super Admin accounts with:
@@ -93,60 +93,60 @@ Tracks system setup status:
 
 ---
 
-## 🔄 Authentication Flow
+## Authentication Flow
 
 ```
 ┌─────────────────────────────────────────┐
-│         User Enters Credentials         │
+│ User Enters Credentials │
 └────────────────┬────────────────────────┘
                  │
                  ▼
 ┌─────────────────────────────────────────┐
-│  Check Super Admin Table First          │
-│  SELECT * FROM super_admin              │
+│ Check Super Admin Table First │
+│ SELECT * FROM super_admin │
 └────────┬──────────────┬─────────────────┘
-         │              │
-    Found│              │Not Found
-         │              │
-         ▼              ▼
-┌──────────────┐  ┌────────────────────┐
-│ Super Admin  │  │ Check Users Table  │
-│ Account      │  │ (guards/homeowners)│
-└───────┬──────┘  └─────────┬──────────┘
-        │                   │
-        ▼                   ▼
-┌────────────────┐  ┌──────────────────┐
-│ Check Lockout  │  │ Regular User     │
-│ Status         │  │ Authentication   │
-└───────┬────────┘  └────────┬─────────┘
-        │                    │
-   Not Locked                │
-        │                    │
-        ▼                    ▼
+         │ │
+    Found│ │Not Found
+         │ │
+         ▼ ▼
+┌──────────────┐ ┌────────────────────┐
+│ Super Admin │ │ Check Users Table │
+│ Account │ │ (guards/homeowners)│
+└───────┬──────┘ └─────────┬──────────┘
+        │ │
+        ▼ ▼
+┌────────────────┐ ┌──────────────────┐
+│ Check Lockout │ │ Regular User │
+│ Status │ │ Authentication │
+└───────┬────────┘ └────────┬─────────┘
+        │ │
+   Not Locked │
+        │ │
+        ▼ ▼
 ┌────────────────────────────────────────┐
-│      Verify Password (bcrypt)          │
+│ Verify Password (bcrypt) │
 └────────┬───────────────────────────────┘
          │
     Valid│
          ▼
 ┌─────────────────────────────────────────┐
-│  Create Session:                        │
-│  - vehiscan_superadmin (Super Admin)    │
-│  - vehiscan_admin (Admin)               │
-│  - vehiscan_guard (Guard)               │
+│ Create Session: │
+│ - vehiscan_superadmin (Super Admin) │
+│ - vehiscan_admin (Admin) │
+│ - vehiscan_guard (Guard) │
 └────────┬────────────────────────────────┘
          │
          ▼
 ┌─────────────────────────────────────────┐
-│     Redirect to Appropriate Panel       │
-│  - Admin Panel (Super Admin & Admin)    │
-│  - Guard Panel (Guards)                 │
+│ Redirect to Appropriate Panel │
+│ - Admin Panel (Super Admin & Admin) │
+│ - Guard Panel (Guards) │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Admin Panel Access
+## Admin Panel Access
 
 The admin panel now supports **both**:
 - **Super Admin** (from `super_admin` table)
@@ -182,7 +182,7 @@ WHERE username = 'your_username';
 
 ---
 
-## 📝 What's Next (Remaining Work)
+## What's Next (Remaining Work)
 
 ### Phase 1C: Security Hardening (2 days)
 - HTTPS enforcement
@@ -215,7 +215,7 @@ WHERE username = 'your_username';
 
 ---
 
-## 💡 Development Tips
+## Development Tips
 
 ### Testing Super Admin Login
 ```php
@@ -256,7 +256,7 @@ Then access `auth/first_run_setup.php` again.
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 - **Migration Runner:** `scripts/migrate.php`
 - **First-Run Setup:** `auth/first_run_setup.php`
@@ -276,6 +276,6 @@ For issues or questions:
 
 ---
 
-**Last Updated:** November 20, 2025  
-**System Version:** 2.0.0 (Super Admin Edition)  
-**Status:** Phase 1A & 1B Complete ✅
+**Last Updated:** November 20, 2025 
+**System Version:** 2.0.0 (Super Admin Edition) 
+**Status:** Phase 1A & 1B Complete 

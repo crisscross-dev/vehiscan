@@ -1,26 +1,50 @@
 <?php
+/**
+ * ============================================================================
+ * Canonical employee delete endpoint.
+ *
+ * Compatibility wrapper: admin/employee_delete.php now forwards here so there
+ * is a single maintained delete implementation.
+ * ============================================================================
+ */
+require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
-    http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
-}
-
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../includes/input_sanitizer.php';
+require_once __DIR__ . '/../../includes/request_method_helper.php';
 
 header('Content-Type: application/json');
 
+requireRequestMethod('POST');
+
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'], true)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
+
+if (($_SESSION['role'] ?? '') !== 'super_admin') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Only Super Admin can delete employee accounts']);
+    exit;
+}
+
 try {
     // CSRF validation using InputSanitizer
-    $csrfToken = InputSanitizer::post('csrf', 'string');
+    $csrfToken = InputSanitizer::post('csrf_token', 'string');
     if (!InputSanitizer::validateCsrf($csrfToken)) {
-        throw new Exception('Invalid CSRF token');
+        throw new Exception('Invalid CSRF token', 403);
     }
     
     $id = InputSanitizer::post('id', 'int');
     
     if (!$id) {
-        throw new Exception('Employee ID is required');
+        throw new Exception('Employee ID is required', 400);
+    }
+
+    $confirmation = strtoupper(trim((string)InputSanitizer::post('confirmation', 'string')));
+    if ($confirmation !== 'DELETE') {
+        throw new Exception('Confirmation text is required', 400);
     }
     
     // Get employee details before deletion
@@ -29,17 +53,17 @@ try {
     $employee = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$employee) {
-        throw new Exception('Employee not found');
+        throw new Exception('Employee not found', 404);
     }
     
     // Only super admin can delete super_admin accounts
     if ($employee['role'] === 'super_admin' && $_SESSION['role'] !== 'super_admin') {
-        throw new Exception('Only Super Admin can delete Super Admin accounts');
+        throw new Exception('Only Super Admin can delete Super Admin accounts', 403);
     }
     
     // Prevent self-deletion
     if ($id == ($_SESSION['user_id'] ?? $_SESSION['admin_id'])) {
-        throw new Exception('You cannot delete your own account');
+        throw new Exception('You cannot delete your own account', 400);
     }
     
     // Delete employee
@@ -55,7 +79,19 @@ try {
     
     echo json_encode(['success' => true, 'message' => 'Employee deleted successfully']);
     
+} catch (PDOException $e) {
+    error_log('Employee delete DB error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'A database error occurred. Please try again later.']);
 } catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    error_log('Employee delete error: ' . $e->getMessage());
+    $code = (int)$e->getCode();
+    if ($code < 400 || $code > 599) {
+        $code = 400;
+    }
+    http_response_code($code);
+    $safeMessage = $code >= 500
+        ? 'An unexpected server error occurred. Please try again later.'
+        : 'The request could not be processed. Please verify your input and try again.';
+    echo json_encode(['success' => false, 'message' => $safeMessage]);
 }

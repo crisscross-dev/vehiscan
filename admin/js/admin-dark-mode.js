@@ -17,13 +17,13 @@
     function enableDarkMode() {
         html.classList.add('dark');
         body.classList.add('dark');
-        body.style.backgroundColor = '#0f172a'; // slate-900
+        body.style.backgroundColor = ''; // Let Tailwind dark: classes handle it
     }
 
     function enableLightMode() {
         html.classList.remove('dark');
         body.classList.remove('dark');
-        body.style.backgroundColor = '#F5F5F5';
+        body.style.backgroundColor = ''; // Let Tailwind classes handle it
     }
 
     // Initialize on load

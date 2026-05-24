@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/common_utilities.php';
 
 $token = $_GET['token'] ?? '';
 
@@ -10,7 +11,7 @@ if (!$token) {
 
 try {
     $stmt = $pdo->prepare("
-        SELECT vp.*, h.name as homeowner_name, h.address, h.phone
+        SELECT vp.*, h.name as homeowner_name, h.address, h.contact_number
         FROM visitor_passes vp
         JOIN homeowners h ON vp.homeowner_id = h.id
         WHERE vp.qr_token = ?
@@ -119,8 +120,8 @@ try {
           <svg class="w-20 h-20 mx-auto text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <h2 class="text-2xl font-bold text-gray-800 mb-2">❌ Invalid Pass</h2>
-          <p class="text-gray-600"><?php echo htmlspecialchars($error); ?></p>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">Invalid Pass</h2>
+          <p class="text-gray-600"><?php echo htmlspecialchars($error ?? ''); ?></p>
         </div>
       <?php else: ?>
         <div class="space-y-4">
@@ -131,28 +132,28 @@ try {
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
-                ✅ Valid Pass
+                Valid Pass
               </span>
             <?php elseif ($isExpired): ?>
               <span class="invalid-badge">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
-                ❌ Expired
+                Expired
               </span>
             <?php elseif ($notYetValid): ?>
               <span class="warning-badge">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
-                ⏰ Not Yet Valid
+                Not Yet Valid
               </span>
             <?php else: ?>
               <span class="invalid-badge">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
-                ❌ <?php echo ucfirst($pass['status']); ?>
+                <?php echo ucfirst($pass['status']); ?>
               </span>
             <?php endif; ?>
           </div>
@@ -161,43 +162,43 @@ try {
           <div class="bg-gray-50 rounded-lg p-4 space-y-3">
             <div>
               <p class="text-sm text-gray-500 font-semibold">Visitor Name</p>
-              <p class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($pass['visitor_name']); ?></p>
+              <p class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($pass['visitor_name'] ?? ''); ?></p>
             </div>
             
             <div>
               <p class="text-sm text-gray-500 font-semibold">Vehicle Plate</p>
-              <p class="text-lg font-bold text-gray-900 font-mono"><?php echo htmlspecialchars($pass['visitor_plate']); ?></p>
+              <p class="text-lg font-bold text-gray-900 font-mono"><?php echo htmlspecialchars($pass['visitor_plate'] ?? ''); ?></p>
             </div>
             
             <div>
               <p class="text-sm text-gray-500 font-semibold">Visiting</p>
-              <p class="text-base font-semibold text-gray-900"><?php echo htmlspecialchars($pass['homeowner_name']); ?></p>
+              <p class="text-base font-semibold text-gray-900"><?php echo htmlspecialchars($pass['homeowner_name'] ?? ''); ?></p>
               <?php if ($pass['address']): ?>
-                <p class="text-sm text-gray-600"><?php echo htmlspecialchars($pass['address']); ?></p>
+                <p class="text-sm text-gray-600"><?php echo htmlspecialchars($pass['address'] ?? ''); ?></p>
               <?php endif; ?>
             </div>
             
             <?php if ($pass['purpose']): ?>
             <div>
               <p class="text-sm text-gray-500 font-semibold">Purpose</p>
-              <p class="text-base text-gray-900"><?php echo htmlspecialchars($pass['purpose']); ?></p>
+              <p class="text-base text-gray-900"><?php echo htmlspecialchars($pass['purpose'] ?? ''); ?></p>
             </div>
             <?php endif; ?>
           </div>
 
           <!-- Validity Period -->
           <div class="bg-blue-50 rounded-lg p-4">
-            <p class="text-sm font-semibold text-blue-900 mb-2">📅 Validity Period</p>
+            <p class="text-sm font-semibold text-blue-900 mb-2"><svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Validity Period</p>
             <div class="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p class="text-blue-600 font-semibold">From</p>
-                <p class="text-blue-900 font-bold"><?php echo date('M d, Y', strtotime($pass['valid_from'])); ?></p>
-                <p class="text-blue-700"><?php echo date('h:i A', strtotime($pass['valid_from'])); ?></p>
+                <p class="text-blue-900 font-bold"><?php echo formatDisplayDateTime($pass['valid_from'], false); ?></p>
+                <p class="text-blue-700"><?php echo date('g:i A', strtotime($pass['valid_from'])); ?></p>
               </div>
               <div>
                 <p class="text-blue-600 font-semibold">Until</p>
-                <p class="text-blue-900 font-bold"><?php echo date('M d, Y', strtotime($pass['valid_until'])); ?></p>
-                <p class="text-blue-700"><?php echo date('h:i A', strtotime($pass['valid_until'])); ?></p>
+                <p class="text-blue-900 font-bold"><?php echo formatDisplayDateTime($pass['valid_until'], false); ?></p>
+                <p class="text-blue-700"><?php echo date('g:i A', strtotime($pass['valid_until'])); ?></p>
               </div>
             </div>
           </div>

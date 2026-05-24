@@ -8,6 +8,9 @@
 (function () {
   'use strict';
 
+  const DEBUG = !!(window.vehiscanConfig && window.vehiscanConfig.debug);
+  const debugLog = (...args) => { if (DEBUG) console.log(...args); };
+
   // Toast queue for managing multiple toasts
   const toastQueue = [];
   let isShowingToast = false;
@@ -164,6 +167,6 @@
   };
 
   // Log that enhanced toast system is ready
-  console.log('[Toast] Enhanced toast notification system initialized (Phase 3.1)');
+  debugLog('[Toast] Enhanced toast notification system initialized (Phase 3.1)');
 
 })();

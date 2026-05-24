@@ -1,15 +1,15 @@
-# 🎮 RFID Simulation
+﻿# RFID Simulation
 
 This directory contains all RFID simulator functionality for testing and development.
 
 ---
 
-## 📁 Files
+## Files
 
 ### simulate_rfid_scan.php
-**Purpose:** Backend API for RFID scan simulation  
-**Method:** POST  
-**Access:** Admin only (AJAX)  
+**Purpose:** Backend API for RFID scan simulation 
+**Method:** POST 
+**Access:** Admin only (AJAX) 
 **Called by:** `assets/js/admin/admin_panel.js`
 
 **Parameters:**
@@ -38,9 +38,9 @@ This directory contains all RFID simulator functionality for testing and develop
 ---
 
 ### get_recent_simulations.php
-**Purpose:** Fetch recent RFID simulations for display  
-**Method:** GET  
-**Access:** Admin only (AJAX)  
+**Purpose:** Fetch recent RFID simulations for display 
+**Method:** GET 
+**Access:** Admin only (AJAX) 
 **Called by:** `assets/js/admin/admin_panel.js`
 
 **Response:**
@@ -67,17 +67,17 @@ This directory contains all RFID simulator functionality for testing and develop
 ---
 
 ### get_recent_simulation.php
-**Purpose:** Single simulation data retrieval (deprecated/alternate version)  
-**Method:** GET  
-**Access:** Admin only  
+**Purpose:** Single simulation data retrieval (deprecated/alternate version) 
+**Method:** GET 
+**Access:** Admin only 
 **Status:** Legacy file, consider consolidating
 
 ---
 
 ### generate_demo_logs.php
-**Purpose:** Generate multiple demo access logs for testing  
-**Method:** POST  
-**Access:** Admin only  
+**Purpose:** Generate multiple demo access logs for testing 
+**Method:** POST 
+**Access:** Admin only 
 **Use Case:** Populate system with test data
 
 **Features:**
@@ -88,7 +88,7 @@ This directory contains all RFID simulator functionality for testing and develop
 
 ---
 
-## 🔄 Data Flow
+## Data Flow
 
 ```
 User clicks "Scan RFID"
@@ -109,7 +109,7 @@ Guard panel detects NEW log via fetch_logs.php
 
 ---
 
-## 🔧 Technical Notes
+## Technical Notes
 
 ### Database Tables Used
 - `homeowners` - Source of valid plate numbers
@@ -130,7 +130,7 @@ require_once __DIR__ . '/../../db.php';
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Simulator not working?**
 1. Check `admin/diagnostics/RFID_DIAGNOSTIC.php`
@@ -146,7 +146,7 @@ require_once __DIR__ . '/../../db.php';
 
 ---
 
-## 📊 Testing
+## Testing
 
 **Test URLs:**
 - `_testing/admin/test_rfid_simulator.html`

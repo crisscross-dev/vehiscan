@@ -3,20 +3,7 @@
  * Employee Registration
  * Super Admin can create new employees and assign roles
  */
-
-// Check Super Admin or Admin session
-session_name('vehiscan_superadmin');
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
-    session_write_close();
-    session_name('vehiscan_admin');
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-}
+require_once __DIR__ . '/../includes/session_admin_unified.php';
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     header("Location: ../auth/login.php");
@@ -46,7 +33,7 @@ $error = '';
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token using InputSanitizer
-    $posted_csrf = InputSanitizer::post('csrf', 'string');
+    $posted_csrf = InputSanitizer::post('csrf_token', 'string');
     if (!InputSanitizer::validateCsrf($posted_csrf)) {
         $error = 'Invalid security token. Please refresh and try again.';
     } else {
@@ -54,18 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = InputSanitizer::post('username', 'string');
     $password = InputSanitizer::post('password', 'string');
     $confirm_password = InputSanitizer::post('confirm_password', 'string');
-    $role = InputSanitizer::post('role', 'string');
+    $roleRaw = InputSanitizer::post('role', 'string');
+    $role = $roleRaw === 'owner' ? 'homeowner' : $roleRaw;
     
     // Validation
     if (empty($username) || empty($password) || empty($role)) {
         $error = "All fields are required.";
     } elseif (strlen($username) < 3) {
         $error = "Username must be at least 3 characters.";
-    } elseif (strlen($password) < 8) {
-        $error = "Password must be at least 8 characters.";
+    } elseif (strlen($password) < 12) {
+        $error = "Password must be at least 12 characters.";
     } elseif ($password !== $confirm_password) {
         $error = "Passwords do not match.";
-    } elseif (!in_array($role, ['admin', 'guard', 'owner'])) {
+    } elseif (!in_array($role, ['admin', 'guard', 'homeowner'])) {
         $error = "Invalid role selected.";
     } else {
         // Check if username already exists
@@ -112,9 +100,8 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Registration - VehiScan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -144,7 +131,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
             <!-- Registration Form -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <form method="POST" id="employeeForm">
-                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
                     <!-- Username -->
                     <div class="mb-6">
                         <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
@@ -160,7 +147,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                             <option value="">Select role...</option>
                             <option value="admin" <?= ($role ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
                             <option value="guard" <?= ($role ?? '') === 'guard' ? 'selected' : '' ?>>Guard</option>
-                            <option value="owner" <?= ($role ?? '') === 'owner' ? 'selected' : '' ?>>Homeowner</option>
+                            <option value="homeowner" <?= in_array(($role ?? ''), ['homeowner', 'owner'], true) ? 'selected' : '' ?>>Homeowner</option>
                         </select>
                         <p class="text-sm text-gray-500 mt-2">
                             <strong>Admin:</strong> Full access to system settings<br>
@@ -174,7 +161,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                         <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
                         <input type="password" id="password" name="password" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                               placeholder="Enter password (min 8 characters)" required>
+                               placeholder="Enter password (min 12 characters)" required minlength="12">
                     </div>
 
                     <!-- Confirm Password -->
@@ -182,7 +169,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                         <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
                         <input type="password" id="confirm_password" name="confirm_password" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                               placeholder="Confirm password" required>
+                               placeholder="Confirm password" required minlength="12">
                     </div>
 
                     <!-- Submit Button -->
@@ -190,7 +177,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                         <button type="reset" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
                             Clear Form
                         </button>
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg font-medium">
+                        <button type="submit" class="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all shadow-lg font-medium">
                             Create Employee
                         </button>
                     </div>
@@ -214,7 +201,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                 icon: 'error',
                 title: 'Error',
                 text: '<?= $error ?>',
-                confirmButtonColor: '#3b82f6'
+                confirmButtonColor: '#ef4444'
             });
         <?php endif; ?>
 
@@ -229,7 +216,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
                     icon: 'error',
                     title: 'Error',
                     text: 'Passwords do not match!',
-                    confirmButtonColor: '#3b82f6'
+                    confirmButtonColor: '#ef4444'
                 });
             }
         });

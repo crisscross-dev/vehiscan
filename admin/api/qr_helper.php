@@ -2,6 +2,69 @@
 // Generate QR code for visitor pass
 require_once __DIR__ . '/../../phpqrcode/qrlib.php';
 
+function resolveVisitorQrBaseUrl()
+{
+    if (!function_exists('config')) {
+        require_once __DIR__ . '/../../config.php';
+    }
+
+    $envQrUrl = function_exists('config') ? config('QR_BASE_URL', null) : null;
+    if ($envQrUrl) {
+        return rtrim((string)$envQrUrl, '/');
+    }
+
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $httpHost = (string)($_SERVER['HTTP_HOST'] ?? '');
+    $serverPort = $_SERVER['SERVER_PORT'] ?? null;
+
+    $hostName = $httpHost !== ''
+        ? $httpHost
+        : (string)($_SERVER['SERVER_NAME'] ?? ($_SERVER['SERVER_ADDR'] ?? 'localhost'));
+    $port = null;
+
+    if (strpos($hostName, ':') !== false) {
+        [$hostOnly, $portPart] = explode(':', $hostName, 2);
+        $hostName = $hostOnly;
+        if (is_numeric($portPart)) {
+            $port = (int)$portPart;
+        }
+    }
+
+    if ($port === null && $serverPort !== null && is_numeric((string)$serverPort)) {
+        $port = (int)$serverPort;
+    }
+
+    $loopbackHosts = ['localhost', '127.0.0.1', '::1'];
+    if (in_array(strtolower($hostName), $loopbackHosts, true)) {
+        $serverAddr = (string)($_SERVER['SERVER_ADDR'] ?? '');
+
+        if ($serverAddr !== '' && !in_array($serverAddr, $loopbackHosts, true)) {
+            $hostName = $serverAddr;
+        } else {
+            $lanIp = @gethostbyname(gethostname());
+            if (
+                $lanIp
+                && !in_array($lanIp, $loopbackHosts, true)
+                && filter_var($lanIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)
+            ) {
+                $hostName = $lanIp;
+            }
+        }
+    }
+
+    $portSegment = '';
+    if ($port && !in_array($port, [80, 443], true)) {
+        $portSegment = ':' . $port;
+    }
+
+    $script = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+    $basePath = dirname($script);
+    $basePath = preg_replace('#/(admin|guard|visitor|homeowners|auth|api|pages|utilities|includes).*$#', '', $basePath);
+    $basePath = rtrim((string)$basePath, '/');
+
+    return sprintf('%s://%s%s%s', $scheme, $hostName, $portSegment, $basePath);
+}
+
 function generateVisitorPassQR($passId, $token, $pdo)
 {
     try {
@@ -11,15 +74,9 @@ function generateVisitorPassQR($passId, $token, $pdo)
             mkdir($qrDir, 0755, true);
         }
 
-        // Generate verification URL using WiFi-aware detection
-        if (!function_exists('getQrCodeUrl')) {
-            require_once __DIR__ . '/../../config.php';
-        }
-
-        $baseUrl = getQrCodeUrl(); // Use WiFi-aware URL
+        // Match homeowner registration QR behavior for LAN/mobile accessibility.
+        $baseUrl = resolveVisitorQrBaseUrl();
         $verifyUrl = "$baseUrl/visitor/scan.php?token=$token";
-
-        error_log("[QR] Generated URL: $verifyUrl (from: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . ")");
 
         // Generate QR code with logo overlay
         $tempFile = $qrDir . "/pass_$passId.png";
@@ -29,7 +86,7 @@ function generateVisitorPassQR($passId, $token, $pdo)
         QRcode::png($verifyUrl, $tempFile, QR_ECLEVEL_H, 8, 2); // Higher error correction for logo
 
         // Add logo overlay
-        $logoPath = __DIR__ . '/../../ville_de_palme.png';
+        $logoPath = __DIR__ . '/../../assets/images/ville_de_palme.png';
         if (file_exists($logoPath)) {
             addLogoToQR($tempFile, $logoPath, $finalFile);
             // Use the final file with logo

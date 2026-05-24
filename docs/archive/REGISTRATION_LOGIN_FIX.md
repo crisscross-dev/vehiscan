@@ -1,8 +1,8 @@
-# Registration System Fix
+﻿# Registration System Fix
 
 ## Issues Fixed
 
-### 1. ❌ Regex Error in Phone Number Pattern
+### 1. Regex Error in Phone Number Pattern
 **Error:** `Uncaught SyntaxError: Invalid regular expression: /[0-9+\-\s()]{7,20}/v: Invalid character in character class`
 
 **Root Cause:** The escape sequence `\-` inside the character class `[0-9+\-\s()]` was invalid in the new regex engine.
@@ -11,7 +11,7 @@
 
 ---
 
-### 2. ❌ Login Failing with Correct Credentials
+### 2. Login Failing with Correct Credentials
 **Error:** "Invalid username or password" even when credentials are correct
 
 **Root Cause:** Database architecture mismatch
@@ -37,7 +37,7 @@ Stores vehicle and owner information:
 - owner_img, car_img
 - created_at
 
-### `homeowner_auth` Table  
+### `homeowner_auth` Table 
 Stores authentication credentials:
 - id, homeowner_id (FK)
 - username, password_hash

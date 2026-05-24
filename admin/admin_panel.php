@@ -2,21 +2,24 @@
 require_once __DIR__ . '/../includes/security_headers.php';
 require_once __DIR__ . '/../includes/session_admin_unified.php';
 
-// Check if user is Super Admin or regular Admin
-$isSuperAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'super_admin');
-
 // Verify user has admin or super_admin role
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin'], true)) {
   header('Location: ../auth/login.php');
   exit();
 }
 
+$isSuperAdmin = $_SESSION['role'] === 'super_admin';
+
 // CSRF token is set by session_admin_unified.php
+if (empty($_SESSION['csrf_token'])) {
+  header('Location: ../auth/login.php');
+  exit();
+}
 $csrf = $_SESSION['csrf_token'];
 
 require_once __DIR__ . '/../db.php';
 
-$page = 'dashboard';
+$hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
 ?>
 <!doctype html>
 <html lang="en">
@@ -27,31 +30,35 @@ $page = 'dashboard';
   <title>Admin Panel — VehiScan</title>
 
   <!-- CSS Files - Load in Order -->
-  <link rel="stylesheet" href="../assets/css/tailwind.css">
-  <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
 
-  <!-- Skeleton loaders are now centralized in system.css -->
-
-  <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo time(); ?>">
-  <link rel="stylesheet" href="../assets/css/button-system.css?v=<?php echo time(); ?>">
-  <link rel="stylesheet" href="css/visitor-passes.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/admin/admin.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/button-system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/button-system.css'); ?>">
+  <link rel="stylesheet" href="css/visitor-passes.css?v=<?php echo filemtime(__DIR__ . '/css/visitor-passes.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
 
   <!-- External Libraries - CDN (Must load before custom scripts) -->
   <script src="../assets/js/libs/jquery-3.7.1.min.js"></script>
-  <link rel="stylesheet" href="../assets/css/libs/jquery.dataTables.min.css">
-  <script src="../assets/js/libs/jquery.dataTables.min.js"></script>
   <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
   <script src="../assets/js/libs/chart.umd.min.js"></script>
-  <script defer src="../assets/js/libs/alpine.min.js"></script>
-
   <!-- Core Utilities - Load before main scripts -->
-  <script src="../assets/js/toast.js?v=<?php echo time(); ?>"></script>
-  <script src="../assets/js/session-timeout.js?v=<?php echo time(); ?>"></script>
+  <script src="../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
+  <script src="../assets/js/session-timeout.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
 
   <style>
     /* Session timeout warning modal styling */
     .swal2-popup {
       font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* Ensure SweetAlert previews sit above native edit modal */
+    .swal2-container {
+      z-index: 1001 !important;
+    }
+    .swal2-popup {
+      z-index: 1002 !important;
     }
 
     #sessionCountdown {
@@ -61,17 +68,162 @@ $page = 'dashboard';
       margin: 20px 0 !important;
       font-variant-numeric: tabular-nums;
     }
+
+    /* Ensure page scrolling is locked while modals are open */
+    body.modal-open {
+      overflow: hidden !important;
+    }
+
+    /* Ensure underlying sticky table headers never bleed through edit modal */
+    body.modal-open #content-area thead,
+    body.modal-open #content-area .ta-table thead,
+    body.modal-open #content-area table thead {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+
+    /* Global safeguards for dynamically loaded modal forms */
+    #editModal #modal-body form {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    #editModal #modal-body .grid,
+    #editModal #modal-body [class*="grid-cols"] {
+      min-width: 0;
+    }
+
+    #editModal #modal-body input,
+    #editModal #modal-body select,
+    #editModal #modal-body textarea,
+    #editModal #modal-body .ta-input,
+    #editModal #modal-body .ta-select {
+      max-width: 100%;
+    }
+
+    #editModal #modal-body form:not(.visitor-pass-modal-form) .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      justify-content: flex-end;
+      padding-inline: 0.35rem;
+      padding-bottom: 0.45rem;
+    }
+
+    /* Visitor pass modal gets a wider shell and independent spacing rules */
+    #editModal {
+      z-index: 1000 !important;
+    }
+
+    #editModalBackdrop {
+      z-index: 1000 !important;
+    }
+
+    #editModal [role="document"] {
+      position: relative;
+      z-index: 1001;
+    }
+
+    #editModal.modal-visitor-pass [role="document"] {
+      max-width: min(1120px, 96vw) !important;
+    }
+
+    #editModal.modal-visitor-pass #modal-body {
+      padding: 1.25rem 1.25rem 1rem;
+    }
+
+    /* Homeowner profile modal: compact preview sheet */
+    #editModal.modal-homeowner-profile [role="document"] {
+      max-width: min(760px, 94vw) !important;
+      max-height: 92vh;
+    }
+
+    #editModal.modal-homeowner-profile #modal-body {
+      padding: 1.1rem 1.1rem 0.95rem;
+    }
+
+    /* Unified modal form styling across input-heavy forms */
+    #editModal.modal-form [role="document"] {
+      max-width: min(1080px, 95vw);
+    }
+
+    #editModal.modal-form #modal-body {
+      padding: 1.15rem 1.15rem 0.95rem;
+    }
+
+    #editModal #modal-body form.modal-unified-form {
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+    }
+
+    #editModal #modal-body form.modal-unified-form .ta-grid-2,
+    #editModal #modal-body form.modal-unified-form .grid,
+    #editModal #modal-body form.modal-unified-form [class*="grid-cols"] {
+      gap: 0.95rem;
+    }
+
+    #editModal #modal-body form.modal-unified-form label {
+      margin-bottom: 0.3rem;
+    }
+
+    #editModal #modal-body form.modal-unified-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    #editModal #modal-body form.modal-unified-form select,
+    #editModal #modal-body form.modal-unified-form textarea,
+    #editModal #modal-body form.modal-unified-form .ta-input,
+    #editModal #modal-body form.modal-unified-form .ta-select {
+      min-height: 43px;
+    }
+
+    #editModal #modal-body form.modal-unified-form textarea,
+    #editModal #modal-body form.modal-unified-form textarea.ta-input {
+      min-height: 88px;
+      line-height: 1.45;
+    }
+
+    #editModal #modal-body form.modal-unified-form .form-actions {
+      margin-top: 1rem;
+      padding-top: 0.9rem;
+      gap: 0.7rem;
+    }
+
+    @media (max-width: 1024px) {
+      #editModal #modal-body form:not(.visitor-pass-modal-form) .form-actions > * {
+        flex: 1 1 100%;
+      }
+
+      #editModal.modal-visitor-pass [role="document"] {
+        max-width: min(980px, 98vw) !important;
+      }
+
+      #editModal.modal-homeowner-profile [role="document"] {
+        max-width: min(980px, 98vw) !important;
+      }
+
+      #editModal.modal-form [role="document"] {
+        max-width: min(980px, 98vw);
+      }
+
+      #editModal #modal-body form.modal-unified-form .ta-grid-2,
+      #editModal #modal-body form.modal-unified-form .grid,
+      #editModal #modal-body form.modal-unified-form [class*="grid-cols"] {
+        gap: 0.8rem;
+      }
+    }
   </style>
 </head>
 
-<body class="m-0 p-0 overflow-hidden" style="background-color: #F5F5F5;">
+<body class="m-0 p-0 overflow-hidden bg-gray-100 dark:bg-slate-950 transition-colors duration-300">
 
   <!-- User Dropdown (Fixed Position) -->
-  <div id="user-dropdown" class="hidden fixed w-56 rounded-md border border-gray-300 bg-white shadow-lg"
-    style="z-index: 9999;">
+  <div id="user-dropdown" class="hidden fixed w-56 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-lg"
+    style="z-index: 9999;" role="menu" aria-labelledby="user-trigger" aria-hidden="true">
     <div class="p-1">
-      <button id="signOutBtn"
-        class="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors">
+      <button id="signOutBtn" type="button" role="menuitem"
+        class="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 font-medium transition-colors">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -82,10 +234,9 @@ $page = 'dashboard';
   </div>
 
   <!-- Mobile Menu Overlay -->
-  <div id="mobile-overlay"></div>
+  <div id="mobile-overlay" aria-hidden="true" role="presentation"></div>
 
   <div class="flex h-screen w-full">
-    <!-- Shadcn Sidebar -->
     <!-- Shadcn Sidebar -->
     <aside id="sidebar"
       class="sidebar-transition sidebar-open relative flex flex-col border-r bg-white dark:bg-slate-900 dark:border-slate-700 text-gray-900 dark:text-gray-100 overflow-x-hidden"
@@ -93,20 +244,22 @@ $page = 'dashboard';
       <!-- Brand Header -->
       <div id="brand-header" class="flex h-14 items-center border-b border-gray-100 dark:border-slate-700 px-4">
         <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center">
-          <img src="../assets/images/vehiscan-logo.png" alt="VehiScan Logo" class="h-full w-full object-contain"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <span style="display:none;" class="text-2xl text-gray-700 font-bold">V</span>
+          <img id="brand-logo-img" src="../assets/images/vehiscan-logo.png" alt="VehiScan Logo" class="h-full w-full object-contain">
+          <span id="brand-logo-fallback" style="display:none;" class="text-2xl text-gray-700 dark:text-gray-300 font-bold">V</span>
         </div>
         <span id="brand-name" class="sidebar-text ml-3 text-left font-bold text-lg">VehiScan</span>
       </div>
 
       <!-- Navigation Menu -->
       <div class="flex-1 overflow-y-auto hide-scrollbar py-2">
+        
+        <!-- MAIN MENU GROUP -->
         <div class="mb-4 px-3">
-          <div id="main-label" class="sidebar-text mb-2 px-2 text-xs font-semibold text-gray-500 opacity-70">
-            MAIN MENU
-          </div>
-          <div class="space-y-1">
+          <button data-sidebar-group="main" aria-expanded="true" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
+            <span>MAIN MENU</span>
+            <svg class="w-3 h-3 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div data-sidebar-group-panel="main" class="space-y-1 mt-1" style="display:block;" aria-hidden="false">
             <a href="#"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 active"
               data-page="dashboard">
@@ -128,7 +281,82 @@ $page = 'dashboard';
               </svg>
               <span class="sidebar-text">Manage Records</span>
             </a>
+          </div>
+        </div>
 
+        <!-- MANAGEMENT GROUP -->
+        <div class="mb-4 px-3">
+          <button data-sidebar-group="management" aria-expanded="false" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
+            <span>MANAGEMENT</span>
+            <svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div data-sidebar-group-panel="management" class="space-y-1 mt-1" style="display:none;" aria-hidden="true">
+            <a href="#"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              data-page="visitors">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z">
+                </path>
+              </svg>
+              <span class="sidebar-text">Visitor Passes</span>
+              <span class="ta-sidebar-badge blue sidebar-text ml-auto" id="pendingPassesBadge" style="display:none;">0</span>
+            </a>
+
+            <a href="#"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              data-page="visitor_logs">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                </path>
+              </svg>
+              <span class="sidebar-text">Visitor Logs</span>
+            </a>
+
+            <a href="#"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              data-page="employees">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                </path>
+              </svg>
+              <span class="sidebar-text">Employee Management</span>
+            </a>
+
+            <a href="#"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              data-page="profile_requests">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              <span class="sidebar-text">Profile Requests</span>
+            </a>
+
+            <?php if ($isSuperAdmin): ?>
+            <a href="#"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              data-page="approvals">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="sidebar-text">Account Approvals</span>
+              <span class="ta-sidebar-badge amber sidebar-text ml-auto" id="pendingApprovalsBadge" style="display:none;">0</span>
+            </a>
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <!-- LOGS & SYSTEM GROUP -->
+        <div class="px-3">
+          <button data-sidebar-group="system" aria-expanded="false" class="sidebar-text flex w-full items-center justify-between px-2 mb-1 text-xs font-semibold text-gray-500 opacity-70 hover:opacity-100 transition-opacity">
+            <span>LOGS & SYSTEM</span>
+            <svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div data-sidebar-group-panel="system" class="space-y-1 mt-1" style="display:none;" aria-hidden="true">
             <a href="#"
               class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               data-page="logs">
@@ -141,7 +369,7 @@ $page = 'dashboard';
             </a>
 
             <a href="#"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 hover:bg-gray-100"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
               data-page="audit">
               <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -151,63 +379,15 @@ $page = 'dashboard';
               <span class="sidebar-text">Audit Logs</span>
             </a>
 
-            <a href="#"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 hover:bg-gray-100"
-              data-page="visitors">
-              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z">
-                </path>
-              </svg>
-              <span class="sidebar-text">Visitor Passes</span>
-            </a>
-
-            <a href="#"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 hover:bg-gray-100"
-              data-page="employees">
-              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                </path>
-              </svg>
-              <span class="sidebar-text">Employee Management</span>
-            </a>
-
             <?php if ($isSuperAdmin): ?>
-              <a href="#"
-                class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 hover:bg-gray-100"
-                data-page="approvals">
-                <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span class="sidebar-text">Account Approvals</span>
-              </a>
+            <a href="#"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              data-page="settings">
+            </a>
             <?php endif; ?>
 
-            <a href="#"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 hover:bg-gray-100"
-              data-page="simulator">
-              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                </path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <span class="sidebar-text">RFID Simulator</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- System Section -->
-        <div class="px-3">
-          <div id="system-label" class="sidebar-text mb-2 px-2 text-xs font-semibold text-gray-500 opacity-70">
-            SYSTEM
-          </div>
-          <div class="space-y-1">
-            <button id="backupBtn"
-              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 hover:bg-gray-100">
+            <button id="backupBtn" type="button"
+              class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800">
               <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
@@ -220,22 +400,26 @@ $page = 'dashboard';
       </div>
 
       <!-- User Section -->
-      <div class="mt-auto border-t border-gray-100 p-4">
+      <div class="mt-auto border-t border-gray-100 dark:border-slate-700 p-4">
         <div class="relative">
-          <button id="user-trigger"
-            class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-gray-100 transition-colors">
+          <button id="user-trigger" type="button" aria-haspopup="menu" aria-controls="user-dropdown" aria-expanded="false"
+            class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
             <div
-              class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 flex-shrink-0 border border-gray-200">
-              <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 flex-shrink-0 border border-gray-200 dark:border-slate-600">
+              <svg class="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
             </div>
             <div class="sidebar-text flex flex-col items-start flex-1">
+              <?php
+                $sessionRole = (string)($_SESSION['role'] ?? 'admin');
+                $roleDisplay = $sessionRole === 'owner' ? 'homeowner' : $sessionRole;
+              ?>
               <span
-                class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin User'); ?></span>
+                class="text-sm font-medium text-gray-900 dark:text-white"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin User'); ?></span>
               <span
-                class="text-xs text-gray-500 opacity-70"><?php echo htmlspecialchars($_SESSION['role'] ?? 'admin'); ?></span>
+                class="text-xs text-gray-500 dark:text-gray-400 opacity-70"><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $roleDisplay))); ?></span>
             </div>
             <svg id="user-chevron" class="sidebar-text ml-auto h-4 w-4 text-gray-500 transition-transform rotate-180"
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,28 +434,50 @@ $page = 'dashboard';
     <main class="flex-1 flex flex-col overflow-hidden bg-transparent">
       <!-- Header -->
       <header
-        class="flex h-14 items-center gap-4 border-b border-gray-300 dark:border-slate-700 px-6 bg-white dark:bg-slate-900">
+        class="sticky top-0 z-[100] flex h-14 items-center gap-4 border-b border-gray-300 dark:border-slate-700 px-6 bg-white dark:bg-slate-900">
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn"
-          class="flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 transition-colors md:hidden"
+        <button id="mobile-menu-btn" type="button"
+          class="flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors md:hidden"
           aria-label="Toggle mobile menu">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo $hamburgerIconPath; ?>"></path>
           </svg>
         </button>
 
-        <button id="sidebar-toggle"
-          class="hidden md:flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
+        <button id="sidebar-toggle" type="button"
+          class="hidden md:flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
           aria-label="Toggle sidebar">
           <svg id="hamburger-icon" class="h-5 w-5 transition-transform duration-300" fill="none" stroke="currentColor"
             viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo $hamburgerIconPath; ?>"></path>
           </svg>
         </button>
         <h1 id="page-title" class="text-lg font-semibold text-gray-900 dark:text-white">Dashboard</h1>
         <div class="ml-auto flex items-center gap-4">
+          <!-- Notification Bell -->
+          <div class="ta-notification-bell relative" id="notificationBellWrapper">
+            <button id="notificationBellBtn" type="button" class="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" aria-label="Notifications" aria-haspopup="dialog" aria-controls="notificationPanel" aria-expanded="false">
+              <svg class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+              <span class="ta-notification-dot hidden" id="notifDot"></span>
+            </button>
+            <div class="ta-notification-panel hidden" id="notificationPanel" role="dialog" aria-label="Notifications panel" aria-hidden="true">
+              <div class="ta-notification-header">
+                <span class="font-semibold text-sm">Notifications</span>
+                <button type="button" class="text-xs text-blue-600 dark:text-blue-400 hover:underline" id="markAllReadBtn">Mark all read</button>
+              </div>
+              <div class="ta-notification-list" id="notificationList">
+                <div class="text-center py-6 text-gray-400 dark:text-gray-500 text-sm">No new notifications</div>
+              </div>
+              <div class="ta-notification-footer">
+                <a href="#" id="notificationViewAllLink" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">View all activity</a>
+              </div>
+            </div>
+          </div>
+
           <!-- Dark Mode Toggle -->
-          <button id="darkModeToggle" class="theme-toggle-btn" aria-label="Toggle Dark Mode">
+          <button id="darkModeToggle" type="button" class="theme-toggle-btn" aria-label="Toggle Dark Mode">
             <svg class="theme-icon sun-icon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
@@ -282,33 +488,33 @@ $page = 'dashboard';
                 d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
           </button>
-          <span id="liveTime" class="text-gray-600 text-sm font-medium"></span>
+          <span id="liveTime" class="text-gray-600 dark:text-gray-300 text-sm font-medium"></span>
         </div>
       </header>
 
       <!-- Content Area -->
       <div class="flex-1 overflow-y-auto p-6" id="content-area" role="region" aria-live="polite"
         aria-label="Main content"
-        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1; transform: translateY(0);">
+        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1;">
         <div class="text-center py-8 text-gray-500 loading">Loading...</div>
       </div>
     </main>
   </div>
 
   <!-- Modal - Completely independent overlay -->
-  <div id="editModal" class="hidden fixed inset-0 z-[9999]" aria-hidden="true" role="dialog" aria-modal="true"
-    aria-labelledby="modal-title">
+  <div id="editModal" class="hidden fixed inset-0 z-[10050]" role="dialog" aria-modal="true"
+    aria-label="Edit dialog">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div id="editModalBackdrop" class="absolute inset-0 bg-slate-950/80" aria-hidden="true" style="backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);"></div>
 
     <!-- Modal Content -->
-    <div class="relative h-full w-full flex items-center justify-center p-6">
-      <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+    <div class="relative h-full w-full flex items-center justify-center p-4 md:p-6">
+      <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-hidden"
         role="document">
-        <button type="button"
-          class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-2xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full cursor-pointer transition-all z-10"
-          onclick="closeModal()" aria-label="Close modal">&times;</button>
-        <div class="overflow-y-auto max-h-[90vh] p-8" id="modal-body"></div>
+        <button id="editModalCloseBtn" type="button"
+          class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-2xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-all z-10"
+          aria-label="Close modal">&times;</button>
+        <div class="overflow-y-auto max-h-[90vh] p-5 md:p-6" id="modal-body"></div>
       </div>
     </div>
   </div>
@@ -317,12 +523,130 @@ $page = 'dashboard';
   <script>window.__ADMIN_CSRF__ = <?php echo json_encode($csrf); ?>;</script>
 
   <!-- Main Application Scripts - Load in order: core -> handlers -> features -->
-  <script src="../assets/js/admin/datatables-init.js?v=<?php echo time(); ?>"></script>
-  <script src="../assets/js/admin/realtime-updates.js?v=<?php echo time(); ?>"></script>
-  <script src="../assets/js/admin/admin_panel.js?v=<?php echo time(); ?>"></script>
-  <script src="../assets/js/admin/modal-handler.js?v=<?php echo time(); ?>"></script>
-  <script src="js/qr-modal.js?v=<?php echo time(); ?>"></script>
-  <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo time(); ?>"></script>
-  <script src="../assets/js/mobile-gestures.js?v=<?php echo time(); ?>"></script>
-  <script src="js/admin-dark-mode.js?v=<?php echo time(); ?>"></script>
+  <script src="../assets/js/utils/html-escape.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
+  <script src="../assets/js/notifications-manager.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/notifications-manager.js'); ?>"></script>
+  <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
+  <script src="../assets/js/mobile-gestures.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
+  <script src="../assets/js/table-enhancer.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
+  <script src="../assets/js/admin/realtime-updates.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/realtime-updates.js'); ?>"></script>
+  <script src="../assets/js/admin/admin_panel.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/admin_panel.js'); ?>"></script>
+  <script src="js/qr-modal.js?v=<?php echo filemtime(__DIR__ . '/js/qr-modal.js'); ?>"></script>
+  <script src="js/admin-dark-mode.js?v=<?php echo filemtime(__DIR__ . '/js/admin-dark-mode.js'); ?>"></script>
+
+  <!-- TailAdmin Action Dropdown Handler -->
+  <script>
+  (function(){
+    const OPEN_DROPDOWN_SELECTOR = '.ta-action-dropdown.open';
+
+    function closeDropdown(dd) {
+      dd.classList.remove('open');
+      const trigger = dd.querySelector('.ta-action-btn');
+      const menu = dd.querySelector('.ta-action-menu');
+      if (menu) {
+        menu.removeAttribute('style');
+        menu.setAttribute('aria-hidden', 'true');
+      }
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+    function closeAllDropdowns(except) {
+      document.querySelectorAll(OPEN_DROPDOWN_SELECTOR).forEach(function(d) {
+        if (d !== except) closeDropdown(d);
+      });
+    }
+    window.__vsAdminCloseActionDropdowns = function() {
+      closeAllDropdowns(null);
+    };
+    function positionDrop(dd) {
+      const menu = dd.querySelector('.ta-action-menu');
+      const trigger = dd.querySelector('.ta-action-btn');
+      if (!menu || !trigger) return;
+      // Measure actual menu width by temporarily showing it off-screen
+      menu.style.cssText = 'position:fixed;visibility:hidden;display:block;right:auto;width:auto;left:-9999px;top:0;';
+      const menuWidth = Math.max(menu.offsetWidth, 160);
+      const rect = trigger.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const dropUp = spaceBelow < 180 && rect.top > 180;
+      let leftPos = rect.right - menuWidth;
+      if (leftPos < 4) leftPos = 4;
+      if (leftPos + menuWidth > window.innerWidth - 4) leftPos = window.innerWidth - menuWidth - 4;
+      menu.style.cssText = [
+        'position:fixed',
+        'z-index:9990',
+        'width:' + menuWidth + 'px',
+        'right:auto',
+        'margin:0',
+        'left:' + leftPos + 'px',
+        dropUp
+          ? 'top:auto;bottom:' + (window.innerHeight - rect.top + 4) + 'px'
+          : 'top:' + (rect.bottom + 4) + 'px;bottom:auto'
+      ].join(';');
+      dd.classList.toggle('drop-up', dropUp);
+    }
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.ta-action-btn');
+      if (btn) {
+        e.stopPropagation();
+        const dd = btn.closest('.ta-action-dropdown');
+        const wasOpen = dd.classList.contains('open');
+        closeAllDropdowns(dd);
+        if (wasOpen) {
+          closeDropdown(dd);
+        } else {
+          if (typeof window.__vsAdminCloseShellPopovers === 'function') {
+            window.__vsAdminCloseShellPopovers();
+          }
+          dd.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          const menu = dd.querySelector('.ta-action-menu');
+          if (menu) menu.setAttribute('aria-hidden', 'false');
+          positionDrop(dd);
+        }
+        return;
+      }
+      const item = e.target.closest('.ta-action-menu-item');
+      if (item) {
+        closeDropdown(item.closest('.ta-action-dropdown'));
+        return;
+      }
+      closeAllDropdowns(null);
+    });
+    const useSharedKeyboardShortcuts = !!(window.keyboardShortcuts && typeof window.keyboardShortcuts.register === 'function');
+    if (useSharedKeyboardShortcuts) {
+      window.keyboardShortcuts.register('escape', function() {
+        const hasOpenDropdown = !!document.querySelector(OPEN_DROPDOWN_SELECTOR);
+        if (hasOpenDropdown) {
+          closeAllDropdowns(null);
+          return true;
+        }
+        return false;
+      }, {
+        id: 'admin.actionDropdown.escape',
+        description: 'Close admin action dropdowns',
+        preventDefault: false,
+        allowWhileTyping: true
+      });
+    } else {
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeAllDropdowns(null);
+        }
+      });
+    }
+    // Reposition on scroll/resize so fixed menu tracks the trigger
+    ['scroll', 'resize'].forEach(function(ev) {
+      window.addEventListener(ev, function() {
+        const open = document.querySelector(OPEN_DROPDOWN_SELECTOR);
+        if (open) positionDrop(open);
+      }, { passive: true });
+    });
+    // Close dropdowns when content-area scrolls (fixed menu won't track)
+    const contentArea = document.getElementById('content-area');
+    if (contentArea) {
+      contentArea.addEventListener('scroll', function() {
+        closeAllDropdowns(null);
+      }, { passive: true });
+    }
+  })();
+  </script>
 </body>
+</html>

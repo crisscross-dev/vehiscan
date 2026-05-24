@@ -1,6 +1,9 @@
 <?php
 // admin/fetch/delete_access_log.php
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
+require_once __DIR__ . '/../../includes/request_method_helper.php';
+
+requireRequestMethod('POST');
 
 // SECURITY: Only super_admin and admin can delete logs - NOT guards
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
@@ -9,12 +12,19 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'a
     exit(json_encode(['success' => false, 'message' => 'Unauthorized - Only administrators can delete logs']));
 }
 
-require_once __DIR__ . '/../../db.php';
 header('Content-Type: application/json');
+http_response_code(403);
+echo json_encode([
+    'success' => false,
+    'message' => 'Access log deletion is disabled by policy.'
+]);
+exit;
+
+require_once __DIR__ . '/../../db.php';
 
 // Validate CSRF token
 $csrf = $_SESSION['csrf_token'] ?? '';
-$posted = $_POST['csrf'] ?? '';
+$posted = $_POST['csrf_token'] ?? '';
 if (!hash_equals($csrf, (string)$posted)) {
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
@@ -42,5 +52,5 @@ try {
     }
 } catch (Exception $e) {
     error_log("Delete log error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'A database error occurred while deleting the log.']);
 }
