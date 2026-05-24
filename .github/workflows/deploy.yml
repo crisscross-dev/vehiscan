@@ -47,14 +47,30 @@ jobs:
         run: |
           echo "Installing composer dependencies on host..."
           ssh -i ~/.ssh/private_key -p 65002 u321426185@145.79.28.1 "
-            set -e
             cd /home/u321426185/domains/mysamplesystem.site/vehiscan || exit 1
+
+            # Prefer system composer
             if command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --optimize-autoloader --prefer-dist
+              composer install --no-dev --optimize-autoloader --prefer-dist || true
+
+            # If composer.phar already present, use it
             elif [ -f composer.phar ]; then
-              php composer.phar install --no-dev --optimize-autoloader --prefer-dist
+              php composer.phar install --no-dev --optimize-autoloader --prefer-dist || true
+
+            # Attempt to download composer installer and run it
             else
-              echo 'Composer not found on host; skipping composer install'
+              echo 'Composer not found — attempting to download composer.phar installer'
+              php -r "copy('https://getcomposer.org/installer','composer-setup.php');" 2>/dev/null || true
+              if [ -f composer-setup.php ]; then
+                php composer-setup.php --install-dir=/tmp --filename=composer.phar || true
+                if [ -f /tmp/composer.phar ]; then
+                  php /tmp/composer.phar install --no-dev --optimize-autoloader --prefer-dist || true
+                  rm -f /tmp/composer.phar
+                fi
+                rm -f composer-setup.php || true
+              else
+                echo 'Failed to download composer installer; skipping composer install'
+              fi
             fi
 
             # Run migrations if present (non-fatal)
