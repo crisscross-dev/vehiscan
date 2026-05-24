@@ -35,7 +35,6 @@ jobs:
             --exclude=".env" \
             --exclude="node_modules" \
             --exclude="vendor" \
-            --exclude="assets" \
             -e "ssh -i ~/.ssh/private_key -p 65002" \
             ./ \
             u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/
