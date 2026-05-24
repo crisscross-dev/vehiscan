@@ -61,10 +61,10 @@ $roleCount = array_count_values(array_column($employees, 'role'));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Management — VehiScan</title>
-    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/admin/admin.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/admin/admin.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
 </head>
 <body class="m-0 p-0 overflow-hidden bg-gray-100 dark:bg-slate-950">

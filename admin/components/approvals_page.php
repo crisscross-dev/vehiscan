@@ -109,7 +109,7 @@ require_once __DIR__ . '/../../db.php';
     </div>
 </div>
 
-<script src="../assets/js/admin/approvals-page.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/admin/approvals-page.js'); ?>"></script>
+<script src="../assets/js/admin/approvals-page.js?v=<?php echo @filemtime(__DIR__ . '/../../assets/js/admin/approvals-page.js'); ?>"></script>
 
 <style>
 /* Ensure table is not overlapping */

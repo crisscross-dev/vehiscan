@@ -121,7 +121,7 @@ $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Employee - VehiScan</title>
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
-    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>

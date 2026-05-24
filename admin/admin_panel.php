@@ -30,22 +30,22 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <title>Admin Panel — VehiScan</title>
 
   <!-- CSS Files - Load in Order -->
-  <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
-  <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
 
-  <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/admin/admin.css'); ?>">
-  <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-  <link rel="stylesheet" href="../assets/css/button-system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/button-system.css'); ?>">
-  <link rel="stylesheet" href="css/visitor-passes.css?v=<?php echo filemtime(__DIR__ . '/css/visitor-passes.css'); ?>">
-  <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/admin/admin.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/button-system.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/button-system.css'); ?>">
+  <link rel="stylesheet" href="css/visitor-passes.css?v=<?php echo @filemtime(__DIR__ . '/css/visitor-passes.css'); ?>">
+  <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
 
   <!-- External Libraries - CDN (Must load before custom scripts) -->
   <script src="../assets/js/libs/jquery-3.7.1.min.js"></script>
   <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
   <script src="../assets/js/libs/chart.umd.min.js"></script>
   <!-- Core Utilities - Load before main scripts -->
-  <script src="../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
-  <script src="../assets/js/session-timeout.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
+  <script src="../assets/js/toast.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
+  <script src="../assets/js/session-timeout.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
 
   <style>
     /* Session timeout warning modal styling */
@@ -523,15 +523,15 @@ $hamburgerIconPath = 'M4 6h16M4 12h16M4 18h16';
   <script>window.__ADMIN_CSRF__ = <?php echo json_encode($csrf); ?>;</script>
 
   <!-- Main Application Scripts - Load in order: core -> handlers -> features -->
-  <script src="../assets/js/utils/html-escape.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
-  <script src="../assets/js/notifications-manager.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/notifications-manager.js'); ?>"></script>
-  <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
-  <script src="../assets/js/mobile-gestures.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
-  <script src="../assets/js/table-enhancer.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
-  <script src="../assets/js/admin/realtime-updates.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/realtime-updates.js'); ?>"></script>
-  <script src="../assets/js/admin/admin_panel.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/admin/admin_panel.js'); ?>"></script>
-  <script src="js/qr-modal.js?v=<?php echo filemtime(__DIR__ . '/js/qr-modal.js'); ?>"></script>
-  <script src="js/admin-dark-mode.js?v=<?php echo filemtime(__DIR__ . '/js/admin-dark-mode.js'); ?>"></script>
+  <script src="../assets/js/utils/html-escape.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
+  <script src="../assets/js/notifications-manager.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/notifications-manager.js'); ?>"></script>
+  <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
+  <script src="../assets/js/mobile-gestures.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
+  <script src="../assets/js/table-enhancer.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
+  <script src="../assets/js/admin/realtime-updates.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/admin/realtime-updates.js'); ?>"></script>
+  <script src="../assets/js/admin/admin_panel.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/admin/admin_panel.js'); ?>"></script>
+  <script src="js/qr-modal.js?v=<?php echo @filemtime(__DIR__ . '/js/qr-modal.js'); ?>"></script>
+  <script src="js/admin-dark-mode.js?v=<?php echo @filemtime(__DIR__ . '/js/admin-dark-mode.js'); ?>"></script>
 
   <!-- TailAdmin Action Dropdown Handler -->
   <script>

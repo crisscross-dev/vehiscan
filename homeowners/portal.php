@@ -119,11 +119,11 @@ if (empty($_SESSION['csrf_token'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
     <title>Homeowner Portal — VehiScan</title>
-    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-    <link rel="stylesheet" href="css/homeowner.css?v=<?php echo filemtime(__DIR__ . '/css/homeowner.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailwind.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailwind.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
+    <link rel="stylesheet" href="css/homeowner.css?v=<?php echo @filemtime(__DIR__ . '/css/homeowner.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
     <script src="../assets/js/libs/chart.umd.min.js"></script>
     <script>
@@ -133,8 +133,8 @@ if (empty($_SESSION['csrf_token'])) {
             openProfileRequests: <?php echo (int)$openProfileRequestsCount; ?>
         };
     </script>
-    <script src="../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
-    <script src="../assets/js/session-timeout.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
+    <script src="../assets/js/toast.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/toast.js'); ?>"></script>
+    <script src="../assets/js/session-timeout.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/session-timeout.js'); ?>"></script>
 </head>
 
 <body class="m-0 p-0 overflow-hidden bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
@@ -962,13 +962,13 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <script src="../assets/js/utils/html-escape.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
-    <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
-    <script src="../assets/js/mobile-gestures.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
-    <script src="../assets/js/table-enhancer.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
-    <script src="js/homeowner.js?v=<?php echo filemtime(__DIR__ . '/js/homeowner.js'); ?>"></script>
-    <script src="js/homeowner-dark-mode.js?v=<?php echo filemtime(__DIR__ . '/js/homeowner-dark-mode.js'); ?>"></script>
-    <script src="js/vehicle-management.js?v=<?php echo filemtime(__DIR__ . '/js/vehicle-management.js'); ?>"></script>
+    <script src="../assets/js/utils/html-escape.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/utils/html-escape.js'); ?>"></script>
+    <script src="../assets/js/keyboard-shortcuts.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/keyboard-shortcuts.js'); ?>"></script>
+    <script src="../assets/js/mobile-gestures.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/mobile-gestures.js'); ?>"></script>
+    <script src="../assets/js/table-enhancer.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/table-enhancer.js'); ?>"></script>
+    <script src="js/homeowner.js?v=<?php echo @filemtime(__DIR__ . '/js/homeowner.js'); ?>"></script>
+    <script src="js/homeowner-dark-mode.js?v=<?php echo @filemtime(__DIR__ . '/js/homeowner-dark-mode.js'); ?>"></script>
+    <script src="js/vehicle-management.js?v=<?php echo @filemtime(__DIR__ . '/js/vehicle-management.js'); ?>"></script>
 
     <script>
     (function () {

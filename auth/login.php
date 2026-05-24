@@ -236,7 +236,7 @@ ob_end_flush();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign in to VehiScan</title>
-    <link rel="stylesheet" href="../assets/css/login.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/login.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/login.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/login.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
 </head>
 <body>
@@ -303,7 +303,7 @@ ob_end_flush();
     </div>
 
     <!-- External JavaScript -->
-    <script src="../assets/js/login.js?v=<?php echo filemtime(__DIR__ . '/../assets/js/login.js'); ?>"></script>
+    <script src="../assets/js/login.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/login.js'); ?>"></script>
 
     <!-- PHP-generated alerts -->
     <script>
