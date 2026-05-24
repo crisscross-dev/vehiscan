@@ -628,34 +628,34 @@ body.dark #content-area {
 }
 
 body.dark .bg-white {
-  background: linear-gradient(145deg, #131b2e 0%, #0f1825 100%) !important;
-  color: #f8fafc !important;
-  border: 1px solid #2d3d5a !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  background: linear-gradient(145deg, #131b2e 0%, #0f1825 100%);
+  color: #f8fafc;
+  border: 1px solid #2d3d5a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 body.dark .text-gray-900,
 body.dark .text-gray-800,
 body.dark .text-gray-700 {
-  color: #f1f5f9 !important;
+  color: #f1f5f9;
 }
 
 body.dark .text-gray-600,
 body.dark .text-gray-500 {
-  color: #94a3b8 !important;
+  color: #94a3b8;
 }
 
 body.dark .border-gray-200,
 body.dark .border-gray-300 {
-  border-color: #334155 !important;
+  border-color: #334155;
 }
 
 body.dark .bg-gray-50 {
-  background: #1e293b !important;
+  background: #1e293b;
 }
 
 body.dark .bg-slate-50 {
-  background: #1e293b !important;
+  background: #1e293b;
 }
 
 body.dark .divide-slate-200>* {
@@ -890,6 +890,25 @@ body.dark .metric-card {
 }
 
 /* Search bars */
+input[id$="SearchInput"],
+#searchInput,
+input[type="search"] {
+  padding-left: 3rem !important;
+  box-sizing: border-box !important;
+}
+
+input[id$="SearchInput"]::placeholder,
+#searchInput::placeholder,
+input[type="search"]::placeholder {
+  opacity: 1;
+}
+
+input[id$="SearchInput"] + svg,
+#searchInput + svg,
+input[type="search"] + svg {
+  pointer-events: none;
+}
+
 body.dark .search-bar,
 body.dark input[type="search"] {
   background: #1e293b !important;
@@ -1340,4 +1359,4 @@ textarea,
 /* Ensure these override any tailwind "white-out" */
 .dark .rfid-badge-bound {
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.1) !important;
-}
+}

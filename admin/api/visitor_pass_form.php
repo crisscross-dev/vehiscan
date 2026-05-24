@@ -13,14 +13,16 @@ if (!in_array($method, ['GET', 'POST'], true)) {
   http_response_code(405);
   header('Allow: GET, POST');
   header('Content-Type: application/json');
-  exit(json_encode(['success' => false, 'message' => 'Method not allowed']));
+  echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+  exit;
 }
 
 // Authorization check
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'], true)) {
     http_response_code(403);
     header('Content-Type: application/json');
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+  echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+  exit;
 }
 
 // Ensure CSRF token

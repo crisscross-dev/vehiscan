@@ -11,12 +11,13 @@ require_once __DIR__ . '/config.php';
 
 // Database connection parameters
 $host = DB_HOST;
+$port = DB_PORT;
 $db   = DB_NAME;
 $user = DB_USER;
 $pass = DB_PASS;
 $charset = DB_CHARSET;
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -32,13 +33,8 @@ try {
     // Log error securely without exposing details
     error_log("Database connection failed: " . $e->getMessage());
     
-    // Show different messages based on environment
     http_response_code(503);
-    if (APP_DEBUG) {
-        echo "Database connection error: " . htmlspecialchars($e->getMessage());
-    } else {
-        echo "Database connection error. Please contact the system administrator.";
-    }
+    echo "Database connection error. Please contact the system administrator.";
     exit;
 }
 ?>

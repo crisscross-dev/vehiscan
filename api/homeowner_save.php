@@ -19,7 +19,7 @@ function normalizeNamePart(string $value): string {
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
     http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
@@ -29,7 +29,7 @@ requireRequestMethod('POST');
 $csrfToken = InputSanitizer::post('csrf_token', 'string');
 if (!InputSanitizer::validateCsrf($csrfToken)) {
     http_response_code(403);
-    echo json_encode(['error' => 'Invalid request']);
+    echo json_encode(['success' => false, 'error' => 'Invalid request']);
     exit;
 }
 
@@ -72,7 +72,8 @@ if (!empty($plate)) {
     $duplicate = $dupStmt->fetch(PDO::FETCH_ASSOC);
     if ($duplicate) {
         http_response_code(409);
-        echo json_encode(['success' => false, 'message' => 'Plate number already linked to homeowner: ' . ($duplicate['name'] ?? 'Unknown')]);
+        $dupName = htmlspecialchars($duplicate['name'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+        echo json_encode(['success' => false, 'message' => 'Plate number already linked to homeowner: ' . $dupName]);
         exit;
     }
 }

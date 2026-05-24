@@ -16,14 +16,12 @@
   // Initialize theme
   function enableDarkMode() {
     html.classList.add('dark');
-    body.classList.add('dark', 'bg-slate-900', 'text-white');
-    body.classList.remove('bg-gray-50', 'text-gray-900');
+    body.classList.add('dark');
   }
 
   function enableLightMode() {
     html.classList.remove('dark');
-    body.classList.remove('dark', 'bg-slate-900', 'text-white');
-    body.classList.add('bg-gray-50', 'text-gray-900');
+    body.classList.remove('dark');
   }
 
   // Initialize on load

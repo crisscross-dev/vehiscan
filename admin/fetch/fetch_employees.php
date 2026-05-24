@@ -103,7 +103,7 @@ foreach ($roleStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
   </button>
   <div class="flex items-center gap-2 ml-auto">
     <div class="relative flex items-center">
-      <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
       <input type="text" id="employeeSearchInput" class="ta-input pl-10 min-w-[280px]" placeholder="Search employees..." value="<?= htmlspecialchars($search) ?>">

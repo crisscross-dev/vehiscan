@@ -10,7 +10,8 @@ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 // Ensure admin access
 if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'super_admin')) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 require_once __DIR__ . '/../../db.php';
@@ -19,8 +20,30 @@ require_once __DIR__ . '/../../includes/pagination_helper.php';
 header('Content-Type: application/json');
 
 try {
-    $page = max(1, (int)($_GET['page'] ?? 1));
-    $per_page = min(50, (int)($_GET['per_page'] ?? 20));
+    $tableExistsStmt = $pdo->query("SHOW TABLES LIKE 'visitor_pass_scan_logs'");
+    $hasScanLogs = (bool)$tableExistsStmt->fetchColumn();
+
+    if (!$hasScanLogs) {
+        echo json_encode([
+            'success' => true,
+            'data' => [],
+            'pagination' => [
+                'current_page' => 1,
+                'per_page' => 20,
+                'total' => 0,
+                'total_pages' => 1,
+            ]
+        ]);
+        exit;
+    }
+
+    $page = max(1, min(10000, (int)($_GET['page'] ?? 1)));
+    $per_page = (int)($_GET['per_page'] ?? 20);
+    if ($per_page < 5) {
+        $per_page = 5;
+    } elseif ($per_page > 50) {
+        $per_page = 50;
+    }
     $search = trim($_GET['search'] ?? '');
     $status_filter = trim($_GET['status'] ?? '');
     $date_from = trim($_GET['date_from'] ?? '');

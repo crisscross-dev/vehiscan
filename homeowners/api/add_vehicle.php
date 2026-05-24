@@ -13,7 +13,7 @@ header('Content-Type: application/json');
 
 if (!isset($_SESSION['homeowner_id'])) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized', 'error' => 'Unauthorized']);
     exit();
 }
 
@@ -23,7 +23,7 @@ requireRequestMethod('POST');
 $csrfToken = InputSanitizer::post('csrf_token', 'string');
 if (!InputSanitizer::validateCsrf($csrfToken)) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+    echo json_encode(['success' => false, 'message' => 'Invalid CSRF token', 'error' => 'Invalid CSRF token']);
     exit();
 }
 
@@ -38,7 +38,7 @@ try {
     // Validate required fields
     if (empty($vehicleType) || empty($color) || empty($plateNumber)) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'All fields are required']);
+        echo json_encode(['success' => false, 'message' => 'All fields are required', 'error' => 'All fields are required']);
         exit();
     }
 
@@ -52,14 +52,14 @@ try {
         $vehicleType = trim($vehicleTypeOther);
         if ($vehicleType === '' || strlen($vehicleType) > 40) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Please provide a valid custom vehicle type (max 40 characters)']);
+            echo json_encode(['success' => false, 'message' => 'Please provide a valid custom vehicle type (max 40 characters)', 'error' => 'Please provide a valid custom vehicle type (max 40 characters)']);
             exit();
         }
     } elseif (!in_array($vehicleType, $allowedVehicleTypes, true)) {
         // Backward compatibility: accept legacy/custom values from older clients.
         if ($vehicleType === '' || strlen($vehicleType) > 40) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Invalid vehicle type']);
+            echo json_encode(['success' => false, 'message' => 'Invalid vehicle type', 'error' => 'Invalid vehicle type']);
             exit();
         }
     }
@@ -70,14 +70,14 @@ try {
         $color = trim($colorOther);
         if ($color === '' || strlen($color) > 30) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Please provide a valid custom vehicle color (max 30 characters)']);
+            echo json_encode(['success' => false, 'message' => 'Please provide a valid custom vehicle color (max 30 characters)', 'error' => 'Please provide a valid custom vehicle color (max 30 characters)']);
             exit();
         }
     } elseif (!in_array($color, $allowedColors, true)) {
         // Backward compatibility: accept legacy/custom values from older clients.
         if ($color === '' || strlen($color) > 30) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Invalid vehicle color']);
+            echo json_encode(['success' => false, 'message' => 'Invalid vehicle color', 'error' => 'Invalid vehicle color']);
             exit();
         }
     }
@@ -85,7 +85,7 @@ try {
     $plateValidation = InputValidator::validatePlateNumber($plateNumber);
     if (!$plateValidation['valid']) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => $plateValidation['message']]);
+        echo json_encode(['success' => false, 'message' => $plateValidation['message'], 'error' => $plateValidation['message']]);
         exit();
     }
     $plateNumber = $plateValidation['formatted'];
@@ -95,7 +95,7 @@ try {
     $stmt->execute([$plateNumber]);
     if ($stmt->fetch()) {
         http_response_code(409);
-        echo json_encode(['success' => false, 'error' => 'This plate number is already registered']);
+        echo json_encode(['success' => false, 'message' => 'This plate number is already registered', 'error' => 'This plate number is already registered']);
         exit();
     }
 
@@ -116,7 +116,7 @@ try {
         
         if (!$uploadRes['valid']) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => $uploadRes['error']]);
+            echo json_encode(['success' => false, 'message' => $uploadRes['error'], 'error' => $uploadRes['error']]);
             exit();
         }
         
@@ -146,61 +146,41 @@ try {
     }
     
     // Insert new vehicle
-        $vehicleColumns = [];
-        try {
-            $vehicleColumns = $pdo->query("SHOW COLUMNS FROM vehicles")->fetchAll(PDO::FETCH_COLUMN);
-        } catch (Exception $e) {
-            $vehicleColumns = [];
-        }
-        $hasVehicleImageColumn = in_array('vehicle_img', $vehicleColumns, true);
+    // Insert new vehicle
+    $stmt = $pdo->prepare("
+        INSERT INTO vehicles (homeowner_id, vehicle_type, color, plate_number, is_primary, is_active, registered_at)
+        VALUES (?, ?, ?, ?, ?, TRUE, NOW())
+    ");
+
+    $stmt->execute([
+        $_SESSION['homeowner_id'],
+        $vehicleType,
+        $color,
+        $plateNumber,
+        $isPrimary
+    ]);
         
-        $homeownerColumns = [];
-        try {
-            $homeownerColumns = $pdo->query("SHOW COLUMNS FROM homeowners")->fetchAll(PDO::FETCH_COLUMN);
-        } catch (Exception $e) {
-            $homeownerColumns = [];
-        }
-        $hasHomeownerCarImageColumn = in_array('car_img', $homeownerColumns, true);
-
-        // Insert new vehicle
-        if ($hasVehicleImageColumn) {
-            $stmt = $pdo->prepare("
-                INSERT INTO vehicles (homeowner_id, vehicle_type, color, plate_number, vehicle_img, is_primary, is_active, registered_at)
-                VALUES (?, ?, ?, ?, ?, ?, TRUE, NOW())
-            ");
-
-            $stmt->execute([
-                $_SESSION['homeowner_id'],
-                $vehicleType,
-                $color,
-                $plateNumber,
-                $vehicleImg,
-                $isPrimary
-            ]);
-        } else {
-            $stmt = $pdo->prepare("
-                INSERT INTO vehicles (homeowner_id, vehicle_type, color, plate_number, is_primary, is_active, registered_at)
-                VALUES (?, ?, ?, ?, ?, TRUE, NOW())
-            ");
-
-            $stmt->execute([
-                $_SESSION['homeowner_id'],
-                $vehicleType,
-                $color,
-                $plateNumber,
-                $isPrimary
-            ]);
-        }
+    // Sync homeowners table if this is the new primary vehicle
+    if ($isPrimary) {
+        $stmt = $pdo->prepare("
+            UPDATE homeowners 
+            SET plate_number = ?, 
+                vehicle_type = ?, 
+                color = ?
+                " . ($vehicleImg !== null ? ", car_img = ?" : "") . "
+            WHERE id = ?
+        ");
         
-        if ($vehicleImg !== null && $hasHomeownerCarImageColumn) {
-            if ($isPrimary) {
-                $stmt = $pdo->prepare("UPDATE homeowners SET car_img = ? WHERE id = ?");
-                $stmt->execute([$vehicleImg, $_SESSION['homeowner_id']]);
-            } else {
-                $stmt = $pdo->prepare("UPDATE homeowners SET car_img = ? WHERE id = ? AND (car_img IS NULL OR car_img = '')");
-                $stmt->execute([$vehicleImg, $_SESSION['homeowner_id']]);
-            }
-        }
+        $params = [$plateNumber, $vehicleType, $color];
+        if ($vehicleImg !== null) $params[] = $vehicleImg;
+        $params[] = $_SESSION['homeowner_id'];
+        
+        $stmt->execute($params);
+    } elseif ($vehicleImg !== null) {
+        // Just update image if it's currently empty
+        $stmt = $pdo->prepare("UPDATE homeowners SET car_img = ? WHERE id = ? AND (car_img IS NULL OR car_img = '')");
+        $stmt->execute([$vehicleImg, $_SESSION['homeowner_id']]);
+    }
     
     echo json_encode([
         'success' => true,
@@ -213,6 +193,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
+        'message' => 'Failed to add vehicle. Please try again later.',
         'error' => 'Failed to add vehicle. Please try again later.'
     ]);
 }

@@ -25,7 +25,7 @@ if (!$isAjaxRequest) {
 if (session_status() === PHP_SESSION_NONE) {
     initializeVehiscanSessionPath();
     // Secure session settings
-    ini_set('session.cookie_secure', 0); // Allow HTTP for localhost
+    ini_set('session.cookie_secure', vehiscanIsHttpsRequest() ? '1' : '0');
     ini_set('session.gc_maxlifetime', 3600); // 1 hour — must exceed the 30-min timeout
 
     $sessionStarted = false;
@@ -157,11 +157,11 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
     if ($isAjax) {
         vehiscanJsonExit(403, [
             'error' => 'Session expired',
-            'redirect' => '/Vehiscan-RFID/auth/login.php?timeout=1'
+            'redirect' => vehiscanLoginPath('timeout=1')
         ]);
     }
 
-    header("Location: /Vehiscan-RFID/auth/login.php?timeout=1");
+    header('Location: ' . vehiscanLoginPath('timeout=1'));
     exit;
 }
 
@@ -178,11 +178,11 @@ if (!in_array(($_SESSION['role'] ?? ''), ['admin', 'super_admin'], true)) {
     if ($isAjax) {
         vehiscanJsonExit(403, [
             'error' => 'Unauthorized',
-            'redirect' => '/Vehiscan-RFID/auth/login.php'
+            'redirect' => vehiscanLoginPath()
         ]);
     }
 
-    header('Location: /Vehiscan-RFID/auth/login.php');
+    header('Location: ' . vehiscanLoginPath());
     exit;
 }
 

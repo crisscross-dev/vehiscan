@@ -172,8 +172,8 @@ function getStatusBadge($status) {
 <?php else: ?>
 
     <!-- Stat Cards Row -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
-        <button type="button" class="ta-stat-card stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === '' ? 'ring-2 ring-blue-500' : ''; ?>"
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6 animate-fade-in-up animate-delay-1">
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === '' ? 'ring-2 ring-blue-500' : ''; ?>"
             data-status="">
             <div class="ta-stat-icon indigo">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +185,7 @@ function getStatusBadge($status) {
                 <p class="ta-stat-value"><?php echo $grandTotal; ?></p>
             </div>
         </button>
-        <button type="button" class="ta-stat-card stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'pending' ? 'ring-2 ring-amber-500' : ''; ?>"
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'pending' ? 'ring-2 ring-amber-500' : ''; ?>"
             data-status="pending">
             <div class="ta-stat-icon amber">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +197,7 @@ function getStatusBadge($status) {
                 <p class="ta-stat-value"><?php echo $pendingCount; ?></p>
             </div>
         </button>
-        <button type="button" class="ta-stat-card stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'acknowledged' ? 'ring-2 ring-blue-500' : ''; ?>"
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'acknowledged' ? 'ring-2 ring-blue-500' : ''; ?>"
             data-status="acknowledged">
             <div class="ta-stat-icon blue">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,7 +209,7 @@ function getStatusBadge($status) {
                 <p class="ta-stat-value"><?php echo $acknowledgedCount; ?></p>
             </div>
         </button>
-        <button type="button" class="ta-stat-card stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'completed' ? 'ring-2 ring-green-500' : ''; ?>"
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'completed' ? 'ring-2 ring-green-500' : ''; ?>"
             data-status="completed">
             <div class="ta-stat-icon green">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +221,7 @@ function getStatusBadge($status) {
                 <p class="ta-stat-value"><?php echo $completedCount; ?></p>
             </div>
         </button>
-        <button type="button" class="ta-stat-card stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'rejected' ? 'ring-2 ring-red-500' : ''; ?>"
+        <button type="button" class="ta-stat-card glass stat-filter-btn cursor-pointer text-left <?php echo $statusFilter === 'rejected' ? 'ring-2 ring-red-500' : ''; ?>"
             data-status="rejected">
             <div class="ta-stat-icon red">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,24 +236,29 @@ function getStatusBadge($status) {
     </div>
 
 
-    <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50/70 dark:bg-slate-800 dark:border-slate-700 px-4 py-3">
+    <div class="mb-4 glass border-blue-100/50 dark:border-slate-700/50 px-4 py-4 rounded-2xl animate-fade-in-up animate-delay-2">
         <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-                <p class="text-sm font-semibold text-blue-900 dark:text-slate-100">Workflow Guide</p>
-                <p class="text-xs text-blue-700 dark:text-slate-300 mt-1">Use this quick map to process requests consistently.</p>
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-blue-900 dark:text-slate-100">Workflow Optimization Guide</p>
+                    <p class="text-xs text-blue-700/70 dark:text-slate-400 mt-0.5">Follow this path for consistent request handling.</p>
+                </div>
             </div>
-            <div class="text-xs text-blue-700 dark:text-slate-300">
-                Tip: Click any status card to filter quickly.
+            <div class="text-xs text-blue-700 dark:text-slate-400 bg-blue-100/50 dark:bg-slate-700/50 px-2 py-1 rounded-lg">
+                Quick Tip: Click status cards to filter.
             </div>
         </div>
-        <div class="mt-3 flex items-center gap-2 flex-wrap text-xs">
-            <span class="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-2.5 py-1">Pending</span>
-            <span class="text-gray-500 dark:text-slate-400">-></span>
-            <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-800 px-2.5 py-1">Acknowledge</span>
-            <span class="text-gray-500 dark:text-slate-400">or</span>
-            <span class="inline-flex items-center rounded-full bg-red-100 text-red-800 px-2.5 py-1">Reject</span>
-            <span class="text-gray-500 dark:text-slate-400">-></span>
-            <span class="inline-flex items-center rounded-full bg-green-100 text-green-800 px-2.5 py-1">Mark Complete</span>
+        <div class="mt-4 flex items-center gap-2 flex-wrap text-[10px] font-bold uppercase tracking-wider">
+            <span class="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-3 py-1.5 border border-yellow-200">Pending</span>
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-800 px-3 py-1.5 border border-blue-200">Acknowledge</span>
+            <span class="text-gray-400 font-normal normal-case">or</span>
+            <span class="inline-flex items-center rounded-full bg-red-100 text-red-800 px-3 py-1.5 border border-red-200">Reject</span>
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <span class="inline-flex items-center rounded-full bg-green-100 text-green-800 px-3 py-1.5 border border-green-200">Complete</span>
         </div>
     </div>
 
@@ -276,12 +281,12 @@ function getStatusBadge($status) {
         <?php endif; ?>
         <div class="flex items-center gap-2 ml-auto">
             <div class="relative flex items-center flex-1 min-w-0 sm:max-w-md">
-                <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 <input type="text" id="profileReqSearch"
-                    class="h-10 px-4 pl-10 w-full border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-slate-700 dark:text-gray-200"
+                    class="h-10 px-4 pl-12 w-full border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-slate-700 dark:text-gray-200"
                     placeholder="Search requests..." value="<?php echo htmlspecialchars($search); ?>">
             </div>
             <select id="profileReqPerPage" class="ta-select" title="Rows per page">
@@ -309,7 +314,7 @@ function getStatusBadge($status) {
     </div>
 
     <!-- Requests Table -->
-    <div class="ta-table-wrapper overflow-x-auto">
+    <div class="ta-table-wrapper glass animate-fade-in-up animate-delay-3 overflow-x-auto">
         <table class="ta-table w-full">
             <thead>
                 <tr>

@@ -4,11 +4,34 @@
  * Updates session activity to prevent timeout
  */
 
-// Start session based on session cookie present (more reliable than Referer header)
-// Priority: admin/superadmin cookies first, then guard, then homeowner.
-// If both admin and guard cookies exist, prefer admin to avoid cross-session issues.
+// Parse request body for an explicit role when available.
+$payload = json_decode(file_get_contents('php://input'), true);
+$requestedRole = null;
+if (is_array($payload) && isset($payload['role']) && is_string($payload['role'])) {
+    $requestedRole = strtolower(trim($payload['role']));
+}
+
+// Derive role from the referrer as a fallback for pages that don't send a role payload.
+$referrer = $_SERVER['HTTP_REFERER'] ?? '';
+$refRole = null;
+if (stripos($referrer, '/homeowners/') !== false) {
+    $refRole = 'homeowner';
+} elseif (stripos($referrer, '/guard/') !== false) {
+    $refRole = 'guard';
+} elseif (stripos($referrer, '/admin/') !== false) {
+    $refRole = 'admin';
+}
+
 $hasAdminCookie = isset($_COOKIE['vehiscan_superadmin']) || isset($_COOKIE['vehiscan_admin']);
-if ($hasAdminCookie) {
+$useRole = $requestedRole ?: $refRole;
+
+if ($useRole === 'homeowner' && isset($_COOKIE['vehiscan_homeowner'])) {
+    require_once __DIR__ . '/../includes/session_homeowner.php';
+} elseif ($useRole === 'guard' && isset($_COOKIE['vehiscan_guard'])) {
+    require_once __DIR__ . '/../includes/session_guard.php';
+} elseif (($useRole === 'admin' || $useRole === 'super_admin') && $hasAdminCookie) {
+    require_once __DIR__ . '/../includes/session_admin_unified.php';
+} elseif ($hasAdminCookie) {
     require_once __DIR__ . '/../includes/session_admin_unified.php';
 } elseif (isset($_COOKIE['vehiscan_guard'])) {
     require_once __DIR__ . '/../includes/session_guard.php';

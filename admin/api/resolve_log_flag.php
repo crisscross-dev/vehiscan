@@ -25,7 +25,7 @@ $flagId = (int)($input['flag_id'] ?? 0);
 $logId = (int)($input['log_id'] ?? 0);
 $csrfToken = (string)($input['csrf_token'] ?? '');
 
-if (!$csrfToken || $csrfToken !== ($_SESSION['csrf_token'] ?? '')) {
+if (!$csrfToken || !hash_equals($csrfToken, $_SESSION['csrf_token'] ?? '')) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Invalid security token']);
     exit();

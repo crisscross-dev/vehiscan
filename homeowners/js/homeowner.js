@@ -16,6 +16,7 @@ let homeownerNotif = {
 };
 let liveTimeIntervalId = null;
 let homeownerNotificationsBound = false;
+let homeownerPortalInitialized = false;
 let passNotificationState = {
     approvedSeen: new Set(),
     usedSeen: new Set(),
@@ -31,8 +32,43 @@ let bellBtn = null;
 
 const HOMEOWNER_ALLOWED_PAGES = new Set(['dashboard', 'passes', 'vehicles', 'activity', 'profile']);
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
+async function fetchJson(url, options = {}) {
+    const headers = {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+        headers
+    });
+
+    const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+    if (!contentType.includes('application/json')) {
+        throw new Error(`Unexpected server response (${response.status})`);
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+        const message = data.message || data.error || `Request failed (${response.status})`;
+        const error = new Error(String(message));
+        error.status = response.status;
+        throw error;
+    }
+
+    return data;
+}
+
+window.homeownerFetchJson = fetchJson;
+
+function initializeHomeownerPortal() {
+    if (homeownerPortalInitialized) {
+        return;
+    }
+    homeownerPortalInitialized = true;
+
     initializePassNotificationState();
     initializeNavigation();
     initializeUserMenu();
@@ -60,18 +96,38 @@ document.addEventListener('DOMContentLoaded', function() {
             liveTimeIntervalId = null;
         }
     }, { once: true });
-});
+}
+
+// Initialize immediately when possible; fallback to DOMContentLoaded.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHomeownerPortal);
+} else {
+    initializeHomeownerPortal();
+}
 
 // Navigation
 function initializeNavigation() {
     const menuItems = document.querySelectorAll('.menu-item');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobile-overlay');
+    
     menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             const page = this.getAttribute('data-page');
-            if (page) {
+            if (page && HOMEOWNER_ALLOWED_PAGES.has(page)) {
                 loadPage(page);
+                
+                // Close mobile menu if open (consolidates mobile menu logic)
+                if (window.innerWidth <= 768 && sidebar && overlay) {
+                    sidebar.classList.remove('mobile-open');
+                    overlay.classList.remove('active');
+                }
             }
+            
+            return false;
         });
     });
 }
@@ -173,27 +229,23 @@ function initializeMobileMenu() {
     
     if (mobileMenuBtn && sidebar && overlay) {
         // Toggle menu
-        mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             sidebar.classList.toggle('mobile-open');
             overlay.classList.toggle('active');
         });
         
         // Close menu when clicking overlay
-        overlay.addEventListener('click', function() {
+        overlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             sidebar.classList.remove('mobile-open');
             overlay.classList.remove('active');
         });
         
-        // Close menu when clicking menu item on mobile
-        const menuItems = document.querySelectorAll('.menu-item');
-        menuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('mobile-open');
-                    overlay.classList.remove('active');
-                }
-            });
-        });
+        // NOTE: Menu item click handlers are now consolidated in initializeNavigation()
+        // to prevent duplicate event listeners and ensure preventDefault is called first
     }
 }
 
@@ -230,7 +282,28 @@ function initializeUserMenu() {
     
     if (signOutBtn) {
         signOutBtn.addEventListener('click', function() {
-            window.location.href = '../auth/logout.php';
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Sign Out?',
+                    text: 'Are you sure you want to end your session?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, sign out',
+                    cancelButtonText: 'Cancel',
+                    background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+                    color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#1e293b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '../auth/logout.php';
+                    }
+                });
+            } else {
+                if (confirm('Are you sure you want to sign out?')) {
+                    window.location.href = '../auth/logout.php';
+                }
+            }
         });
     }
     // Note: Click outside handling for user menu is handled in unified document click handler in initializeHomeownerNotifications()
@@ -313,6 +386,8 @@ function initializeHomeownerNotifications() {
 
     renderHomeownerNotifications();
 
+    // Consolidated document-level click handler (performance optimization)
+    // Handles: user dropdown, notification panel, image zoom, action buttons
     document.addEventListener('click', (e) => {
         // Handle user dropdown - close if clicking outside
         if (userDropdown && !userDropdown.classList.contains('hidden')) {
@@ -326,6 +401,46 @@ function initializeHomeownerNotifications() {
         // Handle notification panel - close if clicking outside
         if (!notificationPanel.contains(e.target) && !bellBtn.contains(e.target)) {
             closePanel();
+        }
+
+        // Handle image zoom buttons
+        const zoomButton = e.target.closest('[data-zoom-src]');
+        if (zoomButton) {
+            const src = zoomButton.getAttribute('data-zoom-src');
+            const title = zoomButton.getAttribute('data-zoom-title') || 'Zoomed image';
+            if (src) {
+                viewImage(src, title);
+            }
+            return;
+        }
+
+        // Handle action buttons
+        const actionButton = e.target.closest('[data-action]');
+        if (actionButton) {
+            const action = actionButton.getAttribute('data-action');
+            switch (action) {
+                case 'showAddVisitorPassModal':
+                    showAddVisitorPassModal();
+                    break;
+                case 'loadPage':
+                    const page = actionButton.getAttribute('data-page');
+                    if (page) {
+                        loadPage(page);
+                    }
+                    break;
+                case 'showAddVehicleModal':
+                    showAddVehicleModal();
+                    break;
+                case 'deleteVehicle':
+                    const vehicleId = actionButton.getAttribute('data-vehicle-id');
+                    if (vehicleId) {
+                        deleteVehicle(parseInt(vehicleId));
+                    }
+                    break;
+                case 'closeAddVehicleModal':
+                    closeAddVehicleModal();
+                    break;
+            }
         }
     });
 
@@ -509,8 +624,7 @@ function handleVisibilityChange() {
 // Check session validity
 async function checkSessionValidity() {
     try {
-        const response = await fetch('api/check_session.php');
-        const result = await response.json();
+        const result = await fetchJson('api/check_session.php');
         
         if (!result.valid) {
             Swal.fire({
@@ -547,21 +661,25 @@ function updateLiveTime() {
 // Load Visitor Passes
 async function loadVisitorPasses(announceUpdates = true) {
     try {
-        const response = await fetch('api/get_visitor_passes.php');
-        const result = await response.json();
+        const result = await fetchJson('api/get_visitor_passes.php');
         
-        if (result.success) {
-            visitorPasses = result.passes;
-            homeownerNotif.pendingPasses = visitorPasses.filter((pass) => String(pass.display_status || '').toLowerCase() === 'pending').length;
-            if (announceUpdates) {
-                announceVisitorPassUpdates(visitorPasses);
-            }
-            displayVisitorPasses();
-            renderRecentPassActivity();
-            renderHomeownerNotifications();
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to load visitor passes');
         }
+
+        visitorPasses = Array.isArray(result.passes) ? result.passes : [];
+        homeownerNotif.pendingPasses = visitorPasses.filter((pass) => String(pass.display_status || '').toLowerCase() === 'pending').length;
+        if (announceUpdates) {
+            announceVisitorPassUpdates(visitorPasses);
+        }
+        displayVisitorPasses();
+        renderRecentPassActivity();
+        renderHomeownerNotifications();
     } catch (error) {
         console.error('Error loading visitor passes:', error);
+        if (typeof showGrowl === 'function') {
+            showGrowl('error', 'Unable to load visitor passes right now.');
+        }
     }
 }
 
@@ -1247,3 +1365,32 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
+
+// Image Zoom Functionality
+window.viewImage = function (src, title) {
+    const modal = document.getElementById('imageZoomModal');
+    const img = document.getElementById('zoomedImage');
+    if (modal && img && src) {
+        img.src = src;
+        img.alt = title || 'Zoomed image';
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    }
+};
+
+window.closeImageZoom = function () {
+    const modal = document.getElementById('imageZoomModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+    }
+};
+
+// Add ESC key handler for image zoom
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageZoom();
+    }
+});

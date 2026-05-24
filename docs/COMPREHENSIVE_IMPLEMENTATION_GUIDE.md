@@ -124,7 +124,7 @@ Users register → Account created with status='pending' → Admin approves → 
 
 ```php
 <?php
-require_once __DIR__ . '/../../includes/session_admin.php';
+ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
 $userId = $_POST['user_id'] ?? 0;
@@ -490,7 +490,7 @@ async function loadVisitorActivityChart() {
 **API Endpoint:** `admin/api/get_visitor_activity.php`
 ```php
 <?php
-require_once __DIR__ . '/../../includes/session_admin.php';
+ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
 $days = $_GET['days'] ?? 7;
@@ -836,7 +836,7 @@ visitorPassUpdater.start();
 
 ```php
 <?php
-require_once __DIR__ . '/../../includes/session_admin.php';
+ require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../db.php';
 
 $since = $_GET['since'] ?? null;

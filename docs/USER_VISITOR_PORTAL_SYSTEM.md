@@ -91,7 +91,7 @@ VALUES (1, 'john_doe', '$2y$10$...', 'john@example.com');
 ```
 
 ### 3. Access Points
-- **Homeowner Login**: `/homeowners/login.php`
+- **Homeowner Login**: `/auth/login.php`
 - **Homeowner Portal**: `/homeowners/portal.php`
 - **Visitor View**: `/visitor/view_pass.php?token={QR_TOKEN}`
 - **Admin Approval**: Admin Panel → Visitor Passes

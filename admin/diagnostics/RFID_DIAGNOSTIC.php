@@ -2,7 +2,7 @@
 /**
  * RFID SIMULATOR DIAGNOSTIC TOOL
  * Place this file in your admin folder and access it directly
- * Example: http://localhost/Vehiscan-RFID/admin/RFID_DIAGNOSTIC.php
+ * Access via: {APP_URL}/admin/diagnostics/RFID_DIAGNOSTIC.php (configure APP_URL in .env)
  */
 
 require_once __DIR__ . '/../../includes/session_admin_unified.php';

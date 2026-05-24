@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $plateNumber = isset($_GET['plate']) ? trim($_GET['plate']) : '';
 
 if (empty($plateNumber)) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Plate number required']);
     exit;
 }
@@ -27,7 +28,8 @@ if (empty($plateNumber)) {
 $plateNumber = strtoupper($plateNumber);
 $plateNumber = preg_replace('/[^A-Z0-9\-]/', '', $plateNumber);
 
-if (strlen($plateNumber) < 3 || strlen($plateNumber) > 15) {
+if (strlen($plateNumber) < 3 || strlen($plateNumber) > 7) {
+    http_response_code(400);
     echo json_encode(['available' => false, 'message' => 'Invalid plate number format']);
     exit;
 }
@@ -52,6 +54,7 @@ try {
     }
 } catch (Exception $e) {
     error_log('Plate check error: ' . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Unable to verify plate number'

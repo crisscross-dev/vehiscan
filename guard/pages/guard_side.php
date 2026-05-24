@@ -16,6 +16,19 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 $csrf = $_SESSION['csrf_token'];
 
+// Server-side page state (same pattern as homeowner portal)
+$allowedGuardPages = ['logs', 'vehicles', 'camera', 'visitor'];
+$guardActivePage = strtolower(trim((string)($_GET['gpage'] ?? 'logs')));
+if (!in_array($guardActivePage, $allowedGuardPages, true)) {
+    $guardActivePage = 'logs';
+}
+$guardPageTitle = [
+    'logs' => 'Access Logs',
+    'vehicles' => 'Vehicles',
+    'camera' => 'Live Camera',
+    'visitor' => 'Visitor Passes'
+][$guardActivePage] ?? 'Access Logs';
+
 require_once __DIR__ . '/../../db.php';
 ?>
 <!doctype html>
@@ -34,6 +47,7 @@ require_once __DIR__ . '/../../db.php';
   <link rel="stylesheet" href="../css/guard-dark-mode.css?v=<?php echo filemtime(__DIR__ . '/../css/guard-dark-mode.css'); ?>">
   <link rel="stylesheet" href="../css/guard-components.css?v=<?php echo filemtime(__DIR__ . '/../css/guard-components.css'); ?>">
   <link rel="stylesheet" href="../css/guard-qr-modal.css?v=<?php echo filemtime(__DIR__ . '/../css/guard-qr-modal.css'); ?>">
+  <link rel="stylesheet" href="../../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/premium-polish.css'); ?>">
 
   <style>
     /* Skeleton Loader — adapts to light/dark mode */
@@ -43,7 +57,7 @@ require_once __DIR__ . '/../../db.php';
     }
 
     body.dark,
-    body.dark-mode {
+    body.dark {
       --skeleton-from: #1e293b;
       --skeleton-to: #334155;
     }
@@ -73,10 +87,10 @@ require_once __DIR__ . '/../../db.php';
 
   <!-- External Libraries - Must load before custom scripts -->
   <script src="../../assets/js/libs/sweetalert2.all.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script src="../../assets/js/libs/html5-qrcode.min.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/libs/html5-qrcode.min.js'); ?>" type="text/javascript"></script>
 
-  <!-- Export CSRF Token for API requests -->
-  <script>window.csrfToken = "<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>";</script>
+    <!-- CSRF Token - stored in meta tag for security (not in window scope) -->
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
   <!-- Core Utilities -->
   <script src="../../assets/js/toast.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/toast.js'); ?>"></script>
@@ -125,11 +139,11 @@ require_once __DIR__ . '/../../db.php';
                     <p class="text-sm text-gray-500 dark:text-gray-400">Monitor real-time vehicle entries and exits.</p>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" onclick="showQRScannerModal()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors shadow-sm">
+                    <button type="button" id="openQrScannerBtn" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors shadow-sm">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 11v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         Scan QR
                     </button>
-                    <button type="button" onclick="showManualLogModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-medium transition-colors shadow-sm">
+                    <button type="button" id="openManualLogBtn" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-medium transition-colors shadow-sm">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Manual Entry
                     </button>
@@ -187,8 +201,8 @@ require_once __DIR__ . '/../../db.php';
             <div class="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4"
               style="box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);">
               <div class="flex gap-3">
-                <input type="text" id="homeownerSearch" placeholder="Search by name, plate, or address..."
-                  class="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 dark:text-gray-200">
+                <input type="text" id="homeownerSearch" placeholder="Search by name, plate, or address..." aria-label="Search homeowners"
+                  class="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 dark:text-gray-200 dark:placeholder-gray-400">
                 <button id="clearSearch" type="button"
                   class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                   Clear
@@ -282,8 +296,8 @@ require_once __DIR__ . '/../../db.php';
             <div class="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4"
               style="box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);">
               <div class="flex flex-wrap gap-3 items-center">
-                <input type="text" id="guardVehiclesSearch" placeholder="Search by plate, owner, type, color..."
-                  class="flex-1 min-w-[220px] px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 dark:text-gray-200">
+                <input type="text" id="guardVehiclesSearch" placeholder="Search by plate, owner, type, color..." aria-label="Search vehicles"
+                  class="flex-1 min-w-[220px] px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 dark:text-gray-200 dark:placeholder-gray-400">
                 <button id="guardVehiclesClearSearch" type="button"
                   class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                   Clear
@@ -447,7 +461,7 @@ require_once __DIR__ . '/../../db.php';
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <button id="openVisitorModalBtn" type="button" class="ta-btn ta-btn-success ta-btn-sm" onclick="showGuardVisitorModal();">
+                <button id="openVisitorModalBtn" type="button" class="ta-btn ta-btn-success ta-btn-sm">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                   New Request
                 </button>
@@ -460,8 +474,8 @@ require_once __DIR__ . '/../../db.php';
 
             <!-- Search Bar -->
             <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-4">
-              <input type="text" id="visitorSearchInput" placeholder="Search by visitor name, plate number..."
-                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 dark:text-gray-200">
+              <input type="text" id="visitorSearchInput" placeholder="Search by visitor name, plate number..." aria-label="Search visitor passes"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 dark:text-gray-200 dark:placeholder-gray-400">
             </div>
 
 
@@ -536,8 +550,8 @@ require_once __DIR__ . '/../../db.php';
                       id="visitorScanSearchInput"
                       type="text"
                       maxlength="100"
-                      placeholder="Search visitor, plate, homeowner..."
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-700 dark:text-gray-100"
+                      placeholder="Search visitor, plate, homeowner..." aria-label="Search visitor scan history"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-400"
                     >
                   </label>
 
@@ -684,7 +698,8 @@ require_once __DIR__ . '/../../db.php';
                       min="1"
                       step="1"
                       inputmode="numeric"
-                      class="w-20 px-2 py-1 border border-gray-300 dark:border-slate-600 rounded-md text-xs bg-white dark:bg-slate-700 dark:text-gray-100"
+                      aria-label="Jump to page"
+                      class="w-20 px-2 py-1 border border-gray-300 dark:border-slate-600 rounded-md text-xs bg-white dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-400"
                       placeholder="Page"
                     >
                     <button id="visitorScanHistoryJumpBtn" type="button" class="ta-btn ta-btn-secondary ta-btn-sm">Go</button>
@@ -715,9 +730,9 @@ require_once __DIR__ . '/../../db.php';
           <div class="guard-detail-toolbar border-b border-gray-200 dark:border-slate-700 p-3">
             <div class="space-y-2">
               <div class="relative">
-                <input type="text" id="logsSearch" placeholder="Search logs by name, plate, or action..."
-                  class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 transition-all">
-                <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <input type="text" id="logsSearch" placeholder="Search logs by name, plate, or action..." aria-label="Search access logs"
+                  class="w-full pl-12 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 transition-all">
+                <svg class="absolute left-4 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"
                     d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0"></path>
                 </svg>
@@ -759,6 +774,22 @@ require_once __DIR__ . '/../../db.php';
                   <span id="refreshLogsLabel">Refresh</span>
                 </button>
               </div>
+
+              <!-- Date Range Filters -->
+              <div class="flex flex-wrap gap-2 items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md border border-gray-200 dark:border-slate-700">
+                <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Date Range:</label>
+                <input type="date" id="logsDateFrom" placeholder="From" aria-label="Filter logs from date"
+                  class="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 dark:text-gray-200">
+                <span class="text-gray-400">to</span>
+                <input type="date" id="logsDateTo" placeholder="To" aria-label="Filter logs to date"
+                  class="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 dark:text-gray-200">
+                <button id="applyLogsDateFilter" type="button" class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                  Apply
+                </button>
+              </div>
+
               <p class="mt-1 text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
                 "Entries Today" uses the current calendar day (12:00 AM to now), not a rolling 24-hour window.
               </p>
@@ -962,7 +993,7 @@ require_once __DIR__ . '/../../db.php';
   <!-- Visitor Request Modal -->
   <div id="guardVisitorModal" class="hidden fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <button type="button" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity focus:outline-none" aria-hidden="true" aria-label="Close visitor modal" onclick="closeGuardVisitorModal()"></button>
+      <button type="button" id="guardVisitorModalBackdrop" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity focus:outline-none" aria-hidden="true" aria-label="Close visitor modal"></button>
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
       
       <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-gray-200 dark:border-slate-700">
@@ -981,25 +1012,26 @@ require_once __DIR__ . '/../../db.php';
                 <form id="guardAddVisitorForm" class="space-y-4" novalidate>
                   <label class="block relative">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Homeowner <span class="text-red-500">*</span></span>
-                    <input type="text" id="guardVisitorHomeownerSearch" autocomplete="off" required
-                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white"
+                    <input type="text" id="guardVisitorHomeownerSearch" autocomplete="off" required aria-label="Search homeowner by name or plate" list="guardVisitorHomeownerList"
+                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       placeholder="Search homeowner by name or plate">
-                    <div id="guardVisitorHomeownerDropdown" class="hidden absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-md shadow-lg max-h-60 overflow-y-auto"></div>
+                    <datalist id="guardVisitorHomeownerList"></datalist>
                     <input type="hidden" id="guardVisitorHomeownerId" name="homeowner_id" required>
+                    <p id="guardVisitorHomeownerHint" class="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Loading approved homeowners...</p>
                     <p id="guardVisitorHomeownerSelection" class="mt-1 text-xs text-emerald-600 dark:text-emerald-400"></p>
                   </label>
                   
                   <label class="block">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Visitor Name <span class="text-red-500">*</span></span>
-                    <input type="text" id="guardVisitorName" name="visitor_name" required maxlength="100"
-                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white"
+                    <input type="text" id="guardVisitorName" name="visitor_name" required maxlength="100" aria-label="Full visitor name"
+                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       placeholder="Full visitor name">
                   </label>
                   
                   <label class="block">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Visitor Plate (Optional)</span>
-                    <input type="text" id="guardVisitorPlate" name="visitor_plate" maxlength="15"
-                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white"
+                    <input type="text" id="guardVisitorPlate" name="visitor_plate" maxlength="15" aria-label="Visitor plate number"
+                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       placeholder="e.g. ABC123" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9- ]/g, '').slice(0, 15)">
                   </label>
                   
@@ -1018,8 +1050,8 @@ require_once __DIR__ . '/../../db.php';
                   
                   <label class="block">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Purpose / Notes <span class="text-red-500">*</span></span>
-                    <textarea id="guardVisitorPurpose" name="purpose" rows="3" required maxlength="500"
-                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white resize-y"
+                    <textarea id="guardVisitorPurpose" name="purpose" rows="3" required maxlength="500" aria-label="Purpose or notes for visitor"
+                      class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 dark:text-white dark:placeholder-gray-400 resize-y"
                       placeholder="Enter complete purpose of visit..."></textarea>
                   </label>
                 </form>
@@ -1031,7 +1063,7 @@ require_once __DIR__ . '/../../db.php';
           <button type="submit" form="guardAddVisitorForm" id="guardAddVisitorSubmit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
             Submit Request
           </button>
-          <button type="button" onclick="closeGuardVisitorModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          <button type="button" id="guardVisitorModalCancelBtn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
             Cancel
           </button>
         </div>
@@ -1051,7 +1083,17 @@ require_once __DIR__ . '/../../db.php';
           <div class="sm:flex sm:items-start">
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
               <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">Scan Visitor QR Code</h3>
-              <div class="mt-4">
+              <div class="mt-4 space-y-3">
+                <div>
+                  <label for="qr-direction-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction</label>
+                  <select 
+                    id="qr-direction-select" 
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="in">Entry</option>
+                    <option value="out">Exit</option>
+                  </select>
+                </div>
                 <div id="qr-reader" style="width: 100%; min-height: 300px; background: #000; border-radius: 8px; overflow: hidden;"></div>
                 <div id="qr-reader-results" class="mt-4 p-3 bg-gray-100 dark:bg-slate-700 rounded text-sm hidden"></div>
               </div>
@@ -1060,6 +1102,62 @@ require_once __DIR__ . '/../../db.php';
         </div>
         <div class="bg-gray-50 dark:bg-slate-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
           <button type="button" onclick="closeQRScannerModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Log Entry Modal -->
+  <div id="manualLogModal" class="fixed inset-0 z-[60] overflow-y-auto hidden" aria-hidden="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 dark:bg-slate-900 opacity-75"></div>
+      </div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-200 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="manual-modal-title">Manual Access Log Entry</h3>
+              <form id="manual-log-form" onsubmit="submitManualLog(event)" class="mt-4 space-y-4">
+                <div>
+                  <label for="manual-plate-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plate Number</label>
+                  <input 
+                    type="text" 
+                    id="manual-plate-input" 
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., ABC-1234" 
+                    required
+                    maxlength="20"
+                    style="text-transform: uppercase;"
+                  />
+                </div>
+                <div>
+                  <label for="manual-direction-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction</label>
+                  <select 
+                    id="manual-direction-select" 
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="in">Entry</option>
+                    <option value="out">Exit</option>
+                  </select>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded p-3">
+                  <p class="text-xs text-blue-700 dark:text-blue-300">
+                    The system will automatically determine if this is a homeowner or visitor based on the plate number.
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-slate-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+          <button type="submit" form="manual-log-form" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Submit Entry
+          </button>
+          <button type="button" onclick="closeManualLogModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
             Close
           </button>
         </div>
@@ -1107,6 +1205,41 @@ require_once __DIR__ . '/../../db.php';
     }
     setInterval(updateLiveTime, 1000);
     updateLiveTime();
+
+    // --- Auto-Refresh (Polling) for Guard Logs & Visitors ---
+    let autoRefreshInterval = null;
+    const POLLING_INTERVAL = 15000; // 15 seconds
+
+    function startAutoRefresh() {
+      if (autoRefreshInterval) return;
+      __vsLog('[GUARD] Starting auto-refresh polling (15s)');
+      autoRefreshInterval = setInterval(() => {
+        // Only refresh if we are on the logs or visitor page
+        const activeTab = document.querySelector('.menu-item[data-page].active')?.dataset.page;
+        if (activeTab === 'logs' || activeTab === 'visitor' || activeTab === 'visitors' || !activeTab) {
+          __vsLog('[GUARD] Auto-refreshing data...');
+          if (typeof loadLogs === 'function') loadLogs(currentLogPage, { silent: true });
+          if (typeof loadVisitorPasses === 'function') loadVisitorPasses({ silent: true });
+        }
+      }, POLLING_INTERVAL);
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        __vsLog('[GUARD] Auto-refresh polling stopped');
+      }
+    }
+
+    // Start by default
+    startAutoRefresh();
+
+    // Pause polling when tab is not visible to save resources
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopAutoRefresh();
+      else startAutoRefresh();
+    });
   </script>
 </body>
 

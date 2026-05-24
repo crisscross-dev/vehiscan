@@ -61,10 +61,10 @@ if (!$stats) {
 }
 ?>
 <!-- Dashboard Header -->
-<div class="mb-6">
+<div class="mb-6 animate-fade-in-up">
   <div class="flex items-center gap-3 mb-2">
     <div
-      class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+      class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-blue-200 dark:shadow-none shadow-lg">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
@@ -79,8 +79,8 @@ if (!$stats) {
 </div>
 
 <!-- Main Dashboard Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-  <div class="ta-stat-card">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 animate-fade-in-up animate-delay-1">
+  <div class="ta-stat-card glass">
     <div class="ta-stat-icon blue">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -91,11 +91,11 @@ if (!$stats) {
     <div class="ta-stat-content">
       <p class="ta-stat-label">Total Homeowners</p>
       <p class="ta-stat-value"><?php echo htmlspecialchars($totalHomeowners ?? ''); ?></p>
-      <p class="ta-stat-trend neutral">Registered residents</p>
+      <p class="ta-stat-trend neutral text-xs mt-1">Registered residents</p>
     </div>
   </div>
 
-  <div class="ta-stat-card">
+  <div class="ta-stat-card glass">
     <div class="ta-stat-icon purple">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -106,15 +106,15 @@ if (!$stats) {
     <div class="ta-stat-content">
       <p class="ta-stat-label">24h Access Logs</p>
       <p class="ta-stat-value"><?php echo htmlspecialchars($recentLogsCount ?? ''); ?></p>
-      <p class="ta-stat-trend neutral">Activity in last 24h</p>
+      <p class="ta-stat-trend neutral text-xs mt-1">Activity in last 24h</p>
     </div>
   </div>
 </div>
 
 <!-- Analytics Dashboard -->
-<div class="mb-4">
+<div class="mb-4 animate-fade-in-up animate-delay-2">
   <div class="flex items-center gap-2 mb-1">
-    <div class="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600">
+    <div class="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-200 dark:shadow-none shadow-md">
       <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
@@ -132,7 +132,7 @@ $flaggedStmt = $pdo->query("SELECT COUNT(*) FROM guard_log_flags WHERE status = 
 $flaggedCount = (int)$flaggedStmt->fetchColumn();
 
 if ($flaggedCount > 0): ?>
-<div class="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 rounded-r-lg flex items-center justify-between animate-pulse">
+<div class="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 rounded-r-lg flex items-center justify-between animate-pulse shadow-sm animate-fade-in-up animate-delay-2">
     <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800 text-amber-600 dark:text-amber-200">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,15 +144,15 @@ if ($flaggedCount > 0): ?>
             <p class="text-amber-700 dark:text-amber-300 text-sm font-medium">There are <span class="font-bold underline"><?= $flaggedCount ?></span> flagged access logs requiring review.</p>
         </div>
     </div>
-    <button type="button" onclick="window.loadPage('logs')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+    <button type="button" onclick="window.loadPage('logs')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-all hover:scale-105 active:scale-95 shadow-sm">
         Review Logs
     </button>
 </div>
 <?php endif; ?>
 
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <div class="ta-stat-card">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in-up animate-delay-3">
+  <div class="ta-stat-card glass">
     <div class="ta-stat-icon blue">
       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -166,7 +166,7 @@ if ($flaggedCount > 0): ?>
     </div>
   </div>
 
-  <div class="ta-stat-card">
+  <div class="ta-stat-card glass">
     <div class="ta-stat-icon green">
       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -179,7 +179,7 @@ if ($flaggedCount > 0): ?>
     </div>
   </div>
 
-  <div class="ta-stat-card">
+  <div class="ta-stat-card glass">
     <div class="ta-stat-icon red">
       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -192,7 +192,7 @@ if ($flaggedCount > 0): ?>
     </div>
   </div>
 
-  <div class="ta-stat-card">
+  <div class="ta-stat-card glass">
     <div class="ta-stat-icon purple">
       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -208,9 +208,9 @@ if ($flaggedCount > 0): ?>
 </div>
 
 <!-- Analytics Charts Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 animate-fade-in-up animate-delay-4">
   <!-- Status Distribution Pie Chart -->
-  <div class="ta-chart-card p-6">
+  <div class="ta-chart-card glass p-6">
     <div class="flex items-center gap-2 mb-4">
       <div class="flex h-8 w-8 items-center justify-center rounded-md bg-blue-100 dark:bg-blue-900/30">
         <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +228,7 @@ if ($flaggedCount > 0): ?>
   </div>
 
   <!-- Weekly Activity Line Chart -->
-  <div class="ta-chart-card p-6">
+  <div class="ta-chart-card glass p-6">
     <div class="flex items-center gap-2 mb-4">
       <div class="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-100 dark:bg-emerald-900/30">
         <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,7 +244,7 @@ if ($flaggedCount > 0): ?>
   </div>
 
   <!-- Homeowner Status Distribution Pie Chart -->
-  <div class="ta-chart-card p-6">
+  <div class="ta-chart-card glass p-6">
     <div class="flex items-center gap-2 mb-4">
       <div class="flex h-8 w-8 items-center justify-center rounded-md bg-amber-100 dark:bg-amber-900/30">
         <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -375,7 +375,7 @@ try {
 ?>
 
 <!-- Stacked Bar Charts Section -->
-<div class="mt-8" style="clear: both;" x-data="{ activeTab: 'homeowners' }">
+<div class="mt-8" style="clear: both;">
   <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
     <div class="flex items-center gap-2">
       <div class="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-violet-600">
@@ -390,19 +390,17 @@ try {
     
     <!-- Tab Navigation -->
     <div class="flex bg-gray-200/50 dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700" id="dashboard-tabs">
-      <button @click="activeTab = 'homeowners'; $nextTick(() => { if(window.reinitDashboardCharts) window.reinitDashboardCharts(); })" data-tab-btn="homeowners"
-        :class="{'bg-white shadow-sm dark:bg-slate-600 text-blue-600 dark:text-white ring-1 ring-black/5': activeTab === 'homeowners', 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-slate-700': activeTab !== 'homeowners'}" 
-        class="flex-1 px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer">
+      <button data-tab-btn="homeowners"
+        class="flex-1 px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer bg-white shadow-sm dark:bg-slate-600 text-blue-600 dark:text-white ring-1 ring-black/5"
+        >
         Homeowners
       </button>
-      <button @click="activeTab = 'access'; $nextTick(() => { if(window.reinitDashboardCharts) window.reinitDashboardCharts(); })" data-tab-btn="access"
-        :class="{'bg-white shadow-sm dark:bg-slate-600 text-blue-600 dark:text-white ring-1 ring-black/5': activeTab === 'access', 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-slate-700': activeTab !== 'access'}" 
-        class="flex-1 px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer">
+      <button data-tab-btn="access"
+        class="flex-1 px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-slate-700">
         Access
       </button>
-      <button @click="activeTab = 'vehicles'; $nextTick(() => { if(window.reinitDashboardCharts) window.reinitDashboardCharts(); })" data-tab-btn="vehicles"
-        :class="{'bg-white shadow-sm dark:bg-slate-600 text-blue-600 dark:text-white ring-1 ring-black/5': activeTab === 'vehicles', 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-slate-700': activeTab !== 'vehicles'}" 
-        class="flex-1 px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer">
+      <button data-tab-btn="vehicles"
+        class="flex-1 px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-slate-700">
         Vehicles
       </button>
     </div>
@@ -411,73 +409,35 @@ try {
   <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Visual analytics for system activity</p>
 
   <!-- Homeowner Registrations Chart -->
-  <div x-show="activeTab === 'homeowners'" data-tab-content="homeowners" class="ta-chart-card p-6 mb-6">
+  <div data-tab-content="homeowners" class="ta-chart-card glass p-6 mb-6">
     <div class="border-b border-gray-200 dark:border-slate-700 pb-4 mb-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Homeowner Registrations</h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last 6 months - Approved vs Pending</p>
     </div>
-    <div class="flex gap-6 mb-4 justify-center flex-wrap">
-      <div class="flex items-center gap-2">
-        <div style="width: 12px; height: 12px; border-radius: 2px; background: #3b82f6;"></div>
-        <span class="text-sm text-gray-600 dark:text-gray-400">Approved</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div style="width: 12px; height: 12px; border-radius: 2px; background: #f59e0b;"></div>
-        <span class="text-sm text-gray-600 dark:text-gray-400">Pending</span>
-      </div>
-    </div>
-    <div style="position: relative; height: 300px;">
-      <svg id="homeownerChart" width="100%" height="100%"></svg>
-      <div id="tooltip1" class="chart-tooltip"
-        style="position: absolute; font-size: 12px; padding: 12px; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); pointer-events: none; display: none; z-index: 1000;"
-      ></div>
+    <div class="relative" style="height: 300px; width: 100%;">
+      <canvas id="homeownerChart" style="max-height: 300px; display: block;"></canvas>
     </div>
   </div>
 
   <!-- Access Logs Chart -->
-  <div x-show="activeTab === 'access'" data-tab-content="access" style="display: none;" class="ta-chart-card p-6 mb-6">
+  <div data-tab-content="access" style="display: none;" class="ta-chart-card glass p-6 mb-6">
     <div class="border-b border-gray-200 dark:border-slate-700 pb-4 mb-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Access Activity</h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last 6 months - Entries vs Exits</p>
     </div>
-    <div class="flex gap-6 mb-4 justify-center flex-wrap">
-      <div class="flex items-center gap-2">
-        <div style="width: 12px; height: 12px; border-radius: 2px; background: #10b981;"></div>
-        <span class="text-sm text-gray-600 dark:text-gray-400">Entries</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div style="width: 12px; height: 12px; border-radius: 2px; background: #ef4444;"></div>
-        <span class="text-sm text-gray-600 dark:text-gray-400">Exits</span>
-      </div>
-    </div>
-    <div style="position: relative; height: 300px;">
-      <svg id="accessChart" width="100%" height="100%"></svg>
-      <div id="tooltip2" class="chart-tooltip"
-        style="position: absolute; font-size: 12px; padding: 12px; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); pointer-events: none; display: none; z-index: 1000;"
-      ></div>
-    </div>
-    <div style="padding-top: 16px; font-size: 14px;">
-      <div style="color: #10b981; font-weight: 500; display: flex; align-items: center; gap: 4px;">
-        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6">
-          </path>
-        </svg>
-        <span>Showing total access activity for last 6 months</span>
-      </div>
+    <div class="relative" style="height: 300px; width: 100%;">
+      <canvas id="accessChart" style="max-height: 300px; display: block;"></canvas>
     </div>
   </div>
 
   <!-- Vehicle Registrations Chart -->
-  <div x-show="activeTab === 'vehicles'" data-tab-content="vehicles" style="display: none;" class="ta-chart-card p-6 mb-6">
+  <div data-tab-content="vehicles" style="display: none;" class="ta-chart-card glass p-6 mb-6">
     <div class="border-b border-gray-200 dark:border-slate-700 pb-4 mb-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Vehicle Registrations</h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last 6 months</p>
     </div>
-    <div style="position: relative; height: 300px;">
-      <svg id="vehicleChart" width="100%" height="100%"></svg>
-      <div id="tooltip3" class="chart-tooltip"
-        style="position: absolute; font-size: 12px; padding: 12px; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); pointer-events: none; display: none; z-index: 1000;"
-      ></div>
+    <div class="relative" style="height: 300px; width: 100%;">
+      <canvas id="vehicleChart" style="max-height: 300px; display: block;"></canvas>
     </div>
   </div>
 
@@ -489,7 +449,7 @@ try {
     color: white;
   }
   body.dark .chart-tooltip,
-  body.dark-mode .chart-tooltip {
+  body.dark .chart-tooltip {
     background: #0f172a;
     color: #f1f5f9;
     border: 1px solid #334155;

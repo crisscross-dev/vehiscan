@@ -101,6 +101,22 @@ $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $passes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (!function_exists('ta_title_case')) {
+  function ta_title_case($value)
+  {
+    $value = trim((string)$value);
+    if ($value === '') {
+      return '';
+    }
+
+    if (function_exists('mb_convert_case')) {
+      return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
+    }
+
+    return ucwords(strtolower($value));
+  }
+}
 ?>
 
 <style>
@@ -150,11 +166,11 @@ $passes = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </button>
   <div class="flex items-center gap-2 ml-auto">
     <div class="relative flex items-center">
-      <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
       <input type="text" id="visitorsSearchInput"
-        class="h-10 px-4 pl-10 border border-gray-300 dark:border-slate-600 rounded-lg min-w-[280px] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-slate-700 dark:text-gray-200"
+        class="h-10 px-4 pl-12 border border-gray-300 dark:border-slate-600 rounded-lg min-w-[280px] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-slate-700 dark:text-gray-200"
         value="<?php echo htmlspecialchars($search); ?>"
         placeholder="Search visitor passes...">
     </div>
@@ -196,9 +212,9 @@ $passes = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <?php else: ?>
         <?php foreach ($passes as $p): ?>
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?php echo htmlspecialchars($p['visitor_name'] ?? ''); ?></td>
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?php echo htmlspecialchars(ta_title_case($p['visitor_name'] ?? '')); ?></td>
             <td class="px-4 py-3 text-slate-700 dark:text-slate-300"><?php echo htmlspecialchars($p['visitor_plate'] ?? ''); ?></td>
-            <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo htmlspecialchars($p['homeowner_name'] ?? ''); ?></td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo htmlspecialchars(ta_title_case($p['homeowner_name'] ?? '')); ?></td>
             <td class="px-4 py-3 text-center">
               <?php if (!empty($p['qr_code'])): ?>
                 <img src="<?php echo htmlspecialchars($p['qr_code'] ?? ''); ?>" alt="QR Code" class="w-16 h-16 mx-auto qr-clickable" style="image-rendering: pixelated;">

@@ -42,6 +42,9 @@ tmpclaude-*
 # Archive (dead code / diagnostic scripts - not for public repo)
 _archive/
 
+# Archived diagnostics moved out of public root
+diagnostics_archived/
+
 # Scratch / local diagnostic scripts
 scratch/
 
@@ -57,6 +60,7 @@ scratch/
 database_backups/
 admin/backups_db/
 backups/*.json
+backups/
 
 # Node Modules (if any)
 node_modules/
@@ -78,3 +82,12 @@ debug*.php
 
 # Temporary PowerShell / shell scripts
 *.ps1
+
+# Sensitive exports, cookies, and diagnostics
+cookiejar.txt
+cookies*.txt
+*headers*.txt
+*.body
+*.body.bak
+*_body.html
+*.resp.txt

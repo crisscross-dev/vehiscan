@@ -37,7 +37,7 @@
 
 ### For Homeowners:
 ```
-http://localhost/Vehiscan-RFID/homeowners/login.php
+http://localhost/Vehiscan-RFID/auth/login.php
 ```
 
 ### For Visitors (via QR code):
@@ -55,7 +55,7 @@ Admin Panel → Visitors Section
 ## Testing Workflow
 
 ### Step 1: Homeowner Creates Visitor Pass
-1. Navigate to: `http://localhost/Vehiscan-RFID/homeowners/login.php`
+1. Navigate to: `http://localhost/Vehiscan-RFID/auth/login.php`
 2. Login with: `kyle_jansen` / `homeowner123`
 3. Click **"+ Add Visitor Pass"**
 4. Fill in:

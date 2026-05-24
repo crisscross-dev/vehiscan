@@ -37,7 +37,7 @@ if (!isset($_SESSION['homeowner_id']) || (($_SESSION['role'] ?? '') !== 'homeown
     }
     
     // For regular requests, redirect to login
-    header("Location: /Vehiscan-RFID/auth/login.php");
+    header('Location: ' . vehiscanLoginPath());
     exit();
 }
 
@@ -50,7 +50,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
         vehiscanJsonExit(401, ['success' => false, 'error' => 'Session timeout']);
     }
     
-    header('Location: /Vehiscan-RFID/auth/login.php?timeout=1');
+    header('Location: ' . vehiscanLoginPath('timeout=1'));
     exit();
 }
 

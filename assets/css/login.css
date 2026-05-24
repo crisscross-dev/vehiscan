@@ -24,47 +24,66 @@ body {
 .bg-decoration {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.08;
+  filter: blur(80px);
+  opacity: 0.15;
   pointer-events: none;
+  z-index: 0;
 }
 
 .bg-decoration-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, #000 0%, transparent 70%);
+  background: radial-gradient(circle, #3b82f6 0%, #60a5fa 70%);
   top: -200px;
   left: -150px;
+  animation: float 20s infinite alternate;
 }
 
 .bg-decoration-2 {
   width: 800px;
   height: 800px;
-  border: 100px solid #000;
-  border-style: dashed;
+  background: radial-gradient(circle, #8b5cf6 0%, #d8b4fe 70%);
   bottom: -400px;
   right: -200px;
-  opacity: 0.03;
+  opacity: 0.1;
+  animation: float 25s infinite alternate-reverse;
 }
 
 .bg-decoration-3 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, #000 0%, transparent 70%);
+  background: radial-gradient(circle, #10b981 0%, #34d399 70%);
   bottom: -100px;
-  left: 50%;
-  opacity: 0.05;
+  left: 20%;
+  opacity: 0.08;
+  animation: float 15s infinite alternate;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(30px, 40px) rotate(10deg); }
 }
 
 .login-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 2.5rem 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  padding: 3rem 2.5rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   position: relative;
-  z-index: 1;
-  animation: fadeInUp 0.4s ease-out;
+  z-index: 10;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 @keyframes fadeInUp {
@@ -534,9 +553,15 @@ h1 {
   }
 
   .login-container {
-    background: #1e293b;
-    border: 1px solid #334155;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .login-container:hover {
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   h1 {

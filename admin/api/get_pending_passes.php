@@ -12,7 +12,8 @@ requireRequestMethod('GET');
 // Authorization check
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'], true)) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 try {

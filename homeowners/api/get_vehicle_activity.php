@@ -2,10 +2,9 @@
 /**
  * Get activity logs for homeowner's vehicles
  */
+ob_start();
 require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
-
-header('Content-Type: application/json');
 
 requireRequestMethod('GET');
 
@@ -13,8 +12,10 @@ require_once __DIR__ . '/../../includes/session_homeowner.php';
 require_once __DIR__ . '/../../db.php';
 
 if (!isset($_SESSION['homeowner_id'])) {
+    ob_end_clean();
     http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Unauthorized', 'error' => 'Unauthorized']);
     exit();
 }
 
@@ -26,32 +27,37 @@ try {
     switch ($period) {
         case 'day':
             $dateFrom = date('Y-m-d 00:00:00');
-            $groupBy = "DATE_FORMAT(al.created_at, '%H:00')";
+            $groupBy = "DATE_FORMAT(COALESCE(al.created_at, al.log_time), '%H:00')";
             $dateFormat = '%H:00';
             break;
         case 'month':
             $dateFrom = date('Y-m-d 00:00:00', strtotime('-30 days'));
-            $groupBy = "DATE(al.created_at)";
+            $groupBy = "DATE(COALESCE(al.created_at, al.log_time))";
             $dateFormat = '%Y-%m-%d';
             break;
         case 'week':
         default:
             $dateFrom = date('Y-m-d 00:00:00', strtotime('-7 days'));
-            $groupBy = "DATE(al.created_at)";
+            $groupBy = "DATE(COALESCE(al.created_at, al.log_time))";
             $dateFormat = '%Y-%m-%d';
             break;
     }
     
     // Get plate numbers for this homeowner
     $stmt = $pdo->prepare("
-        SELECT plate_number 
-        FROM vehicles 
-        WHERE homeowner_id = ? AND is_active = TRUE
+        SELECT DISTINCT plate_number FROM (
+            SELECT plate_number FROM homeowners WHERE id = ?
+            UNION
+            SELECT plate_number FROM vehicles WHERE homeowner_id = ? AND is_active = 1
+        ) AS all_plates
+        WHERE plate_number IS NOT NULL AND plate_number != ''
     ");
-    $stmt->execute([$_SESSION['homeowner_id']]);
+    $stmt->execute([$_SESSION['homeowner_id'], $_SESSION['homeowner_id']]);
     $plateNumbers = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
     if (empty($plateNumbers)) {
+        ob_end_clean();
+        header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
             'activity' => [],
@@ -69,15 +75,15 @@ try {
     // Get activity data grouped by time period
     $query = "
         SELECT 
-            DATE_FORMAT(al.created_at, '$dateFormat') as period,
+            DATE_FORMAT(COALESCE(al.created_at, al.log_time), '$dateFormat') as period,
             SUM(CASE WHEN al.status = 'IN' THEN 1 ELSE 0 END) as entries,
             SUM(CASE WHEN al.status = 'OUT' THEN 1 ELSE 0 END) as exits,
             COUNT(*) as total
         FROM recent_logs al
         WHERE al.plate_number IN ($placeholders)
-          AND al.created_at >= ?
+          AND COALESCE(al.created_at, al.log_time) >= ?
         GROUP BY $groupBy
-        ORDER BY al.created_at ASC
+        ORDER BY COALESCE(al.created_at, al.log_time) ASC
     ";
     
     $params = array_merge($plateNumbers, [$dateFrom]);
@@ -93,13 +99,15 @@ try {
             COUNT(*) as total_logs
         FROM recent_logs
         WHERE plate_number IN ($placeholders)
-          AND created_at >= ?
+          AND COALESCE(created_at, log_time) >= ?
     ";
     
     $stmt = $pdo->prepare($summaryQuery);
     $stmt->execute($params);
     $summary = $stmt->fetch(PDO::FETCH_ASSOC);
     
+    ob_end_clean();
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'period' => $period,
@@ -108,10 +116,13 @@ try {
     ]);
     
 } catch (Exception $e) {
+    ob_end_clean();
     error_log("Get vehicle activity error: " . $e->getMessage());
     http_response_code(500);
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
+        'message' => 'Failed to fetch activity data',
         'error' => 'Failed to fetch activity data'
     ]);
 }

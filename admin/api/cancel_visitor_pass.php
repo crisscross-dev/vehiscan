@@ -1,12 +1,15 @@
 <?php
+header('Content-Type: application/json');
 require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
+
 requireRequestMethod('POST');
-if (!in_array($_SESSION['role'] ?? '', ['super_admin', 'admin'], true)) {
+
+if (!in_array($_SESSION['role'] ?? '', ['super_admin', 'admin'])) {
     http_response_code(403);
-    header('Content-Type: application/json');
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 require_once __DIR__ . '/../../db.php';
 require_once __DIR__ . '/../../includes/input_sanitizer.php';
@@ -19,6 +22,7 @@ AuditLogger::init($pdo);
 // Validate CSRF token using InputSanitizer
 $posted = InputSanitizer::post('csrf_token', 'string');
 if (!InputSanitizer::validateCsrf($posted)) {
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
 }
@@ -26,6 +30,7 @@ if (!InputSanitizer::validateCsrf($posted)) {
 $id = InputSanitizer::post('id', 'int', 0);
 
 if (!$id) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid ID']);
     exit;
 }
@@ -35,6 +40,7 @@ try {
     $stmt->execute([$id]);
 
     if ($stmt->rowCount() === 0) {
+        http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Pass not found or already processed']);
         exit;
     }
@@ -57,5 +63,6 @@ try {
 
     echo json_encode(['success' => true, 'message' => 'Visitor pass cancelled']);
 } catch (PDOException $e) {
+    http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error']);
 }

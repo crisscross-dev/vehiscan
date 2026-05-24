@@ -10,6 +10,32 @@ require_once __DIR__ . '/../../includes/request_method_helper.php';
 require_once __DIR__ . '/../../includes/input_sanitizer.php';
 require_once __DIR__ . '/../../db.php';
 
+/**
+ * Get the secure backup directory path.
+ * Prioritizes BACKUP_DIR env var, falls back to directory outside webroot.
+ * 
+ * @return string Path to backup directory
+ */
+function getSecureBackupDirectory() {
+    // Check environment variable first
+    $envBackupDir = getenv('BACKUP_DIR');
+    if ($envBackupDir && is_dir($envBackupDir) && is_writable($envBackupDir)) {
+        return rtrim($envBackupDir, '/\\');
+    }
+    
+    // Fallback: Try to use a directory outside the web root
+    // Standard XAMPP structure: htdocs/Vehiscan-RFID -> go up to xampp/ level
+    $webRootParent = dirname(dirname(__DIR__)); // goes up to xampp/
+    $secureDir = $webRootParent . '/vehiscan_backups';
+    
+    // If parent of webroot isn't writable, use app-level backups with enhanced protection
+    if (!is_writable($webRootParent)) {
+        $secureDir = __DIR__ . '/../backups_db_secure';
+    }
+    
+    return rtrim($secureDir, '/\\');
+}
+
 requireRequestMethod('POST');
 
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
@@ -42,14 +68,22 @@ header('Content-Type: application/json');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 try {
-    $backup_dir = __DIR__ . '/../backups_db';
+    // Get secure backup directory
+    $backup_dir = getSecureBackupDirectory();
+    
+    // Ensure backup directory exists with proper permissions
     if (!is_dir($backup_dir)) {
-        if (!mkdir($backup_dir, 0755, true)) {
-            throw new Exception('Failed to create backup directory');
+        if (!mkdir($backup_dir, 0700, true)) {
+            throw new Exception('Failed to create backup directory at: ' . $backup_dir);
         }
     }
+    
+    // Verify directory is writable
+    if (!is_writable($backup_dir)) {
+        throw new Exception('Backup directory is not writable: ' . $backup_dir);
+    }
 
-    // Ensure backup directory is protected from direct web access.
+    // Ensure backup directory is protected from direct web access (if in webroot)
     $htaccessPath = $backup_dir . '/.htaccess';
     if (!file_exists($htaccessPath)) {
         $denyAllRules = "# Deny direct web access to DB backups\n"
@@ -62,6 +96,12 @@ try {
             . "</IfModule>\n";
         @file_put_contents($htaccessPath, $denyAllRules);
     }
+    
+    // Create index.php to prevent directory listing
+    $indexPath = $backup_dir . '/index.php';
+    if (!file_exists($indexPath)) {
+        @file_put_contents($indexPath, "<?php // Backup directory - access denied\nhttp_response_code(403);\nexit();\n");
+    }
 
     $filename = 'vehiscan_backup_' . date('Y-m-d_His') . '.sql';
     $filepath = $backup_dir . '/' . $filename;
@@ -72,9 +112,10 @@ try {
     $user = DB_USER;
     $pass = DB_PASS;
 
-    // Create backup using mysqldump (shell-escape all credentials to prevent injection)
+    // Create backup using mysqldump with properly escaped arguments
+    // All credentials are shell-escaped to prevent command injection
     $command = sprintf(
-        'mysqldump --host=%s --user=%s --password=%s %s > %s 2>&1',
+        'mysqldump --host=%s --user=%s --password=%s --skip-comments %s > %s 2>&1',
         escapeshellarg($host),
         escapeshellarg($user),
         escapeshellarg($pass),

@@ -42,30 +42,13 @@ if ($vehicleId <= 0) {
 }
 
 try {
-    $vehicleColumns = [];
-    try {
-        $vehicleColumns = $pdo->query("SHOW COLUMNS FROM vehicles")->fetchAll(PDO::FETCH_COLUMN);
-    } catch (Exception $e) {
-        $vehicleColumns = [];
-    }
-    $vehicleIdColumn = in_array('id', $vehicleColumns, true) ? 'id' : 'vehicle_id';
-    $hasVehicleImageColumn = in_array('vehicle_img', $vehicleColumns, true);
-
-    $homeownerColumns = [];
-    try {
-        $homeownerColumns = $pdo->query("SHOW COLUMNS FROM homeowners")->fetchAll(PDO::FETCH_COLUMN);
-    } catch (Exception $e) {
-        $homeownerColumns = [];
-    }
-    $hasHomeownerCarImageColumn = in_array('car_img', $homeownerColumns, true);
-
     $pdo->beginTransaction();
 
     // First, unset all other primary vehicles for this homeowner
-    $pdo->prepare("UPDATE vehicles SET is_primary = FALSE WHERE homeowner_id = ? AND is_active = TRUE")->execute([$homeownerId]);
+    $pdo->prepare("UPDATE vehicles SET is_primary = FALSE WHERE homeowner_id = ? AND is_active = 1")->execute([$homeownerId]);
     
     // Set this vehicle as primary
-    $stmt = $pdo->prepare("UPDATE vehicles SET is_primary = TRUE WHERE {$vehicleIdColumn} = ? AND homeowner_id = ? AND is_active = TRUE");
+    $stmt = $pdo->prepare("UPDATE vehicles SET is_primary = TRUE WHERE id = ? AND homeowner_id = ? AND is_active = 1");
     $stmt->execute([$vehicleId, $homeownerId]);
 
     if ($stmt->rowCount() === 0) {
@@ -75,15 +58,24 @@ try {
         exit();
     }
 
-    if ($hasVehicleImageColumn && $hasHomeownerCarImageColumn) {
-        $stmt = $pdo->prepare("SELECT vehicle_img FROM vehicles WHERE {$vehicleIdColumn} = ? AND homeowner_id = ? LIMIT 1");
-        $stmt->execute([$vehicleId, $homeownerId]);
-        $vehicleImg = $stmt->fetchColumn();
-        if (!empty($vehicleImg)) {
-            $pdo->prepare("UPDATE homeowners SET car_img = ? WHERE id = ?")->execute([$vehicleImg, $homeownerId]);
-        } else {
-            $pdo->prepare("UPDATE homeowners SET car_img = NULL WHERE id = ?")->execute([$homeownerId]);
-        }
+    // Get the new primary vehicle details to sync with homeowners table
+    $stmt = $pdo->prepare("SELECT plate_number, vehicle_type, color FROM vehicles WHERE id = ?");
+    $stmt->execute([$vehicleId]);
+    $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($vehicle) {
+        // Update homeowners table for backward compatibility/quick access
+        $updateHomeowner = $pdo->prepare("
+            UPDATE homeowners 
+            SET plate_number = ?, vehicle_type = ?, color = ? 
+            WHERE id = ?
+        ");
+        $updateHomeowner->execute([
+            $vehicle['plate_number'],
+            $vehicle['vehicle_type'],
+            $vehicle['color'],
+            $homeownerId
+        ]);
     }
 
     $pdo->commit();

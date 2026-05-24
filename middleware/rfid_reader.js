@@ -6,7 +6,7 @@ const axios = require('axios');
 
 const portName = 'COM3'; // Change to your RFID scanner's port
 const baudRate = 9600;   // Change if your scanner uses a different rate
-const backendUrl = 'http://localhost/Vehiscan-RFID/api/rfid/scan.php';
+const backendUrl = process.env.APP_URL ? process.env.APP_URL + '/api/rfid/scan.php' : 'http://localhost/api/rfid/scan.php';
 const apiKey = process.env.RFID_API_KEY || '';
 const readerId = process.env.RFID_READER_ID || 'middleware-reader';
 

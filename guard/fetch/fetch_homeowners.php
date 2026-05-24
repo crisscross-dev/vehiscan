@@ -1,18 +1,32 @@
 <?php
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/../../includes/security_headers.php';
 require_once __DIR__ . '/../../includes/session_guard.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
 require_once __DIR__ . '/../../db.php';
 
+header('Content-Type: application/json');
+
 requireRequestMethod('GET');
+
+// Guard authorization check
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
+    http_response_code(401);
+    exit(json_encode([
+        'success' => false,
+        'message' => 'Unauthorized: Guard role required',
+        'error' => 'Unauthorized: Guard role required'
+    ]));
+}
 
 try {
     // Auth
     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
         http_response_code(401);
-        echo json_encode(['error' => 'Session expired or invalid']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Session expired or invalid',
+            'error' => 'Session expired or invalid'
+        ]);
         exit;
     }
 
@@ -116,6 +130,10 @@ try {
 } catch (PDOException $e) {
     error_log('[FETCH_HOMEOWNERS ERROR] ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to fetch homeowners']);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to fetch homeowners',
+        'error' => 'Failed to fetch homeowners'
+    ]);
 }
 ?>

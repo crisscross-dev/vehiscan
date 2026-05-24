@@ -24,13 +24,66 @@ if (!in_array($per_page, $allowedPageSizes, true)) {
 }
 $offset = ($page - 1) * $per_page;
 
+if (!function_exists('ta_sentence_case')) {
+  function ta_sentence_case($value)
+  {
+    $value = trim((string)$value);
+    if ($value === '') {
+      return '';
+    }
+
+    return ucwords(strtolower($value));
+  }
+}
+
 // Filters
 $plateFilter = strtoupper(trim($_GET['plate'] ?? ''));
 $plateCanonical = '';
+$dateFrom = $_GET['date_from'] ?? '';
+$dateTo = $_GET['date_to'] ?? '';
+$dateFromObj = null;
+$dateToObj = null;
 
 if ($plateFilter !== '') {
   $plateFilter = preg_replace('/[^A-Z0-9\- ]/', '', $plateFilter);
   $plateCanonical = str_replace([' ', '-'], '', $plateFilter);
+}
+
+// Validate and parse date filters
+if ($dateFrom !== '') {
+  try {
+    $dateFromObj = new DateTime($dateFrom);
+    $dateFromObj->setTime(0, 0, 0);
+  } catch (Exception $e) {
+    $dateFrom = '';
+  }
+}
+
+if ($dateTo !== '') {
+  try {
+    $dateToObj = new DateTime($dateTo);
+    $dateToObj->setTime(23, 59, 59);
+  } catch (Exception $e) {
+    $dateTo = '';
+  }
+}
+
+// Validate date range (max 366 days)
+if ($dateFromObj && $dateToObj) {
+  if ($dateFromObj > $dateToObj) {
+    $dateFrom = '';
+    $dateTo = '';
+    $dateFromObj = null;
+    $dateToObj = null;
+  } else {
+    $interval = $dateFromObj->diff($dateToObj);
+    if ($interval->days > 366) {
+      $dateFrom = '';
+      $dateTo = '';
+      $dateFromObj = null;
+      $dateToObj = null;
+    }
+  }
 }
 
 $where = [];
@@ -40,6 +93,16 @@ if ($plateCanonical !== '') {
   // Normalize spaces/hyphens so filter works regardless of plate formatting style.
   $where[] = "REPLACE(REPLACE(UPPER(r.plate_number), ' ', ''), '-', '') LIKE :plate";
   $params[':plate'] = '%' . $plateCanonical . '%';
+}
+
+if ($dateFromObj) {
+  $where[] = "r.created_at >= :date_from";
+  $params[':date_from'] = $dateFromObj->format('Y-m-d H:i:s');
+}
+
+if ($dateToObj) {
+  $where[] = "r.created_at <= :date_to";
+  $params[':date_to'] = $dateToObj->format('Y-m-d H:i:s');
 }
 
 $whereSql = '';
@@ -190,6 +253,8 @@ try {
     Export CSV
     </button>
     <input type="text" id="logsPlateFilter" class="ta-input max-w-[180px] uppercase" placeholder="Plate (e.g. ABC1234)" value="<?php echo htmlspecialchars($plateFilter); ?>">
+    <input type="date" id="logsDateFrom" class="ta-input max-w-[150px]" value="<?php echo htmlspecialchars($dateFrom); ?>">
+    <input type="date" id="logsDateTo" class="ta-input max-w-[150px]" value="<?php echo htmlspecialchars($dateTo); ?>">
     <select id="logsPerPage" class="ta-select">
     <?php foreach ($allowedPageSizes as $size): ?>
       <option value="<?php echo $size; ?>" <?php echo $per_page === $size ? 'selected' : ''; ?>><?php echo $size; ?> / page</option>
@@ -201,7 +266,7 @@ try {
 
   <div class="ta-toolbar-end">
     <div class="relative flex items-center">
-      <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor"
+      <svg class="absolute left-3 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none flex-shrink-0" fill="none" stroke="currentColor"
         viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -261,7 +326,7 @@ try {
                 <?php echo htmlspecialchars($log['status'] ?? ''); ?>
               </span>
             </td>
-            <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo htmlspecialchars($log['name'] ?? 'Unknown'); ?></td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo htmlspecialchars(ta_sentence_case($log['name'] ?? 'Unknown')); ?></td>
             <td class="px-4 py-3 text-slate-600 dark:text-slate-400"><?php echo htmlspecialchars($log['vehicle_type'] ?? '-'); ?></td>
             <td class="px-4 py-3">
               <div class="flex items-center justify-center gap-2">

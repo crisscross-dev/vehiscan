@@ -17,7 +17,8 @@ AuditLogger::init($pdo);
 // Authorization check
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['super_admin', 'admin'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 try {
@@ -164,10 +165,14 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'A database error occurred. Please try again later.']);
 } catch (Exception $e) {
+    error_log('Employee save error: ' . $e->getMessage());
     $code = (int)$e->getCode();
     if ($code < 400 || $code > 599) {
         $code = 400;
     }
     http_response_code($code);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    $safeMessage = $code >= 500
+        ? 'An unexpected server error occurred. Please try again later.'
+        : 'The request could not be processed. Please verify your input and try again.';
+    echo json_encode(['success' => false, 'message' => $safeMessage]);
 }

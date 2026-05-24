@@ -65,7 +65,7 @@ $roleCount = array_count_values(array_column($employees, 'role'));
     <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
     <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
     <link rel="stylesheet" href="../assets/css/admin/admin.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/admin/admin.css'); ?>">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
 </head>
 <body class="m-0 p-0 overflow-hidden bg-gray-100 dark:bg-slate-950">
   <div class="flex h-screen w-full">

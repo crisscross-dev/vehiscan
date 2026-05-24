@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const notificationViewAllLink = document.getElementById('notificationViewAllLink');
   const editModalBackdrop = document.getElementById('editModalBackdrop');
   const editModalCloseBtn = document.getElementById('editModalCloseBtn');
-  const allowedAdminPages = new Set(['dashboard', 'manage', 'logs', 'audit', 'rfid', 'simulator', 'visitors', 'visitor_logs', 'employees', 'profile_requests', 'approvals']);
+  const allowedAdminPages = new Set(['dashboard', 'manage', 'logs', 'audit', 'rfid', 'visitors', 'visitor_logs', 'employees', 'profile_requests', 'approvals']);
   
   // Hardware RFID scanner wedge listener (global)
   let rfidBuffer = '';
@@ -105,6 +105,35 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  async function openImagePreviewModal(src, title = 'Image Preview', caption = '') {
+    if (!src) return;
+
+    const safeTitle = escapeHtml(title);
+    const safeCaption = escapeHtml(caption);
+    const safeSrc = escapeHtml(String(src));
+
+    if (typeof Swal === 'undefined' || !Swal.fire) {
+      window.open(safeSrc, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    await Swal.fire({
+      title: safeTitle,
+      html: `
+        <div class="text-left">
+          <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+            <img src="${safeSrc}" alt="${safeTitle}" class="w-full max-h-[70vh] object-contain bg-black" />
+          </div>
+          ${safeCaption ? `<p class="mt-3 text-sm text-slate-500 dark:text-slate-400">${safeCaption}</p>` : ''}
+        </div>
+      `,
+      showConfirmButton: false,
+      showCloseButton: true,
+      width: 'min(92vw, 980px)',
+      background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff'
+    });
   }
 
   function setButtonLoading(btn, loadingText) {
@@ -658,6 +687,10 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       e.stopPropagation();
 
+      if (typeof window.closeModal === 'function') {
+        window.closeModal();
+      }
+
       const page = link.dataset.page;
 
       if (!page) {
@@ -677,7 +710,6 @@ document.addEventListener("DOMContentLoaded", () => {
         'logs': 'Access Logs',
         'audit': 'Audit Logs',
         'rfid': 'RFID Management',
-        'simulator': 'RFID Simulator',
         'visitors': 'Visitor Passes',
         'employees': 'Employee Management',
         'profile_requests': 'Profile Requests',
@@ -932,6 +964,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- Load Page Fragment ---------- */
   async function loadPage(page) {
+    if (typeof window.closeModal === 'function') {
+      window.closeModal();
+    }
+
     if (rfidTimeoutToken) {
       clearTimeout(rfidTimeoutToken);
       rfidTimeoutToken = null;
@@ -1088,7 +1124,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (page === "logs") attachLogsControls();
       if (page === "dashboard") attachDashboardControls();
       if (page === "rfid") attachRFIDControls();
-      if (page === "simulator") attachRFIDSimulatorControls();
       if (page === "visitors") attachVisitorsControls();
       if (page === "audit") attachAuditControls();
       if (page === "reports") attachReportsControls();
@@ -1375,286 +1410,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------- RFID Simulator Controls ---------- */
-  function attachRFIDSimulatorControls() {
-    adminPanelLog('[RFID] Attaching controls...');
-
-    // Poll for required DOM elements because fragment is loaded asynchronously
-    const pollInterval = 120; // ms
-    const maxAttempts = 60;
-    let attempts = 0;
-
-    const poll = setInterval(() => {
-      attempts++;
-      const vehicleSelect = document.getElementById('vehicleSelect');
-      const scanBtn = document.getElementById('scanBtn');
-      const scanResult = document.getElementById('scanResult');
-      const recentScans = document.getElementById('recentScans');
-
-      if (!vehicleSelect || !scanBtn) {
-        if (attempts >= maxAttempts) {
-          clearInterval(poll);
-          console.warn('[RFID] Simulator elements not found after polling');
-        }
-        return; // keep waiting
-      }
-
-      clearInterval(poll);
-      adminPanelLog('[RFID] Elements found - initializing simulator controls');
-
-      const plateModePanel = document.getElementById('plateModePanel');
-      const rfidModePanel = document.getElementById('rfidModePanel');
-      const modePlate = document.getElementById('modePlate');
-      const modeRfid = document.getElementById('modeRfid');
-      const rfidUidInput = document.getElementById('rfidUidInput');
-
-      const updateModeButtonState = (mode) => {
-        if (!modePlate || !modeRfid) return;
-        if (mode === 'rfid') {
-          modePlate.classList.remove('bg-white', 'dark:bg-slate-600', 'text-gray-900', 'dark:text-white', 'shadow-sm');
-          modePlate.classList.add('text-gray-500', 'dark:text-gray-400');
-          modeRfid.classList.add('bg-white', 'dark:bg-slate-600', 'text-gray-900', 'dark:text-white', 'shadow-sm');
-          modeRfid.classList.remove('text-gray-500', 'dark:text-gray-400');
-        } else {
-          modePlate.classList.add('bg-white', 'dark:bg-slate-600', 'text-gray-900', 'dark:text-white', 'shadow-sm');
-          modePlate.classList.remove('text-gray-500', 'dark:text-gray-400');
-          modeRfid.classList.remove('bg-white', 'dark:bg-slate-600', 'text-gray-900', 'dark:text-white', 'shadow-sm');
-          modeRfid.classList.add('text-gray-500', 'dark:text-gray-400');
-        }
-      };
-
-      const updateScanButtonEnabled = () => {
-        const mode = window._simScanMode || 'plate';
-        if (mode === 'rfid') {
-          const uid = (rfidUidInput?.value || '').trim();
-          scanBtn.disabled = uid.length < 4;
-        } else {
-          scanBtn.disabled = !vehicleSelect.value;
-        }
-        updateScanButtonStyle();
-      };
-
-      const setScanMode = (mode) => {
-        const nextMode = mode === 'rfid' ? 'rfid' : 'plate';
-        window._simScanMode = nextMode;
-
-        if (plateModePanel && rfidModePanel) {
-          if (nextMode === 'rfid') {
-            plateModePanel.classList.add('hidden');
-            rfidModePanel.classList.remove('hidden');
-          } else {
-            plateModePanel.classList.remove('hidden');
-            rfidModePanel.classList.add('hidden');
-          }
-        }
-
-        updateModeButtonState(nextMode);
-        updateScanButtonEnabled();
-      };
-
-      // Preserve compatibility with existing onclick handlers in the fragment markup.
-      window.setScanMode = setScanMode;
-
-      // Helper to update scan button visuals
-      const updateScanButtonStyle = () => {
-        if (!scanBtn.disabled) {
-          scanBtn.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
-          scanBtn.style.cursor = 'pointer';
-          scanBtn.style.opacity = '1';
-        } else {
-          scanBtn.style.background = '#95a5a6';
-          scanBtn.style.cursor = 'not-allowed';
-          scanBtn.style.opacity = '0.6';
-        }
-      };
-
-      // Default mode and initial state
-      setScanMode(window._simScanMode || 'plate');
-
-      vehicleSelect.addEventListener('change', function () {
-        if ((window._simScanMode || 'plate') === 'plate') {
-          updateScanButtonEnabled();
-        }
-      });
-
-      modePlate?.addEventListener('click', function () { setScanMode('plate'); });
-      modeRfid?.addEventListener('click', function () { setScanMode('rfid'); });
-
-      if (rfidUidInput) {
-        rfidUidInput.addEventListener('input', function () {
-          this.value = this.value.replace(/[^A-Fa-f0-9]/g, '').toUpperCase();
-          if ((window._simScanMode || 'plate') === 'rfid') {
-            updateScanButtonEnabled();
-          }
-        });
-      }
-
-      scanBtn.addEventListener('click', async function () {
-        const scanMode = window._simScanMode || 'plate';
-        let plate = '';
-        let rfidUid = '';
-        let bodyStr = '';
-
-        if (scanMode === 'rfid') {
-          rfidUid = (document.getElementById('rfidUidInput')?.value || '').trim().toUpperCase();
-          if (!rfidUid || rfidUid.length < 4) {
-            showGrowl('Enter a valid RFID UID (at least 4 hex characters)', 'error');
-            return;
-          }
-          bodyStr = 'scan_mode=rfid&rfid_uid=' + encodeURIComponent(rfidUid) + '&csrf_token=' + encodeURIComponent(csrf);
-        } else {
-          plate = vehicleSelect.value;
-          if (!plate) {
-            showGrowl('Please select a vehicle first', 'error');
-            return;
-          }
-          bodyStr = 'scan_mode=plate&plate_number=' + encodeURIComponent(plate) + '&csrf_token=' + encodeURIComponent(csrf);
-        }
-
-        scanBtn.disabled = true;
-        scanBtn.innerHTML = '<span class="scan-icon scanning"><svg style="width:1em;height:1em;vertical-align:-0.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></span> Scanning...';
-
-        await new Promise((r) => setTimeout(r, 700 + Math.random() * 900));
-
-        try {
-          const res = await fetch('simulation/simulate_rfid_scan.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: bodyStr,
-            credentials: 'same-origin'
-          });
-
-          // Check if response is actually JSON
-          const contentType = res.headers.get('content-type');
-          if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Server returned non-JSON response. Session may have expired.');
-          }
-
-          let json;
-          try {
-            json = await res.json();
-          } catch (err) {
-            console.error('JSON parse error:', err);
-            json = { success: false, message: 'Invalid JSON response from server' };
-          }
-
-          // Ensure json is always an object
-          if (!json || typeof json !== 'object') {
-            json = { success: false, message: 'Invalid response format' };
-          }
-
-          // Check for session expiration
-          if (json.error && json.redirect) {
-            window.location.href = json.redirect;
-            return;
-          }
-
-          if (scanResult) scanResult.style.display = 'block';
-
-          if (json.success === true) {
-            if (scanResult) {
-              const direction = json.direction || 'IN';
-              const isEntry = direction === 'IN';
-              const icon = isEntry ? '<svg style="width:1em;height:1em;vertical-align:-0.15em" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#22c55e"/></svg>' : '<svg style="width:1em;height:1em;vertical-align:-0.15em" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/></svg>';
-              const statusText = isEntry ? 'ENTRY LOGGED' : 'EXIT LOGGED';
-              const statusColor = isEntry ? '#16a34a' : '#dc2626';
-              const safePlate = escapeHtml(json.plate || 'N/A');
-              const safeName = escapeHtml(json.name || 'N/A');
-              const safeRfid = escapeHtml(json.rfid_uid || '');
-              const safeStatus = escapeHtml(json.status || 'N/A');
-
-              scanResult.className = 'scan-result success';
-              scanResult.querySelector('.result-icon').innerHTML = icon;
-              scanResult.querySelector('.result-text').innerHTML = `
-                <strong style="color: ${statusColor}">${statusText}</strong><br>
-                Plate: ${safePlate}<br>
-                Owner: ${safeName}<br>
-                ${safeRfid ? 'RFID: ' + safeRfid + '<br>' : ''}
-                Status: ${safeStatus}
-              `;
-            }
-            showGrowl('RFID successfully bound!', 'success');
-            window.rfidBindingSessionActive = false;
-            rfidBindingSessionId = null;
-            loadPage('rfid'); // Refresh lists
-          } else {
-            // Check for special scan results (binding, unknown UID)
-            const scanResult2 = json.scan_result || '';
-            let icon = '<svg style="width:1.5em;height:1.5em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6m0-6 6 6"/></svg>';
-            let resultClass = 'scan-result error';
-            if (scanResult2 === 'uid_bound') {
-              icon = '<svg style="width:1.5em;height:1.5em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.828 10.172a4 4 0 0 0-5.656 0l-4 4a4 4 0 1 0 5.656 5.656l1.1-1.1"/><path d="M10.172 13.828a4 4 0 0 0 5.656 0l4-4a4 4 0 0 0-5.656-5.656l-1.1 1.1"/></svg>';
-              resultClass = 'scan-result success';
-              showGrowl(json.message || 'RFID tag bound!', 'success');
-              setTimeout(() => refreshRecentScans(), 500);
-            } else if (scanResult2 === 'unknown_uid') {
-              icon = '<svg style="width:1.5em;height:1.5em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-            }
-            if (scanResult) {
-              scanResult.className = resultClass;
-              const safeMessage = escapeHtml(json.message || json.error || 'Unknown error');
-              scanResult.querySelector('.result-icon').innerHTML = icon;
-              scanResult.querySelector('.result-text').innerHTML = `<strong>${scanResult2 === 'uid_bound' ? 'Binding Complete' : 'Scan Failed'}</strong><br>${safeMessage}`;
-            }
-            if (scanResult2 !== 'uid_bound') {
-              showGrowl('Scan failed: ' + (json.message || json.error || 'Unknown'), 'error');
-            }
-          }
-        } catch (err) {
-          console.error('[RFID] Error during scan:', err);
-          if (scanResult) {
-            scanResult.style.display = 'block';
-            scanResult.className = 'scan-result error';
-            scanResult.querySelector('.result-icon').innerHTML = '<svg style="width:1.5em;height:1.5em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6m0-6 6 6"/></svg>';
-            scanResult.querySelector('.result-text').textContent = err.message || 'Connection error';
-          }
-          showGrowl('Connection error', 'error');
-        } finally {
-          scanBtn.disabled = false;
-          scanBtn.innerHTML = '<span class="scan-icon"><svg style="width:1em;height:1em;vertical-align:-0.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span> Simulate Scan';
-        }
-      });
-
-      async function refreshRecentScans() {
-        try {
-          const res = await fetch('simulation/get_recent_simulations.php?per_page=50&page=1', { credentials: 'same-origin' });
-          let json;
-          try {
-            json = await res.json();
-          } catch (err) {
-            json = { success: false };
-          }
-          if (json && json.success && Array.isArray(json.scans) && recentScans) {
-            if (json.scans.length > 0) {
-              recentScans.innerHTML = json.scans.map(s => {
-                const statusClass = s.status === 'IN' ? 'status-in' : 'status-out';
-                const statusIcon = s.status === 'IN' ? '<svg style="width:0.85em;height:0.85em;vertical-align:-0.1em" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#22c55e"/></svg> IN' : '<svg style="width:0.85em;height:0.85em;vertical-align:-0.1em" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/></svg> OUT';
-                const safeTime = escapeHtml(s.time || '-');
-                const safePlate = escapeHtml(s.plate_number || '-');
-                const safeName = escapeHtml(s.name || 'Unknown');
-                const safeVehicleType = escapeHtml(s.vehicle_type || '-');
-                return `<tr>
-                  <td>${safeTime}</td>
-                  <td>${safePlate}</td>
-                  <td>${safeName}</td>
-                  <td>${safeVehicleType}</td>
-                  <td><span class="status-badge-sim ${statusClass}">${statusIcon}</span></td>
-                </tr>`;
-              }).join('');
-            } else {
-              recentScans.innerHTML = '<tr><td colspan="5" style="text-align:center;">No simulations yet</td></tr>';
-            }
-          }
-        } catch (err) {
-          console.error('[RFID] refreshRecentScans error:', err);
-        }
-      }
-
-      adminPanelLog('[RFID] Controls attached successfully');
-    }, pollInterval);
-  }
 
   /* ---------- Visitors Page Controls ---------- */
   function attachVisitorsControls() {
@@ -1690,14 +1445,19 @@ document.addEventListener("DOMContentLoaded", () => {
           return d.innerHTML;
         };
 
+        const titleCase = (value) => String(value ?? '')
+          .trim()
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase());
+
         pendingPassesContainer.innerHTML = passes.map((pass) => `
           <div class="ta-card mb-3">
             <div class="ta-card-body">
               <div class="flex justify-between items-start">
                 <div class="flex-1">
-                  <h3 class="font-semibold text-gray-900 dark:text-white">${esc(pass.visitor_name)}</h3>
+                  <h3 class="font-semibold text-gray-900 dark:text-white">${esc(titleCase(pass.visitor_name))}</h3>
                   <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Purpose: ${esc(pass.purpose)}</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Homeowner: ${esc(pass.homeowner_name)}</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Homeowner: ${esc(titleCase(pass.homeowner_name))}</p>
                   <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Valid: ${esc(new Date(pass.valid_from).toLocaleString())} to ${esc(new Date(pass.valid_until).toLocaleString())}</p>
                   ${pass.visitor_plate ? `<p class="text-xs text-gray-500 dark:text-gray-400">Plate: <span class="ta-badge neutral">${esc(pass.visitor_plate)}</span></p>` : ''}
                   <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Requested: ${esc(new Date(pass.created_at).toLocaleString())}</p>
@@ -2818,6 +2578,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modalEl.classList.remove('hidden');
     modalEl.setAttribute('aria-hidden', 'false');
+    // Hide approvals bulk actions bar (if present) while modal is open
+    try {
+      const bulkBar = document.getElementById('bulkActionsBar');
+      if (bulkBar) {
+        // store previous visibility state
+        bulkBar.dataset.__wasHidden = bulkBar.classList.contains('hidden') ? '1' : '0';
+        bulkBar.classList.add('hidden');
+      }
+    } catch (e) {
+      /* ignore */
+    }
     modalBody.innerHTML = "<div class='loading'>Loading...</div>";
     document.body.classList.add('modal-open');
 
@@ -2837,6 +2608,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const html = await res.text();
       modalBody.innerHTML = html;
       bindModalForm();
+      modalBody.querySelectorAll('.js-profile-preview').forEach((img) => {
+        img.addEventListener('click', (event) => {
+          if (img.tagName === 'A') {
+            event.preventDefault();
+          }
+          openImagePreviewModal(
+            img.dataset.previewSrc || img.getAttribute('src') || '',
+            img.dataset.previewTitle || img.getAttribute('alt') || 'Image Preview',
+            img.dataset.previewCaption || ''
+          );
+        });
+      });
 
       // Focus management: focus first input
       setTimeout(() => {
@@ -2863,6 +2646,20 @@ document.addEventListener("DOMContentLoaded", () => {
     modalBody.innerHTML = "";
     document.body.classList.remove('modal-open');
 
+    // Restore approvals bulk actions bar visibility when modal closed
+    try {
+      const bulkBar = document.getElementById('bulkActionsBar');
+      if (bulkBar && typeof bulkBar.dataset.__wasHidden !== 'undefined') {
+        if (bulkBar.dataset.__wasHidden === '0') {
+          bulkBar.classList.remove('hidden');
+        } else {
+          bulkBar.classList.add('hidden');
+        }
+        delete bulkBar.dataset.__wasHidden;
+      }
+    } catch (e) {
+      /* ignore */
+    }
     // Return focus to trigger element if available
     if (document.activeElement) {
       document.activeElement.blur();
@@ -3196,10 +2993,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const search = (document.getElementById('searchInput')?.value || '').trim();
       const perPage = (document.getElementById('managePerPage')?.value || '25').trim();
       const rfidStatus = (document.getElementById('manageRfidStatus')?.value || 'all').trim();
+      const dateFrom = (document.getElementById('manageDateFrom')?.value || '').trim();
+      const dateTo = (document.getElementById('manageDateTo')?.value || '').trim();
 
       if (search) params.set('search', search);
       if (perPage) params.set('per_page', perPage);
       if (rfidStatus) params.set('rfid_status', rfidStatus);
+      if (dateFrom) params.set('date_from', dateFrom);
+      if (dateTo) params.set('date_to', dateTo);
       params.set('_', String(Date.now()));
       return params.toString();
     };
@@ -3274,6 +3075,46 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     });
 
+    document.querySelectorAll('.btn-delete').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const homeownerName = btn.dataset.name || 'this record';
+        const confirmResult = await Swal.fire({
+          title: 'Delete homeowner?',
+          html: `<p>This will permanently delete <strong>${escapeHtml(homeownerName)}</strong> and associated vehicles.</p>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, Delete',
+          confirmButtonColor: '#ef4444',
+          cancelButtonText: 'Cancel'
+        });
+
+        if (!confirmResult.isConfirmed) return;
+
+        try {
+          const form = new FormData();
+          form.append('id', btn.dataset.id);
+          form.append('csrf_token', window.__ADMIN_CSRF__ || csrf || '');
+          form.append('confirmation', 'DELETE');
+
+          const response = await fetch('homeowners/homeowner_delete.php', {
+            method: 'POST',
+            body: form
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showGrowl(result.message || 'Homeowner deleted', 'success');
+            loadPage('manage');
+          } else {
+            showGrowl(result.message || 'Failed to delete homeowner', 'error');
+          }
+        } catch (error) {
+          console.error('[MANAGE] Delete error:', error);
+          showGrowl('Connection error', 'error');
+        }
+      });
+    });
+
     // Unbind RFID button (from Manage Records page)
     document.querySelectorAll('.btn-unbind-rfid-manage').forEach(btn => {
       btn.addEventListener('click', async function () {
@@ -3340,6 +3181,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // Date filters for Manage Records
+    const manageDateFrom = document.getElementById('manageDateFrom');
+    const manageDateTo = document.getElementById('manageDateTo');
+    [manageDateFrom, manageDateTo].forEach((el) => {
+      if (!el) return;
+      el.addEventListener('change', () => loadManageWithFilters(1));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          loadManageWithFilters(1);
+        }
+      });
+    });
 
     document.getElementById('managePerPage')?.addEventListener('change', () => {
       loadManageWithFilters(1);
@@ -3659,7 +3514,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    const isDark = document.body.classList.contains('dark') || document.body.classList.contains('dark-mode');
+    const isDark = document.body.classList.contains('dark') || document.body.classList.contains('dark');
     const allowed = Number(dataNode?.dataset.allowed || 0);
     const denied = Number(dataNode?.dataset.denied || 0);
     const homeownerStatusData = JSON.parse(dataNode?.dataset.homeownerStatuses || '[]');
@@ -3959,200 +3814,134 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    const drawStackedBarChart = (svgId, data, tooltipId, config) => {
-      const svg = document.getElementById(svgId);
-      const tooltip = document.getElementById(tooltipId);
-
-      if (!svg || !tooltip || !Array.isArray(data) || data.length === 0) return;
-
-      const isSvgDark = document.body.classList.contains('dark') || document.body.classList.contains('dark-mode');
-      const gridColor = isSvgDark ? '#334155' : '#e5e7eb';
-      const labelColor = isSvgDark ? '#94a3b8' : '#9ca3af';
-      const axisLabelColor = isSvgDark ? '#94a3b8' : '#6b7280';
-      const tooltipBg = isSvgDark ? '#0f172a' : '#1f2937';
-      const tooltipFg = isSvgDark ? '#f1f5f9' : '#ffffff';
-
-      const svgRect = svg.getBoundingClientRect();
-      const width = svgRect.width;
-      const height = svgRect.height;
-      if (!width || !height) return;
-
-      const padding = { top: 20, right: 20, bottom: 40, left: 40 };
-      const chartWidth = width - padding.left - padding.right;
-      const chartHeight = height - padding.top - padding.bottom;
-
-      svg.innerHTML = '';
-
-      const maxValue = Math.max(...data.map((d) => {
-        return config.stacked
-          ? (Number(d[config.keys[0]]) || 0) + (Number(d[config.keys[1]]) || 0)
-          : (Number(d[config.keys[0]]) || 0);
-      }), 0);
-      const scale = maxValue > 0 ? chartHeight / maxValue : 0;
-
-      const slotWidth = chartWidth / data.length;
-      const barWidth = slotWidth * 0.6;
-      const gap = slotWidth * 0.4;
-
-      const gridLines = 5;
-      for (let i = 0; i <= gridLines; i++) {
-        const y = padding.top + (chartHeight / gridLines) * i;
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', String(padding.left));
-        line.setAttribute('y1', String(y));
-        line.setAttribute('x2', String(width - padding.right));
-        line.setAttribute('y2', String(y));
-        line.setAttribute('stroke', gridColor);
-        line.setAttribute('stroke-width', '1');
-        svg.appendChild(line);
-
-        const value = Math.round(maxValue - (maxValue / gridLines) * i);
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', String(padding.left - 10));
-        text.setAttribute('y', String(y + 4));
-        text.setAttribute('text-anchor', 'end');
-        text.setAttribute('fill', labelColor);
-        text.setAttribute('font-size', '11');
-        text.textContent = String(value);
-        svg.appendChild(text);
-      }
-
-      const moveTooltip = (e) => {
-        tooltip.style.left = `${e.pageX + 10}px`;
-        tooltip.style.top = `${e.pageY - 10}px`;
-      };
-
-      const hideTooltip = () => {
-        tooltip.style.display = 'none';
-      };
-
-      const showTooltip = (e, item) => {
-        let content = `<div style="font-weight: 600; margin-bottom: 4px;">${escapeHtml(item.month || '')}</div>`;
-        config.keys.forEach((key, index) => {
-          const label = config.labels[index];
-          const color = config.colors[index];
-          const value = Number(item[key]) || 0;
-          content += `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;"><div style="width:8px;height:8px;border-radius:2px;background:${color};"></div><span>${escapeHtml(label)}: ${value}</span></div>`;
-        });
-        tooltip.innerHTML = content;
-        tooltip.style.background = tooltipBg;
-        tooltip.style.color = tooltipFg;
-        tooltip.style.display = 'block';
-        moveTooltip(e);
-      };
-
-      data.forEach((item, index) => {
-        const x = padding.left + (barWidth + gap) * index + (gap / 2);
-
-        if (config.stacked) {
-          const val1 = Number(item[config.keys[0]]) || 0;
-          const val2 = Number(item[config.keys[1]]) || 0;
-          const height1 = val1 * scale;
-          const height2 = val2 * scale;
-          const totalHeight = height1 + height2;
-
-          const rect1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect1.setAttribute('x', String(x));
-          rect1.setAttribute('y', String(height - padding.bottom - height1));
-          rect1.setAttribute('width', String(barWidth));
-          rect1.setAttribute('height', String(height1));
-          rect1.setAttribute('fill', config.colors[0]);
-          rect1.setAttribute('rx', '4');
-          rect1.style.cursor = 'pointer';
-          rect1.style.transition = 'opacity 0.2s';
-
-          const rect2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect2.setAttribute('x', String(x));
-          rect2.setAttribute('y', String(height - padding.bottom - totalHeight));
-          rect2.setAttribute('width', String(barWidth));
-          rect2.setAttribute('height', String(height2));
-          rect2.setAttribute('fill', config.colors[1]);
-          rect2.setAttribute('rx', '4');
-          rect2.style.cursor = 'pointer';
-          rect2.style.transition = 'opacity 0.2s';
-
-          [rect1, rect2].forEach((rect) => {
-            rect.addEventListener('mouseenter', (e) => {
-              rect.style.opacity = '0.8';
-              showTooltip(e, item);
-            });
-            rect.addEventListener('mousemove', moveTooltip);
-            rect.addEventListener('mouseleave', () => {
-              rect.style.opacity = '1';
-              hideTooltip();
-            });
-          });
-
-          svg.appendChild(rect1);
-          svg.appendChild(rect2);
-        } else {
-          const val = Number(item[config.keys[0]]) || 0;
-          const barHeight = val * scale;
-
-          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect.setAttribute('x', String(x));
-          rect.setAttribute('y', String(height - padding.bottom - barHeight));
-          rect.setAttribute('width', String(barWidth));
-          rect.setAttribute('height', String(barHeight));
-          rect.setAttribute('fill', config.colors[0]);
-          rect.setAttribute('rx', '4');
-          rect.style.cursor = 'pointer';
-          rect.style.transition = 'opacity 0.2s';
-
-          rect.addEventListener('mouseenter', (e) => {
-            rect.style.opacity = '0.8';
-            showTooltip(e, item);
-          });
-          rect.addEventListener('mousemove', moveTooltip);
-          rect.addEventListener('mouseleave', () => {
-            rect.style.opacity = '1';
-            hideTooltip();
-          });
-
-          svg.appendChild(rect);
-        }
-
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', String(x + (barWidth / 2)));
-        text.setAttribute('y', String(height - padding.bottom + 20));
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', axisLabelColor);
-        text.setAttribute('font-size', '12');
-        text.textContent = String(item.month || '');
-        svg.appendChild(text);
-      });
-    };
-
-    const initializeStackedSvgCharts = () => {
-      adminPanelLog('[DASHBOARD] Initializing stacked SVG charts');
+    const initializeStackedCharts = () => {
+      adminPanelLog('[DASHBOARD] Initializing stacked charts via Chart.js');
       const homeownerData = parseStackedSeries(stackedDataNode?.dataset.homeowner);
       const accessData = parseStackedSeries(stackedDataNode?.dataset.access);
       const vehicleData = parseStackedSeries(stackedDataNode?.dataset.vehicle);
 
-      drawStackedBarChart('homeownerChart', homeownerData, 'tooltip1', {
-        keys: ['approved', 'pending'],
-        labels: ['Approved', 'Pending'],
-        colors: ['#3b82f6', '#f59e0b'],
-        stacked: true
-      });
+      if (!window.__vsDashboardCharts.stacked) {
+        window.__vsDashboardCharts.stacked = { homeowners: null, access: null, vehicles: null };
+      }
 
-      drawStackedBarChart('accessChart', accessData, 'tooltip2', {
-        keys: ['entries', 'exits'],
-        labels: ['Entries', 'Exits'],
-        colors: ['#10b981', '#ef4444'],
-        stacked: true
-      });
+      // 1. Homeowners Chart
+      if (homeownerSvg) {
+        if (window.__vsDashboardCharts.stacked.homeowners) window.__vsDashboardCharts.stacked.homeowners.destroy();
+        window.__vsDashboardCharts.stacked.homeowners = new Chart(homeownerSvg, {
+          type: 'bar',
+          data: {
+            labels: homeownerData.map(d => d.month),
+            datasets: [
+              {
+                label: 'Approved',
+                data: homeownerData.map(d => d.approved),
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: 'rgb(59, 130, 246)',
+                borderWidth: 1,
+                borderRadius: 4
+              },
+              {
+                label: 'Pending',
+                data: homeownerData.map(d => d.pending),
+                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                borderColor: 'rgb(245, 158, 11)',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } },
+              y: { stacked: true, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } }
+            },
+            plugins: {
+              legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#374151', usePointStyle: true } },
+              tooltip: { backgroundColor: isDark ? '#1e293b' : '#0f172a', padding: 10 }
+            }
+          }
+        });
+      }
 
-      drawStackedBarChart('vehicleChart', vehicleData, 'tooltip3', {
-        keys: ['count'],
-        labels: ['Registrations'],
-        colors: ['#8b5cf6'],
-        stacked: false
-      });
+      // 2. Access Chart
+      if (accessSvg) {
+        if (window.__vsDashboardCharts.stacked.access) window.__vsDashboardCharts.stacked.access.destroy();
+        window.__vsDashboardCharts.stacked.access = new Chart(accessSvg, {
+          type: 'bar',
+          data: {
+            labels: accessData.map(d => d.month),
+            datasets: [
+              {
+                label: 'Entries',
+                data: accessData.map(d => d.entries),
+                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                borderColor: 'rgb(16, 185, 129)',
+                borderWidth: 1,
+                borderRadius: 4
+              },
+              {
+                label: 'Exits',
+                data: accessData.map(d => d.exits),
+                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                borderColor: 'rgb(239, 68, 68)',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } },
+              y: { stacked: true, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } }
+            },
+            plugins: {
+              legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#374151', usePointStyle: true } },
+              tooltip: { backgroundColor: isDark ? '#1e293b' : '#0f172a', padding: 10 }
+            }
+          }
+        });
+      }
+
+      // 3. Vehicles Chart
+      if (vehicleSvg) {
+        if (window.__vsDashboardCharts.stacked.vehicles) window.__vsDashboardCharts.stacked.vehicles.destroy();
+        window.__vsDashboardCharts.stacked.vehicles = new Chart(vehicleSvg, {
+          type: 'bar',
+          data: {
+            labels: vehicleData.map(d => d.month),
+            datasets: [
+              {
+                label: 'Registrations',
+                data: vehicleData.map(d => d.count),
+                backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                borderColor: 'rgb(139, 92, 246)',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } },
+              y: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: isDark ? '#94a3b8' : '#64748b' } }
+            },
+            plugins: {
+              legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#374151', usePointStyle: true } },
+              tooltip: { backgroundColor: isDark ? '#1e293b' : '#0f172a', padding: 10 }
+            }
+          }
+        });
+      }
     };
 
     // Expose re-init function globally so it can be called on tab switch
-    window.reinitDashboardCharts = initializeStackedSvgCharts;
+    window.reinitDashboardCharts = initializeStackedCharts;
 
     if (!window.__vsDashboardCharts.stackedResizeHandler) {
       window.__vsDashboardCharts.stackedResizeHandler = () => {
@@ -4161,7 +3950,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.addEventListener('resize', window.__vsDashboardCharts.stackedResizeHandler);
     }
 
-    initializeStackedSvgCharts();
+    initializeStackedCharts();
 
     waitForChartJS();
   }

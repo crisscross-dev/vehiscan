@@ -43,17 +43,38 @@ if (!$id) {
 try {
     $pdo->beginTransaction();
     
-    // 1. Delete associated vehicles first
-    $stmtVehicles = $pdo->prepare("DELETE FROM vehicles WHERE homeowner_id = ?");
-    $stmtVehicles->execute([$id]);
+    // Get all vehicle IDs for this homeowner to clear related records
+    $stmtGetVehicles = $pdo->prepare("SELECT id FROM vehicles WHERE homeowner_id = ?");
+    $stmtGetVehicles->execute([$id]);
+    $vehicleIds = $stmtGetVehicles->fetchAll(PDO::FETCH_COLUMN);
 
-    // 2. Delete the homeowner
+    if (!empty($vehicleIds)) {
+        $placeholders = str_repeat('?,', count($vehicleIds) - 1) . '?';
+        
+        // Delete related rfid_binding_sessions
+        $stmtBinding = $pdo->prepare("DELETE FROM rfid_binding_sessions WHERE target_type = 'vehicle' AND target_id IN ($placeholders)");
+        $stmtBinding->execute($vehicleIds);
+        
+        // Delete associated vehicles
+        $stmtVehicles = $pdo->prepare("DELETE FROM vehicles WHERE homeowner_id = ?");
+        $stmtVehicles->execute([$id]);
+    }
+
+    // Delete visitor passes
+    $stmtPasses = $pdo->prepare("DELETE FROM visitor_passes WHERE homeowner_id = ?");
+    $stmtPasses->execute([$id]);
+
+    // Delete profile update requests
+    $stmtProfileReq = $pdo->prepare("DELETE FROM profile_update_requests WHERE homeowner_id = ?");
+    $stmtProfileReq->execute([$id]);
+
+    // Delete the homeowner
     $stmt = $pdo->prepare("DELETE FROM homeowners WHERE id = ?");
     $ok = $stmt->execute([$id]);
 
     $pdo->commit();
     if ($ok) {
-        echo json_encode(['success' => true, 'message' => "Deleted homeowner #{$id} and associated vehicles"]);
+        echo json_encode(['success' => true, 'message' => "Deleted homeowner #{$id} and all associated records"]);
     } else {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Delete failed']);

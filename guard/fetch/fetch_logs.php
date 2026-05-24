@@ -5,9 +5,13 @@ require_once __DIR__ . '/../../includes/session_guard.php';
 require_once __DIR__ . '/../../includes/request_method_helper.php';
 require_once __DIR__ . '/../../includes/pagination_helper.php';
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'guard') {
-    http_response_code(403);
+    http_response_code(401);
     header('Content-Type: application/json');
-    exit(json_encode(['error' => 'Unauthorized access']));
+    exit(json_encode([
+      'success' => false,
+      'message' => 'Unauthorized access',
+      'error' => 'Unauthorized access'
+    ]));
 }
 
 requireRequestMethod('GET');
@@ -33,9 +37,45 @@ $offset = $pagination['offset'];
 $filter = strtolower(trim($_GET['filter'] ?? ''));
 $search = trim($_GET['search'] ?? '');
 $plateFilter = trim($_GET['plate'] ?? '');
+$dateFrom = trim((string)($_GET['date_from'] ?? ''));
+$dateTo = trim((string)($_GET['date_to'] ?? ''));
 
 $where = [];
 $params = [];
+$filterErrors = [];
+
+// Date range validation
+$parsedDateFrom = null;
+$parsedDateTo = null;
+
+if ($dateFrom !== '') {
+  $parsed = DateTimeImmutable::createFromFormat('Y-m-d', $dateFrom);
+  if ($parsed && $parsed->format('Y-m-d') === $dateFrom) {
+    $parsedDateFrom = $parsed->setTime(0, 0, 0);
+  } else {
+    $filterErrors[] = 'Invalid start date format.';
+  }
+}
+
+if ($dateTo !== '') {
+  $parsed = DateTimeImmutable::createFromFormat('Y-m-d', $dateTo);
+  if ($parsed && $parsed->format('Y-m-d') === $dateTo) {
+    $parsedDateTo = $parsed->setTime(23, 59, 59);
+  } else {
+    $filterErrors[] = 'Invalid end date format.';
+  }
+}
+
+if ($parsedDateFrom && $parsedDateTo) {
+  if ($parsedDateFrom > $parsedDateTo) {
+    $filterErrors[] = 'Start date must be earlier than or equal to end date.';
+  } else {
+    $daysDiff = (int)$parsedDateFrom->diff($parsedDateTo)->days;
+    if ($daysDiff > 366) {
+      $filterErrors[] = 'Date range cannot exceed 366 days.';
+    }
+  }
+}
 
 if ($filter === 'in') {
   $where[] = "al.status = ?";
@@ -73,6 +113,18 @@ if ($search !== '') {
   $params[] = $searchLike;
   $params[] = $searchLike;
   $params[] = $searchLike;
+}
+
+// Add date range filters if no validation errors
+if (empty($filterErrors)) {
+  if ($parsedDateFrom) {
+    $where[] = "al.created_at >= ?";
+    $params[] = $parsedDateFrom->format('Y-m-d H:i:s');
+  }
+  if ($parsedDateTo) {
+    $where[] = "al.created_at <= ?";
+    $params[] = $parsedDateTo->format('Y-m-d H:i:s');
+  }
 }
 
 $flagJoinSql = $hasGuardLogFlagsTable
@@ -187,7 +239,7 @@ try {
     $stats['entries_today'] = (int)($res['entries'] ?? 0);
     $stats['exits_today'] = (int)($res['exits'] ?? 0);
 
-    $visitorStmt = $pdo->query("SELECT COUNT(*) FROM visitor_passes WHERE status = 'active' AND CURDATE() BETWEEN DATE(start_date) AND DATE(end_date)");
+    $visitorStmt = $pdo->query("SELECT COUNT(*) FROM visitor_passes WHERE status IN ('approved', 'active') AND NOW() BETWEEN valid_from AND valid_until");
     $stats['active_visitors'] = (int)$visitorStmt->fetchColumn();
 } catch (Exception $e) {
     error_log("[GUARD_STATS] Error: " . $e->getMessage());

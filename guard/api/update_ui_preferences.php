@@ -57,20 +57,32 @@ if ($defaultDisplayName === '') {
 }
 
 try {
+    // Check if table exists for UI preferences
     $tableExistsStmt = $pdo->query("SHOW TABLES LIKE 'guard_ui_preferences'");
     $tableExists = (bool)$tableExistsStmt->fetchColumn();
+    
     if (!$tableExists) {
-        $pdo->exec("CREATE TABLE IF NOT EXISTS guard_ui_preferences (
-            id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-            user_id INT UNSIGNED NOT NULL,
-            dashboard_title VARCHAR(80) NOT NULL DEFAULT 'VehiScan',
-            display_name VARCHAR(80) NOT NULL,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            UNIQUE KEY uq_guard_ui_preferences_user (user_id),
-            KEY idx_guard_ui_preferences_updated_at (updated_at)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        // Table doesn't exist - try to create it (for development)
+        // On restrictive hosting, this may fail gracefully
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS guard_ui_preferences (
+                id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                user_id INT UNSIGNED NOT NULL,
+                dashboard_title VARCHAR(80) NOT NULL DEFAULT 'VehiScan',
+                display_name VARCHAR(80) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY uq_guard_ui_preferences_user (user_id),
+                KEY idx_guard_ui_preferences_updated_at (updated_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (Exception $e) {
+            // CREATE TABLE failed (likely permission issue on restrictive hosting)
+            // Return defaults without persisting
+            error_log('[UI_PREFS] Table creation failed: ' . $e->getMessage());
+            // Proceed with defaults only - don't persist
+            $existing = [];
+        }
     }
 
     $stmt = $pdo->prepare('SELECT dashboard_title, display_name FROM guard_ui_preferences WHERE user_id = ? LIMIT 1');

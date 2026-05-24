@@ -4,6 +4,19 @@ require_once __DIR__ . '/../includes/session_homeowner.php';
 require_once __DIR__ . '/../includes/common_utilities.php';
 require_once __DIR__ . '/../db.php';
 
+$allowedHomeownerPages = ['dashboard', 'passes', 'vehicles', 'activity', 'profile'];
+$homeownerActivePage = strtolower(trim((string)($_GET['hpage'] ?? 'dashboard')));
+if (!in_array($homeownerActivePage, $allowedHomeownerPages, true)) {
+    $homeownerActivePage = 'dashboard';
+}
+$homeownerPageTitle = [
+    'dashboard' => 'Dashboard',
+    'passes' => 'Visitor Passes',
+    'vehicles' => 'My Vehicles',
+    'activity' => 'Vehicle Activity',
+    'profile' => 'My Profile'
+][$homeownerActivePage] ?? 'Dashboard';
+
 // Get homeowner data
 $stmt = $pdo->prepare("
     SELECT h.* 
@@ -59,33 +72,23 @@ foreach ($profileRequests as $requestItem) {
 
 $ownedVehicles = [];
 try {
-    $vehicleColumns = $pdo->query("SHOW COLUMNS FROM vehicles")->fetchAll(PDO::FETCH_COLUMN);
-    if (!empty($vehicleColumns)) {
-        $idExpr = in_array('id', $vehicleColumns, true)
-            ? 'v.id'
-            : (in_array('vehicle_id', $vehicleColumns, true) ? 'v.vehicle_id' : 'NULL');
-        $plateExpr = in_array('plate_number', $vehicleColumns, true) ? 'v.plate_number' : "''";
-        $typeExpr = in_array('vehicle_type', $vehicleColumns, true) ? 'v.vehicle_type' : "''";
-        $colorExpr = in_array('color', $vehicleColumns, true) ? 'v.color' : "''";
-        $primaryExpr = in_array('is_primary', $vehicleColumns, true) ? 'v.is_primary' : '0';
-        $imageExpr = in_array('vehicle_img', $vehicleColumns, true) ? 'v.vehicle_img' : 'NULL';
-
-        $activeFilter = '';
-        if (in_array('is_active', $vehicleColumns, true)) {
-            $activeFilter = ' AND v.is_active = 1';
-        } elseif (in_array('status', $vehicleColumns, true)) {
-            $activeFilter = " AND v.status = 'active'";
-        }
-
-        $orderExpr = in_array('registered_at', $vehicleColumns, true)
-            ? 'v.registered_at DESC'
-            : (in_array('created_at', $vehicleColumns, true) ? 'v.created_at DESC' : $idExpr . ' DESC');
-
-        $stmt = $pdo->prepare("\n            SELECT\n                {$idExpr} AS id,\n                {$plateExpr} AS plate_number,\n                {$typeExpr} AS vehicle_type,\n                {$colorExpr} AS color,\n                {$primaryExpr} AS is_primary,\n                {$imageExpr} AS vehicle_img\n            FROM vehicles v\n            WHERE v.homeowner_id = ?{$activeFilter}\n            ORDER BY {$primaryExpr} DESC, {$orderExpr}\n        ");
-        $stmt->execute([$_SESSION['homeowner_id']]);
-        $ownedVehicles = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    }
+    $stmt = $pdo->prepare("
+        SELECT
+            v.id AS id,
+            v.plate_number AS plate_number,
+            v.vehicle_type AS vehicle_type,
+            v.color AS color,
+            v.is_primary AS is_primary,
+            h.car_img AS vehicle_img
+        FROM vehicles v
+        LEFT JOIN homeowners h ON h.id = v.homeowner_id
+        WHERE v.homeowner_id = ? AND v.is_active = 1
+        ORDER BY v.is_primary DESC, v.registered_at DESC
+    ");
+    $stmt->execute([$_SESSION['homeowner_id']]);
+    $ownedVehicles = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Exception $e) {
+    error_log("Failed to load owned vehicles: " . $e->getMessage());
     $ownedVehicles = [];
 }
 
@@ -120,6 +123,7 @@ if (empty($_SESSION['csrf_token'])) {
     <link rel="stylesheet" href="../assets/css/system.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/system.css'); ?>">
     <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
     <link rel="stylesheet" href="css/homeowner.css?v=<?php echo filemtime(__DIR__ . '/css/homeowner.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/premium-polish.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/premium-polish.css'); ?>">
     <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
     <script src="../assets/js/libs/chart.umd.min.js"></script>
     <script>
@@ -166,15 +170,14 @@ if (empty($_SESSION['csrf_token'])) {
             <!-- Content Area -->
             <div class="flex-1 overflow-y-auto p-6 homeowner-content-area">
                 <!-- Dashboard Page -->
-                <div id="page-dashboard" class="page-content active">
+                <div id="page-dashboard" class="page-content<?php echo $homeownerActivePage === 'dashboard' ? ' active' : ''; ?>">
                     <div class="space-y-6 homeowner-dashboard-stack">
                         <!-- Welcome Card -->
-                        <div class="ta-card homeowner-welcome-card overflow-hidden relative border-none">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-90"></div>
-                            <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-                            <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl"></div>
+                        <div class="ta-card homeowner-welcome-card">
+                            <div class="welcome-gradient-overlay"></div>
+                            <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl opacity-50"></div>
                             
-                            <div class="relative z-10 p-8 text-white">
+                            <div class="welcome-content-wrapper">
                                 <div class="flex flex-col md:flex-row items-center gap-6">
                                     <div class="h-20 w-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl" aria-hidden="true">
                                         <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,23 +187,23 @@ if (empty($_SESSION['csrf_token'])) {
 
                                     <div class="text-center md:text-left">
                                         <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
-                                            <h2 class="text-2xl md:text-3xl font-bold tracking-tight">
+                                            <h2 class="text-2xl md:text-3xl">
                                                 Welcome back, <?= htmlspecialchars($homeowner['name'] ?? '') ?>!
                                             </h2>
                                             <?php
                                             $acctStatus = strtolower(trim($homeowner['account_status'] ?? 'approved'));
                                             $statusConfig = [
-                                                'approved' => ['bg' => 'bg-emerald-400/20', 'text' => 'text-emerald-50', 'label' => 'Verified'],
-                                                'pending' => ['bg' => 'bg-amber-400/20', 'text' => 'text-amber-50', 'label' => 'Pending'],
-                                                'rejected' => ['bg' => 'bg-red-400/20', 'text' => 'text-red-50', 'label' => 'Rejected']
+                                                'approved' => ['label' => 'Verified'],
+                                                'pending' => ['label' => 'Pending Review'],
+                                                'rejected' => ['label' => 'Account Rejected']
                                             ];
-                                            $cfg = $statusConfig[$acctStatus] ?? ['bg' => 'bg-white/10', 'text' => 'text-white/80', 'label' => ucfirst($acctStatus)];
+                                            $cfg = $statusConfig[$acctStatus] ?? ['label' => ucfirst($acctStatus)];
                                             ?>
-                                            <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $cfg['bg'] ?> <?= $cfg['text'] ?> border border-white/20 backdrop-blur-sm">
+                                            <span class="status-pill">
                                                 <?= $cfg['label'] ?>
                                             </span>
                                         </div>
-                                        <p class="text-blue-100 text-lg opacity-90 max-w-xl">
+                                        <p class="text-lg opacity-90 max-w-xl">
                                             Manage your community access, visitor passes, and vehicle information from your secure portal.
                                         </p>
                                     </div>
@@ -287,7 +290,7 @@ if (empty($_SESSION['csrf_token'])) {
                             </div>
                             <div class="ta-card-body homeowner-quick-actions-body">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 homeowner-qa-grid">
-                                    <button type="button" onclick="showAddVisitorPassModal()" class="group w-full text-left homeowner-qa-btn homeowner-qa-btn-primary">
+                                    <button type="button" data-action="showAddVisitorPassModal" class="group w-full text-left homeowner-qa-btn homeowner-qa-btn-primary">
                                         <div class="homeowner-qa-icon bg-blue-600 text-white">
                                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -299,7 +302,7 @@ if (empty($_SESSION['csrf_token'])) {
                                         </div>
                                     </button>
 
-                                    <button type="button" onclick="loadPage('passes')" class="group w-full text-left homeowner-qa-btn homeowner-qa-btn-secondary">
+                                    <button type="button" data-action="loadPage" data-page="passes" class="group w-full text-left homeowner-qa-btn homeowner-qa-btn-secondary">
                                         <div class="homeowner-qa-icon bg-slate-700 text-white">
                                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -330,7 +333,7 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
 
                 <!-- Visitor Passes Page -->
-                <div id="page-passes" class="page-content">
+                <div id="page-passes" class="page-content<?php echo $homeownerActivePage === 'passes' ? ' active' : ''; ?>">
                     <div class="space-y-6">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
@@ -338,7 +341,7 @@ if (empty($_SESSION['csrf_token'])) {
                                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Request and manage visitor passes for your guests
                                 </p>
                             </div>
-                            <button type="button" onclick="showAddVisitorPassModal()"
+                            <button type="button" data-action="showAddVisitorPassModal"
                                 class="ta-btn ta-btn-primary flex items-center gap-2">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -351,10 +354,10 @@ if (empty($_SESSION['csrf_token'])) {
                         <div class="ta-table-wrapper p-4">
                             <div class="flex flex-wrap items-center gap-3 justify-between">
                                 <div class="relative flex items-center min-w-[240px] flex-1 max-w-md">
-                                    <svg class="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="absolute left-4 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
-                                    <input type="text" id="passesSearchInput" class="ta-input pl-10" placeholder="Search by visitor, purpose, or plate...">
+                                    <input type="text" id="passesSearchInput" class="ta-input pl-12" placeholder="Search by visitor, purpose, or plate...">
                                 </div>
                                 <span id="passesResultCount" class="text-sm text-gray-600 dark:text-gray-300"></span>
                             </div>
@@ -376,7 +379,7 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
 
                 <!-- My Vehicles Page -->
-                <div id="page-vehicles" class="page-content">
+                <div id="page-vehicles" class="page-content<?php echo $homeownerActivePage === 'vehicles' ? ' active' : ''; ?>">
                     <div class="space-y-6">
                         <div class="flex items-center justify-between">
                             <div>
@@ -400,7 +403,7 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
 
                 <!-- Vehicle Activity Page -->
-                <div id="page-activity" class="page-content">
+                <div id="page-activity" class="page-content animate-fade-in-up <?php echo $homeownerActivePage === 'activity' ? ' active' : ''; ?>">
                     <div class="space-y-6">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900 dark:text-white">Vehicle Activity</h2>
@@ -408,50 +411,49 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
 
                         <!-- Time Period Selector -->
-                        <div class="ta-pill-tabs inline-flex">
+                        <div class="ta-pill-tabs inline-flex glass">
                             <button class="ta-pill-tab active px-4 py-2 rounded-md text-sm font-medium"
-                                data-period="day">Today</button>
-                            <button class="ta-pill-tab px-4 py-2 rounded-md text-sm font-medium" data-period="week">This
-                                Week</button>
+                                data-period="week">This Week</button>
+                            <button class="ta-pill-tab px-4 py-2 rounded-md text-sm font-medium" data-period="day">Today</button>
                             <button class="ta-pill-tab px-4 py-2 rounded-md text-sm font-medium" data-period="month">This
                                 Month</button>
                         </div>
 
                         <!-- Summary Cards -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="ta-stat-card">
-                                <div class="ta-stat-content">
-                                    <p class="ta-stat-title">Total Entries</p>
-                                    <p class="ta-stat-value" id="totalEntries">0</p>
-                                </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in-up animate-delay-1">
+                            <div class="ta-stat-card glass">
                                 <div class="ta-stat-icon green">
                                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                                     </svg>
                                 </div>
+                                <div class="ta-stat-content">
+                                    <p class="ta-stat-title">Total Entries</p>
+                                    <p class="ta-stat-value" id="totalEntries">0</p>
+                                </div>
                             </div>
 
-                            <div class="ta-stat-card">
-                                <div class="ta-stat-content">
-                                    <p class="ta-stat-title">Total Exits</p>
-                                    <p class="ta-stat-value" id="totalExits">0</p>
-                                </div>
+                            <div class="ta-stat-card glass">
                                 <div class="ta-stat-icon red">
                                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
                                     </svg>
                                 </div>
+                                <div class="ta-stat-content">
+                                    <p class="ta-stat-title">Total Exits</p>
+                                    <p class="ta-stat-value" id="totalExits">0</p>
+                                </div>
                             </div>
 
-                            <div class="ta-stat-card">
-                                <div class="ta-stat-content">
-                                    <p class="ta-stat-title">Total Activity</p>
-                                    <p class="ta-stat-value" id="totalActivity">0</p>
-                                </div>
+                            <div class="ta-stat-card glass">
                                 <div class="ta-stat-icon blue">
                                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
+                                </div>
+                                <div class="ta-stat-content">
+                                    <p class="ta-stat-title">Total Activity</p>
+                                    <p class="ta-stat-value" id="totalActivity">0</p>
                                 </div>
                             </div>
                         </div>
@@ -471,7 +473,7 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
 
                 <!-- Profile Page -->
-                <div id="page-profile" class="page-content">
+                <div id="page-profile" class="page-content<?php echo $homeownerActivePage === 'profile' ? ' active' : ''; ?>">
                     <div class="space-y-6">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900 dark:text-white">My Profile</h2>
@@ -505,13 +507,13 @@ if (empty($_SESSION['csrf_token'])) {
                                                     if (file_exists(__DIR__ . '/../uploads/' . $homeowner['owner_img'])):
                                                         ?>
                                                         <button type="button" class="relative aspect-square overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 shadow-sm transition-shadow duration-300 hover:shadow-md focus:outline-none"
-                                                            onclick="viewImage('<?= htmlspecialchars($ownerImgPath ?? '') ?>', 'Owner Photo')">
+                                                            data-zoom-src="<?= htmlspecialchars($ownerImgPath ?? '') ?>" data-zoom-title="Owner Photo">
                                                             <img src="<?= htmlspecialchars($ownerImgPath ?? '') ?>" alt="Owner Photo"
                                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                                         </button>
                                                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                             <button type="button"
-                                                                onclick="viewImage('<?= htmlspecialchars($ownerImgPath ?? '') ?>', 'Owner Photo')"
+                                                                data-zoom-src="<?= htmlspecialchars($ownerImgPath ?? '') ?>" data-zoom-title="Owner Photo"
                                                                 class="ta-btn ta-btn-secondary h-9 w-9 justify-center rounded-lg bg-white/90 px-0 shadow-lg backdrop-blur hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700"
                                                                 aria-label="View owner photo">
                                                                 <svg class="h-5 w-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -557,13 +559,13 @@ if (empty($_SESSION['csrf_token'])) {
                                                     if (file_exists(__DIR__ . '/../uploads/' . $homeowner['car_img'])):
                                                         ?>
                                                         <button type="button" class="relative aspect-square overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 shadow-sm transition-shadow duration-300 hover:shadow-md focus:outline-none"
-                                                            onclick="viewImage('<?= htmlspecialchars($carImgPath ?? '') ?>', 'Vehicle Photo')">
+                                                            data-zoom-src="<?= htmlspecialchars($carImgPath ?? '') ?>" data-zoom-title="Vehicle Photo">
                                                             <img src="<?= htmlspecialchars($carImgPath ?? '') ?>" alt="Vehicle Photo"
                                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                                         </button>
                                                         <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                             <button type="button"
-                                                                onclick="viewImage('<?= htmlspecialchars($carImgPath ?? '') ?>', 'Vehicle Photo')"
+                                                                data-zoom-src="<?= htmlspecialchars($carImgPath ?? '') ?>" data-zoom-title="Vehicle Photo"
                                                                 class="ta-btn ta-btn-secondary h-9 w-9 justify-center rounded-lg bg-white/90 px-0 shadow-lg backdrop-blur hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700"
                                                                 aria-label="View vehicle photo">
                                                                 <svg class="h-5 w-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,7 +603,7 @@ if (empty($_SESSION['csrf_token'])) {
                                             <h4 class="ta-card-title">My Vehicles</h4>
                                             <div class="flex items-center gap-2">
                                                 <span class="ta-badge neutral"><?= count($ownedVehicles) ?> Registered</span>
-                                                <button type="button" class="ta-btn ta-btn-primary ta-btn-sm" onclick="showAddVehicleModal()">
+                                                <button type="button" class="ta-btn ta-btn-primary ta-btn-sm" data-action="showAddVehicleModal">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                                     Add New
                                                 </button>
@@ -641,7 +643,7 @@ if (empty($_SESSION['csrf_token'])) {
                                                             <div class="flex items-center gap-2">
                                                                 <?php if ($vehicleImgPath !== ''): ?>
                                                                     <button type="button"
-                                                                        onclick="viewImage('<?= htmlspecialchars($vehicleImgPath ?? '') ?>', 'Vehicle Image - <?= htmlspecialchars((string)($vehicle['plate_number'] ?? '')) ?>')"
+                                                                        data-zoom-src="<?= htmlspecialchars($vehicleImgPath ?? '') ?>" data-zoom-title="Vehicle Image - <?= htmlspecialchars((string)($vehicle['plate_number'] ?? '')) ?>"
                                                                         class="ta-btn ta-btn-secondary h-8 px-2.5 text-xs whitespace-nowrap"
                                                                         aria-label="View vehicle image">
                                                                         View image
@@ -649,7 +651,7 @@ if (empty($_SESSION['csrf_token'])) {
                                                                 <?php else: ?>
                                                                     <span class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap hidden sm:inline">No image</span>
                                                                 <?php endif; ?>
-                                                                <button type="button" onclick="deleteVehicle(<?= (int)$vehicle['id'] ?>)" class="ta-btn ta-btn-secondary h-8 w-8 px-0 flex items-center justify-center text-red-500 hover:bg-red-50 hover:border-red-200" title="Remove Vehicle">
+                                                                <button type="button" data-action="deleteVehicle" data-vehicle-id="<?= (int)$vehicle['id'] ?>" class="ta-btn ta-btn-secondary h-8 w-8 px-0 flex items-center justify-center text-red-500 hover:bg-red-50 hover:border-red-200" title="Remove Vehicle">
                                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                                 </button>
                                                             </div>
@@ -913,11 +915,11 @@ if (empty($_SESSION['csrf_token'])) {
     <!-- Add Vehicle Modal -->
     <div id="addVehicleModal" class="hidden fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <button type="button" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity focus:outline-none" aria-hidden="true" aria-label="Close add vehicle modal" onclick="closeAddVehicleModal()"></button>
+            <button type="button" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity focus:outline-none" aria-hidden="true" aria-label="Close add vehicle modal" data-action="closeAddVehicleModal"></button>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
                 <form id="addVehicleForm" action="api/add_vehicle.php" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                     <div class="bg-white dark:bg-slate-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4" id="modal-title">Register New Vehicle</h3>
                         
@@ -951,7 +953,7 @@ if (empty($_SESSION['csrf_token'])) {
                         <button type="submit" id="addVehicleSubmitBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
                             Add Vehicle
                         </button>
-                        <button type="button" onclick="closeAddVehicleModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="button" data-action="closeAddVehicleModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-slate-600 shadow-sm px-4 py-2 bg-white dark:bg-slate-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Cancel
                         </button>
                     </div>
@@ -1092,8 +1094,28 @@ if (empty($_SESSION['csrf_token'])) {
                     if (ownerImg) fd.append('owner_img', ownerImg);
                     if (carImg) fd.append('car_img', carImg);
 
-                    const res = await fetch('api/submit_profile_request.php', { method: 'POST', body: fd });
-                    const data = await res.json();
+                    const fetchJson = window.homeownerFetchJson || (async (url, options = {}) => {
+                        const response = await fetch(url, {
+                            credentials: 'same-origin',
+                            ...options,
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                ...(options.headers || {})
+                            }
+                        });
+                        const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+                        if (!contentType.includes('application/json')) {
+                            throw new Error(`Unexpected server response (${response.status})`);
+                        }
+                        const payload = await response.json();
+                        if (!response.ok) {
+                            throw new Error(payload.message || payload.error || `Request failed (${response.status})`);
+                        }
+                        return payload;
+                    });
+
+                    const data = await fetchJson('api/submit_profile_request.php', { method: 'POST', body: fd });
 
                     if (data.success) {
                         await Swal.fire({
@@ -1124,6 +1146,13 @@ if (empty($_SESSION['csrf_token'])) {
         }
     })();
     </script>
+
+    <!-- Image Zoom Modal -->
+    <div id="imageZoomModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 hidden z-50" role="dialog" aria-modal="true" aria-label="Image zoom viewer" aria-hidden="true">
+        <button type="button" class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition-colors z-10" onclick="closeImageZoom()" aria-label="Close image zoom">&times;</button>
+        <img id="zoomedImage" src="" alt="Zoomed" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+    </div>
+
 </body>
 
 </html>

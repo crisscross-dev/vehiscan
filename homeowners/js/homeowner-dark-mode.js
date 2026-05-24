@@ -16,19 +16,15 @@
     // Initialize theme
     function enableDarkMode() {
         html.classList.add('dark');
-        // Homeowner side unfortunately has hardcoded backgrounds in some places or uses different structure.
-        // We enforce the dark classes on body to cascade.
-        body.classList.add('dark', 'bg-slate-900', 'text-white');
-        body.classList.remove('bg-[#F5F5F5]', 'text-gray-900');
-        // Also target the inline style if possible, or override via class
-        body.style.backgroundColor = ''; // Remove inline style
+        body.classList.add('dark');
+        // Remove hardcoded styles to let CSS handle it
+        body.style.backgroundColor = ''; 
     }
 
     function enableLightMode() {
         html.classList.remove('dark');
-        body.classList.remove('dark', 'bg-slate-900', 'text-white');
-        body.classList.add('text-gray-900');
-        body.style.backgroundColor = '#F5F5F5'; // Restore default light bg
+        body.classList.remove('dark');
+        body.style.backgroundColor = ''; 
     }
 
     // Initialize on load

@@ -9,7 +9,7 @@ This directory contains diagnostic and debugging tools for the Vehiscan RFID sys
 ### RFID_DIAGNOSTIC.php
 **Purpose:** Comprehensive RFID simulator diagnostic tool 
 **Access:** Direct browser access 
-**URL:** `http://localhost/Vehiscan-RFID/admin/diagnostics/RFID_DIAGNOSTIC.php`
+**URL:** `{APP_URL}/admin/diagnostics/RFID_DIAGNOSTIC.php` (configure APP_URL in .env)
 
 **Checks:**
 - Database connection status

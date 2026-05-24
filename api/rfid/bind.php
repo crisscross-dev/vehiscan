@@ -25,7 +25,8 @@ $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 if (!in_array($method, ['GET', 'POST'], true)) {
     http_response_code(405);
     header('Allow: GET, POST');
-    exit(json_encode(['success' => false, 'message' => 'Method not allowed']));
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
 }
 
 // Multi-role session: use guard session ONLY when no admin/superadmin cookie exists.
@@ -40,7 +41,8 @@ if (isset($_COOKIE['vehiscan_guard']) && !$hasAdminCookie) {
 // Auth check - admin, super_admin, or guard can bind RFID
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'super_admin', 'guard'])) {
     http_response_code(403);
-    exit(json_encode(['success' => false, 'message' => 'Unauthorized']));
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
 }
 
 /**
@@ -54,7 +56,8 @@ function requireCsrf($context) {
             . ', has_session_token=' . (isset($_SESSION['csrf_token']) ? 'yes' : 'no')
             . ', has_posted_token=' . (!empty($csrfToken) ? 'yes' : 'no'));
         http_response_code(403);
-        exit(json_encode(['success' => false, 'message' => 'Invalid security token']));
+        echo json_encode(['success' => false, 'message' => 'Invalid security token']);
+        exit;
     }
 }
 
@@ -67,7 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if (empty($action)) {
     http_response_code(400);
-    exit(json_encode(['success' => false, 'message' => 'Action is required']));
+    echo json_encode(['success' => false, 'message' => 'Action is required']);
+    exit;
 }
 
 switch ($action) {
@@ -85,7 +89,8 @@ switch ($action) {
         break;
     default:
         http_response_code(400);
-        exit(json_encode(['success' => false, 'message' => 'Invalid action']));
+        echo json_encode(['success' => false, 'message' => 'Invalid action']);
+        exit;
 }
 
 /**
@@ -99,7 +104,8 @@ function handleInitiate() {
     $vehicleId = InputSanitizer::post('vehicle_id', 'int');
     if (!$vehicleId) {
         http_response_code(400);
-        exit(json_encode(['success' => false, 'message' => 'Vehicle ID is required']));
+        echo json_encode(['success' => false, 'message' => 'Vehicle ID is required']);
+        exit;
     }
 
     try {
@@ -117,16 +123,20 @@ function handleInitiate() {
 
         if (!$vehicle) {
             $pdo->rollBack();
-            exit(json_encode(['success' => false, 'message' => 'Vehicle not found']));
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Vehicle not found']);
+            exit;
         }
 
         // Check if vehicle already has an RFID bound
         if (!empty($vehicle['rfid_uid'])) {
             $pdo->rollBack();
-            exit(json_encode([
+            http_response_code(409);
+            echo json_encode([
                 'success' => false,
                 'message' => "Vehicle {$vehicle['plate_number']} already has RFID tag bound ({$vehicle['rfid_uid']}). Unbind first."
-            ]));
+            ]);
+            exit;
         }
 
         // Cancel any existing pending sessions for this vehicle (locked by default in UPDATE)
@@ -167,7 +177,7 @@ function handleInitiate() {
         logAudit('RFID binding initiated', 'vehicles', $vehicleId, 
             "Binding session #{$sessionId} for {$vehicle['plate_number']}");
 
-        exit(json_encode([
+        echo json_encode([
             'success' => true,
             'message' => "Binding session started for {$vehicle['plate_number']}. Scan an RFID tag within 5 minutes.",
             'data' => [
@@ -180,12 +190,14 @@ function handleInitiate() {
                 'expires_at' => $expiresAt,
                 'timeout_seconds' => 300
             ]
-        ]));
+        ]);
+        exit;
 
     } catch (PDOException $e) {
         error_log('[RFID_BIND] Initiate error: ' . $e->getMessage());
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Database error']));
+        echo json_encode(['success' => false, 'message' => 'Database error']);
+        exit;
     }
 }
 
@@ -200,7 +212,8 @@ function handleCancel() {
     $sessionId = InputSanitizer::post('session_id', 'int');
     if (!$sessionId) {
         http_response_code(400);
-        exit(json_encode(['success' => false, 'message' => 'Session ID is required']));
+        echo json_encode(['success' => false, 'message' => 'Session ID is required']);
+        exit;
     }
 
     try {
@@ -215,20 +228,24 @@ function handleCancel() {
 
         if ($stmt->rowCount() === 0) {
             $pdo->rollBack();
-            exit(json_encode(['success' => false, 'message' => 'No active session found to cancel']));
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'No active session found to cancel']);
+            exit;
         }
 
         logAudit('RFID binding cancelled', 'rfid_binding_sessions', $sessionId, 'Binding session cancelled by user');
 
         $pdo->commit();
 
-        exit(json_encode(['success' => true, 'message' => 'Binding session cancelled']));
+        echo json_encode(['success' => true, 'message' => 'Binding session cancelled']);
+        exit;
 
     } catch (PDOException $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
         error_log('[RFID_BIND] Cancel error: ' . $e->getMessage());
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Database error']));
+        echo json_encode(['success' => false, 'message' => 'Database error']);
+        exit;
     }
 }
 
@@ -243,7 +260,8 @@ function handleUnbind() {
     $vehicleId = InputSanitizer::post('vehicle_id', 'int');
     if (!$vehicleId) {
         http_response_code(400);
-        exit(json_encode(['success' => false, 'message' => 'Vehicle ID is required']));
+        echo json_encode(['success' => false, 'message' => 'Vehicle ID is required']);
+        exit;
     }
 
     try {
@@ -256,12 +274,16 @@ function handleUnbind() {
 
         if (!$vehicle) {
             $pdo->rollBack();
-            exit(json_encode(['success' => false, 'message' => 'Vehicle not found']));
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Vehicle not found']);
+            exit;
         }
 
         if (empty($vehicle['rfid_uid'])) {
             $pdo->rollBack();
-            exit(json_encode(['success' => false, 'message' => 'Vehicle has no RFID tag bound']));
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Vehicle has no RFID tag bound']);
+            exit;
         }
 
         $oldUid = $vehicle['rfid_uid'];
@@ -275,7 +297,7 @@ function handleUnbind() {
 
         $pdo->commit();
 
-        exit(json_encode([
+        echo json_encode([
             'success' => true,
             'message' => "RFID tag removed from {$vehicle['plate_number']}",
             'data' => [
@@ -283,13 +305,15 @@ function handleUnbind() {
                 'plate_number' => $vehicle['plate_number'],
                 'old_rfid_uid' => $oldUid
             ]
-        ]));
+        ]);
+        exit;
 
     } catch (PDOException $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
         error_log('[RFID_BIND] Unbind error: ' . $e->getMessage());
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Database error']));
+        echo json_encode(['success' => false, 'message' => 'Database error']);
+        exit;
     }
 }
 
@@ -329,12 +353,13 @@ function handleStatus() {
             $session = $stmt->fetch();
 
             if (!$session) {
-                exit(json_encode(['success' => true, 'active' => false, 'message' => 'No active binding session']));
+                echo json_encode(['success' => true, 'active' => false, 'message' => 'No active binding session']);
+                exit;
             }
 
             $remaining = max(0, strtotime($session['expires_at']) - time());
 
-            exit(json_encode([
+            echo json_encode([
                 'success' => true,
                 'active' => true,
                 'data' => [
@@ -346,11 +371,14 @@ function handleStatus() {
                     'expires_at' => $session['expires_at'],
                     'remaining_seconds' => $remaining
                 ]
-            ]));
+            ]);
+            exit;
 
         } catch (PDOException $e) {
             error_log('[RFID_BIND] Status check error: ' . $e->getMessage());
-            exit(json_encode(['success' => false, 'message' => 'Database error']));
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Database error']);
+            exit;
         }
     }
 
@@ -367,7 +395,8 @@ function handleStatus() {
 
         if (!$session) {
             http_response_code(404);
-            exit(json_encode(['success' => false, 'message' => 'Session not found']));
+            echo json_encode(['success' => false, 'message' => 'Session not found']);
+            exit;
         }
 
         // Check if session has expired
@@ -379,7 +408,7 @@ function handleStatus() {
 
         $remaining = $session['status'] === 'pending' ? max(0, strtotime($session['expires_at']) - time()) : 0;
 
-        exit(json_encode([
+        echo json_encode([
             'success' => true,
             'active' => $session['status'] === 'pending',
             'data' => [
@@ -393,11 +422,13 @@ function handleStatus() {
                 'completed_at' => $session['completed_at'],
                 'remaining_seconds' => $remaining
             ]
-        ]));
+        ]);
+        exit;
 
     } catch (PDOException $e) {
         error_log('[RFID_BIND] Status error: ' . $e->getMessage());
         http_response_code(500);
-        exit(json_encode(['success' => false, 'message' => 'Database error']));
+        echo json_encode(['success' => false, 'message' => 'Database error']);
+        exit;
     }
 }

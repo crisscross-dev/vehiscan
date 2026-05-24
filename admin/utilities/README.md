@@ -89,8 +89,8 @@ This directory contains utility scripts for database operations, reports, and ma
 
 **Manual Execution:**
 ```bash
-# Via browser
-http://localhost/Vehiscan-RFID/admin/utilities/backup_database.php
+# Via browser (use your configured APP_URL from .env)
+{APP_URL}/admin/utilities/backup_database.php
 
 # Via command line
 php backup_database.php
@@ -101,7 +101,7 @@ php backup_database.php
 ### Report Generation
 **From Admin Panel:**
 ```
-http://localhost/Vehiscan-RFID/admin/utilities/generate_report.php?type=daily&format=html&from=2025-11-12&to=2025-11-12
+{APP_URL}/admin/utilities/generate_report.php?type=daily&format=html&from=2025-11-12&to=2025-11-12
 ```
 
 **Parameters:**

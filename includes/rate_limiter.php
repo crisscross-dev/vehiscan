@@ -6,6 +6,7 @@
 
 class RateLimiter {
     private $pdo;
+    private $rateLimitColumns = null;
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
@@ -28,6 +29,8 @@ class RateLimiter {
 
             $identifier = $this->normalizeIdentifier($identifier);
             $windowMinutes = max(1, (int)$windowMinutes);
+            $lookupKey = $this->getLookupValue($identifier);
+            $whereColumn = $this->getIdentifierColumnName();
 
             $windowStmt = $this->pdo->prepare("SELECT DATE_SUB(NOW(), INTERVAL ? MINUTE)");
             $windowStmt->execute([$windowMinutes]);
@@ -38,8 +41,8 @@ class RateLimiter {
 
             $this->pdo->prepare("DELETE FROM rate_limits WHERE created_at < ?")->execute([$windowStart]);
 
-            $stmt = $this->pdo->prepare("\n                SELECT COUNT(*) as attempt_count, MIN(created_at) as oldest_attempt\n                FROM rate_limits\n                WHERE action = ?\n                AND created_at >= ?\n                AND (identifier = ? OR ip_address = ?)\n            ");
-            $stmt->execute([$action, $windowStart, $identifier, $identifier]);
+            $stmt = $this->pdo->prepare("\n                SELECT COUNT(*) as attempt_count, MIN(created_at) as oldest_attempt\n                FROM rate_limits\n                WHERE action = ?\n                AND created_at >= ?\n                AND {$whereColumn} = ?\n            ");
+            $stmt->execute([$action, $windowStart, $lookupKey]);
             $result = $stmt->fetch();
             $attemptCount = $result ? (int)$result['attempt_count'] : 0;
             $oldestAttempt = $result['oldest_attempt'] ?? null;
@@ -72,8 +75,9 @@ class RateLimiter {
             }
 
             $identifier = $this->normalizeIdentifier($identifier);
-            $ipAddress = filter_var($identifier, FILTER_VALIDATE_IP)
-                ? $identifier
+            $lookupKey = $this->getLookupValue($identifier);
+            $ipAddress = filter_var($lookupKey, FILTER_VALIDATE_IP)
+                ? $lookupKey
                 : ($_SERVER['REMOTE_ADDR'] ?? null);
 
             $metadataJson = null;
@@ -84,15 +88,48 @@ class RateLimiter {
                 }
             }
 
-            $stmt = $this->pdo->prepare("\n                INSERT INTO rate_limits (identifier, action, ip_address, user_agent, metadata, created_at)\n                VALUES (?, ?, ?, ?, ?, NOW())\n            ");
+            $columns = [];
+            $values = [];
 
-            $stmt->execute([
-                $identifier,
-                $action,
-                $ipAddress,
-                $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-                $metadataJson
-            ]);
+            if ($this->hasColumn('identifier')) {
+                $columns[] = 'identifier';
+                $values[] = $identifier;
+            }
+
+            if ($this->hasColumn('ip_address')) {
+                $columns[] = 'ip_address';
+                $values[] = $ipAddress ?? $lookupKey;
+            }
+
+            if ($this->hasColumn('user_id')) {
+                $columns[] = 'user_id';
+                $values[] = null;
+            }
+
+            if ($this->hasColumn('action')) {
+                $columns[] = 'action';
+                $values[] = $action;
+            }
+
+            if ($this->hasColumn('user_agent')) {
+                $columns[] = 'user_agent';
+                $values[] = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+            }
+
+            if ($this->hasColumn('metadata')) {
+                $columns[] = 'metadata';
+                $values[] = $metadataJson;
+            }
+
+            if ($this->hasColumn('success')) {
+                $columns[] = 'success';
+                $values[] = 0;
+            }
+
+            $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+            $columnList = implode(', ', $columns);
+            $stmt = $this->pdo->prepare("INSERT INTO rate_limits ({$columnList}, created_at) VALUES ({$placeholders}, NOW())");
+            $stmt->execute($values);
         } catch (PDOException $e) {
             error_log("Rate limiter record error: " . $e->getMessage());
         }
@@ -108,9 +145,11 @@ class RateLimiter {
             }
 
             $identifier = $this->normalizeIdentifier($identifier);
+            $lookupKey = $this->getLookupValue($identifier);
+            $whereColumn = $this->getIdentifierColumnName();
 
-            $stmt = $this->pdo->prepare("\n                DELETE FROM rate_limits\n                WHERE action = ? AND (identifier = ? OR ip_address = ?)\n            ");
-            $stmt->execute([$action, $identifier, $identifier]);
+            $stmt = $this->pdo->prepare("\n                DELETE FROM rate_limits\n                WHERE action = ? AND {$whereColumn} = ?\n            ");
+            $stmt->execute([$action, $lookupKey]);
         } catch (PDOException $e) {
             error_log("Rate limiter reset error: " . $e->getMessage());
         }
@@ -136,6 +175,55 @@ class RateLimiter {
     private function normalizeIdentifier($identifier) {
         $value = trim((string)$identifier);
         return $value !== '' ? $value : 'unknown';
+    }
+
+    private function getLookupValue(string $identifier): string {
+        if ($this->hasColumn('identifier')) {
+            return $identifier;
+        }
+
+        $remoteAddr = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+        return $remoteAddr !== '' ? $remoteAddr : $identifier;
+    }
+
+    private function getIdentifierColumnName(): string {
+        if ($this->hasColumn('identifier')) {
+            return 'identifier';
+        }
+
+        if ($this->hasColumn('ip_address')) {
+            return 'ip_address';
+        }
+
+        return 'identifier';
+    }
+
+    private function hasColumn(string $columnName): bool {
+        $columns = $this->getRateLimitColumns();
+        return isset($columns[strtolower($columnName)]);
+    }
+
+    private function getRateLimitColumns(): array {
+        if ($this->rateLimitColumns !== null) {
+            return $this->rateLimitColumns;
+        }
+
+        $this->rateLimitColumns = [];
+
+        try {
+            $stmt = $this->pdo->query('SHOW COLUMNS FROM rate_limits');
+            if ($stmt !== false) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    if (!empty($row['Field'])) {
+                        $this->rateLimitColumns[strtolower((string)$row['Field'])] = true;
+                    }
+                }
+            }
+        } catch (PDOException $e) {
+            error_log('Rate limiter schema lookup error: ' . $e->getMessage());
+        }
+
+        return $this->rateLimitColumns;
     }
 
     private function isEnabled() {

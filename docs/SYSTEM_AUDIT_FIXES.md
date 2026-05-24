@@ -85,14 +85,14 @@ if (typeof Chart === 'undefined') {
 ---
 
 ### 4. **Session File Inconsistency** FIXED
-**Problem:** Mixed usage of `session_admin.php` vs `session_admin_unified.php`
+**Problem:** Historical references to `session_admin.php` vs `session_admin_unified.php`
 
 **File Fixed:** [`auth/keep_alive.php`](auth/keep_alive.php)
 
 **Solution:**
 ```php
 // BEFORE:
-require_once __DIR__ . '/../includes/session_admin.php';
+require_once __DIR__ . '/../includes/session_admin_unified.php';
 
 // AFTER:
 require_once __DIR__ . '/../includes/session_admin_unified.php';
@@ -155,14 +155,14 @@ Removed 10+ console.log statements:
 ```
 includes/
 ├── session_admin_unified.php ACTIVE (Admin + Super Admin)
-├── session_admin.php LEGACY (Still used by dev-tools)
+├── session_admin_unified.php ACTIVE (Admin + Super Admin)
 ├── session_super_admin.php ACTIVE (Super Admin only)
 ├── session_guard.php ACTIVE (Guard role)
 ├── session_homeowner.php ACTIVE (Homeowner role)
 └── session_config.php ACTIVE (Shared config)
 ```
 
-**Recommendation:** Keep `session_admin.php` for backward compatibility with dev tools
+**Recommendation:** Use `session_admin_unified.php` in active code; update any lingering legacy docs or tools that still mention `session_admin.php`
 
 ---
 

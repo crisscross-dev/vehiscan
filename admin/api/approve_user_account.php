@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../includes/request_method_helper.php';
 require_once __DIR__ . '/../../includes/session_admin_unified.php';
 require_once __DIR__ . '/../../includes/email.php';
 require_once __DIR__ . '/../../includes/email_templates.php';
+require_once __DIR__ . '/../../includes/rate_limiter.php';
 require_once __DIR__ . '/../../config.php';
 
 header('Content-Type: application/json');
@@ -13,6 +14,27 @@ header('Content-Type: application/json');
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+
+// Rate limit: 30 account approvals/rejections per minute per user
+$rateLimiter = new RateLimiter($pdo);
+$approverId = (int)($_SESSION['user_id'] ?? $_SESSION['admin_id'] ?? 0);
+$approverName = trim((string)($_SESSION['username'] ?? ''));
+if ($approverId <= 0 && $approverName === '') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Invalid approver session']);
+    exit();
+}
+$approverRateKey = $approverId > 0 ? "approver_{$approverId}" : ('approver_' . md5((string)($_SESSION['username'] ?? session_id())));
+$limitCheck = $rateLimiter->check($approverRateKey, 'account_approval', 30, 1);
+if (!$limitCheck['allowed']) {
+    http_response_code(429); // Too Many Requests
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Too many account approvals. Please try again later.',
+        'retryAfter' => $limitCheck['reset_time']
+    ]);
     exit();
 }
 
@@ -54,18 +76,53 @@ if ($accountType !== '' && !in_array($accountType, ['homeowner', 'user'], true))
 try {
     $pdo->beginTransaction();
 
-        // Determine target table. Account type is preferred to avoid ID collisions.
-        if ($accountType === 'homeowner') {
-            $isHomeowner = true;
-        } elseif ($accountType === 'user') {
-            $isHomeowner = false;
-        } else {
-            // Backward compatibility path for older clients not sending account_type.
-            $checkStmt = $pdo->prepare("SELECT id, account_status FROM homeowners WHERE id = ? LIMIT 1");
-            $checkStmt->execute([$userId]);
-            $homeownerRecord = $checkStmt->fetch(PDO::FETCH_ASSOC);
-            $isHomeowner = (bool)$homeownerRecord;
+    $homeowner = null;
+    $user = null;
+
+    // Determine target table. Account type is preferred to avoid ID collisions.
+    if ($accountType === 'homeowner') {
+        $isHomeowner = true;
+    } elseif ($accountType === 'user') {
+        $isHomeowner = false;
+    } else {
+        // Backward compatibility path for older clients not sending account_type.
+        $checkStmt = $pdo->prepare("SELECT id, account_status FROM homeowners WHERE id = ? LIMIT 1 FOR UPDATE");
+        $checkStmt->execute([$userId]);
+        $homeownerRecord = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        $isHomeowner = (bool)$homeownerRecord;
+    }
+
+    if ($isHomeowner) {
+        $lockedStmt = $pdo->prepare("SELECT id, email, first_name, last_name, account_status FROM homeowners WHERE id = ? LIMIT 1 FOR UPDATE");
+        $lockedStmt->execute([$userId]);
+        $homeowner = $lockedStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$homeowner) {
+            throw new RuntimeException('Homeowner account not found');
         }
+
+        if (($homeowner['account_status'] ?? '') !== 'pending') {
+            $pdo->rollBack();
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Account has already been processed']);
+            exit();
+        }
+    } else {
+        $lockedStmt = $pdo->prepare("SELECT id, email, username, account_status FROM users WHERE id = ? LIMIT 1 FOR UPDATE");
+        $lockedStmt->execute([$userId]);
+        $user = $lockedStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            throw new RuntimeException('User account not found');
+        }
+
+        if (($user['account_status'] ?? '') !== 'pending') {
+            $pdo->rollBack();
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Account has already been processed']);
+            exit();
+        }
+    }
         
         if ($action === 'approve') {
             if ($isHomeowner) {
@@ -91,10 +148,7 @@ try {
                     throw new RuntimeException('Homeowner auth activation failed');
                 }
                 
-                // Get homeowner info for notification
-                $stmt = $pdo->prepare("SELECT email, first_name, last_name FROM homeowners WHERE id = ?");
-                $stmt->execute([$userId]);
-                $homeowner = $stmt->fetch();
+                // Locked homeowner row already fetched above for notification.
                 
                 // Log the approval
                 try {
@@ -102,7 +156,7 @@ try {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'homeowner', 'approved', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     // Table may not exist, continue anyway
                     error_log('Could not log approval: ' . $e->getMessage());
@@ -119,7 +173,7 @@ try {
                         approved_at = NOW()
                     WHERE id = ?
                 ");
-                $stmt->execute([$_SESSION['user_id'], $userId]);
+                $stmt->execute([$approverId, $userId]);
                 if ($stmt->rowCount() !== 1) {
                     throw new RuntimeException('User approval update failed');
                 }
@@ -130,7 +184,7 @@ try {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'user', 'approved', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     error_log('Could not log approval: ' . $e->getMessage());
                 }
@@ -162,10 +216,7 @@ try {
                     throw new RuntimeException('Homeowner auth deactivation failed');
                 }
                 
-                // Get homeowner info
-                $stmt = $pdo->prepare("SELECT email, first_name, last_name FROM homeowners WHERE id = ?");
-                $stmt->execute([$userId]);
-                $homeowner = $stmt->fetch();
+                // Locked homeowner row already fetched above for notification.
                 
                 // Log the rejection
                 try {
@@ -173,7 +224,7 @@ try {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'homeowner', 'rejected', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     error_log('Could not log rejection: ' . $e->getMessage());
                 }
@@ -190,7 +241,7 @@ try {
                         rejection_reason = ?
                     WHERE id = ?
                 ");
-                $stmt->execute([$_SESSION['user_id'], $reason, $userId]);
+                $stmt->execute([$approverId, $reason, $userId]);
                 if ($stmt->rowCount() !== 1) {
                     throw new RuntimeException('User rejection update failed');
                 }
@@ -201,7 +252,7 @@ try {
                         INSERT INTO account_approval_log (user_id, user_type, action, approved_by, reason)
                         VALUES (?, 'user', 'rejected', ?, ?)
                     ");
-                    $stmt->execute([$userId, $_SESSION['user_id'], $reason]);
+                    $stmt->execute([$userId, $approverId, $reason]);
                 } catch (PDOException $e) {
                     error_log('Could not log rejection: ' . $e->getMessage());
                 }

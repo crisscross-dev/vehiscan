@@ -18,8 +18,8 @@
                 HOMEOWNER PORTAL
             </div>
             <div class="space-y-1">
-                <a href="#"
-                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 active"
+                <a href="?hpage=dashboard"
+                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 <?php echo (($homeownerActivePage ?? 'dashboard') === 'dashboard') ? 'active' : ''; ?>"
                     data-page="dashboard">
                     <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -29,8 +29,8 @@
                     <span>Dashboard</span>
                 </a>
 
-                <a href="#"
-                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                <a href="?hpage=passes"
+                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 <?php echo (($homeownerActivePage ?? 'dashboard') === 'passes') ? 'active' : ''; ?>"
                     data-page="passes">
                     <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -40,8 +40,8 @@
                     <span>Visitor Passes</span>
                 </a>
 
-                <a href="#"
-                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                <a href="?hpage=vehicles"
+                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 <?php echo (($homeownerActivePage ?? 'dashboard') === 'vehicles') ? 'active' : ''; ?>"
                     data-page="vehicles">
                     <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -51,8 +51,8 @@
                     <span>My Vehicles</span>
                 </a>
 
-                <a href="#"
-                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                <a href="?hpage=activity"
+                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 <?php echo (($homeownerActivePage ?? 'dashboard') === 'activity') ? 'active' : ''; ?>"
                     data-page="activity">
                     <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -62,8 +62,8 @@
                     <span>Vehicle Activity</span>
                 </a>
 
-                <a href="#"
-                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+                <a href="?hpage=profile"
+                    class="menu-item flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 <?php echo (($homeownerActivePage ?? 'dashboard') === 'profile') ? 'active' : ''; ?>"
                     data-page="profile">
                     <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

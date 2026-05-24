@@ -57,8 +57,8 @@ class TableEnhancer {
       
       // Add sort icon
       const icon = document.createElement('span');
-      icon.className = 'sort-icon';
-      icon.innerHTML = '⇅';
+      icon.className = 'sort-icon ml-2 text-gray-400 group-hover:text-blue-500 transition-colors';
+      icon.innerHTML = '<svg class="h-3 w-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>';
       header.appendChild(icon);
       
       header.addEventListener('click', () => {
@@ -83,12 +83,18 @@ class TableEnhancer {
     headers.forEach(h => {
       h.classList.remove('sort-asc', 'sort-desc');
       const icon = h.querySelector('.sort-icon');
-      if (icon) icon.innerHTML = '⇅';
+      if (icon) icon.innerHTML = '<svg class="h-3 w-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>';
     });
     
     header.classList.add(`sort-${this.sortDirection}`);
     const icon = header.querySelector('.sort-icon');
-    if (icon) icon.innerHTML = this.sortDirection === 'asc' ? '↑' : '↓';
+    if (icon) {
+      if (this.sortDirection === 'asc') {
+        icon.innerHTML = '<svg class="h-3 w-3 inline text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>';
+      } else {
+        icon.innerHTML = '<svg class="h-3 w-3 inline text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>';
+      }
+    }
     
     // Sort data
     this.filteredRows.sort((a, b) => {

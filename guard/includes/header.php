@@ -10,7 +10,7 @@
     </button>
 
     <div class="flex items-center gap-2">
-        <h1 id="page-title" class="text-lg font-semibold text-gray-900 dark:text-white">VehiScan</h1>
+        <h1 id="page-title" class="text-lg font-semibold text-gray-900 dark:text-white"><?php echo htmlspecialchars($guardPageTitle); ?></h1>
         <button id="editDashboardTitleBtn" type="button"
             class="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-gray-200 transition-colors"
             aria-label="Edit dashboard title" title="Edit dashboard title">
