@@ -38,6 +38,33 @@ jobs:
           name: ssh-diagnostics
           path: deploy-logs/ssh_test.out
 
+      - name: Export public key and fingerprint
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          ssh-keygen -y -f ~/.ssh/private_key > $GITHUB_WORKSPACE/deploy-logs/public_key.pub || true
+          if [ -s $GITHUB_WORKSPACE/deploy-logs/public_key.pub ]; then
+            ssh-keygen -lf $GITHUB_WORKSPACE/deploy-logs/public_key.pub -E sha256 > $GITHUB_WORKSPACE/deploy-logs/public_key.fingerprint || true
+          else
+            echo "public_key_generation_failed" > $GITHUB_WORKSPACE/deploy-logs/public_key.fingerprint || true
+          fi
+
+      - name: Capture verbose SSH (diagnostic)
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          ssh -i ~/.ssh/private_key -p 65002 -o BatchMode=yes -o ConnectTimeout=10 -vvv u321426185@145.79.28.1 "echo REMOTE_VERBOSE_OK" > $GITHUB_WORKSPACE/deploy-logs/ssh_verbose.out 2>&1 || true
+
+      - name: Rsync dry-run (diagnostic)
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          RSYNC_SSH="ssh -i ~/.ssh/private_key -p 65002 -o StrictHostKeyChecking=yes"
+          rsync -avz --delete --dry-run -e "$RSYNC_SSH" ./ u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/ > $GITHUB_WORKSPACE/deploy-logs/rsync_dryrun.out 2>&1 || true
+
+      - name: Upload deploy diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-diagnostics
+          path: deploy-logs
+
       - name: Deploy Main App to vehiscan
         run: |
           echo "Starting deployment to Hostinger..."
