@@ -534,7 +534,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Homeowner Registration — VehiScan</title>
 <link rel="stylesheet" href="../assets/css/tailadmin-components.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailadmin-components.css'); ?>">
-<link rel="stylesheet" href="../assets/css/registration.css">
+<link rel="stylesheet" href="../assets/css/registration.css?v=<?php echo @filemtime(__DIR__ . '/../assets/css/registration.css'); ?>">
 <script src="../assets/js/libs/sweetalert2.all.min.js"></script>
 </head>
 <body>
