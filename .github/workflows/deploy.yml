@@ -1,5 +1,9 @@
 name: Auto Deploy to Hostinger
 
+concurrency:
+  group: deploy-vehiscan
+  cancel-in-progress: true
+
 on:
   push:
     branches:
