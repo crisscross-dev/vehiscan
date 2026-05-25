@@ -18,6 +18,32 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Branch guard & info (prevent accidental deploys)
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          BRANCH_NAME="${{ github.ref_name }}"
+          echo "branch_name=$BRANCH_NAME" > $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+          echo "event_name=${{ github.event_name }}" >> $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+
+          # Allow deploys only from main or deploy, or when manually triggered
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "allowed_by=workflow_dispatch" >> $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+          elif [ "$BRANCH_NAME" = "main" ] || [ "$BRANCH_NAME" = "deploy" ]; then
+            echo "allowed_by=branch" >> $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+          else
+            echo "allowed_by=none" >> $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+            echo "Deploys are blocked for branch $BRANCH_NAME. Allowed branches: main, deploy. Use manual run if needed." >> $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+            cat $GITHUB_WORKSPACE/deploy-logs/branch_check.out
+            exit 1
+          fi
+
+      - name: Upload branch-check artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: branch-check
+          path: deploy-logs/branch_check.out
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
