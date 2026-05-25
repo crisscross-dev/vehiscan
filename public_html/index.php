@@ -70,6 +70,17 @@ foreach ($staticDirs as $staticDir) {
             ];
             $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
             header('Content-Type: ' . $contentType);
+
+            // Cache policy:
+            // - If client requested a versioned asset (contains ?v=), allow long-lived immutable caching.
+            // - Otherwise, set a conservative no-cache header so browsers fetch fresh copies.
+            $requestUriRaw = $_SERVER['REQUEST_URI'] ?? '';
+            if (strpos($requestUriRaw, '?v=') !== false || preg_match('/\\/v=[0-9]{8,}/', $requestUriRaw)) {
+                header('Cache-Control: public, max-age=31536000, immutable');
+            } else {
+                header('Cache-Control: no-cache, must-revalidate');
+            }
+
             readfile($staticPath);
             exit;
         }
