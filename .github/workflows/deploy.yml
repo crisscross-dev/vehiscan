@@ -24,6 +24,20 @@ jobs:
 
           ssh-keyscan -p 65002 145.79.28.1 >> ~/.ssh/known_hosts
 
+      - name: SSH connectivity test (diagnostic)
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          echo "=== SSH connectivity test ===" > $GITHUB_WORKSPACE/deploy-logs/ssh_test.out
+          ssh -i ~/.ssh/private_key -p 65002 -o BatchMode=yes -o ConnectTimeout=10 u321426185@145.79.28.1 "echo REMOTE_OK" >> $GITHUB_WORKSPACE/deploy-logs/ssh_test.out 2>&1 || true
+          echo "=== ssh exit code ===" >> $GITHUB_WORKSPACE/deploy-logs/ssh_test.out
+          ssh -i ~/.ssh/private_key -p 65002 -o BatchMode=yes -o ConnectTimeout=10 u321426185@145.79.28.1 "echo REMOTE_OK" >/dev/null 2>&1 || echo "SSH_FAILED" >> $GITHUB_WORKSPACE/deploy-logs/ssh_test.out || true
+
+      - name: Upload SSH diagnostic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssh-diagnostics
+          path: deploy-logs/ssh_test.out
+
       - name: Deploy Main App to vehiscan
         run: |
           echo "Starting deployment to Hostinger..."
