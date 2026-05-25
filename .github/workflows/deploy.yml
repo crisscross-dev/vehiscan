@@ -40,6 +40,18 @@ jobs:
           name: ssh-diagnostics
           path: deploy-logs/ssh_test.out
 
+      - name: Check remote host env file presence (safe)
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          echo "=== remote env.hosting status ===" > $GITHUB_WORKSPACE/deploy-logs/env_status.out
+          ssh -i ~/.ssh/private_key -p 65002 -o BatchMode=yes -o ConnectTimeout=10 u321426185@145.79.28.1 'if [ -f /home/u321426185/domains/mysamplesystem.site/vehiscan/.env.hosting ]; then stat -c "%n %s %y" /home/u321426185/domains/mysamplesystem.site/vehiscan/.env.hosting; else echo MISSING; fi' >> $GITHUB_WORKSPACE/deploy-logs/env_status.out 2>&1 || true
+
+      - name: Upload env status artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-status
+          path: deploy-logs/env_status.out
+
       - name: Export public key and fingerprint
         run: |
           mkdir -p $GITHUB_WORKSPACE/deploy-logs
