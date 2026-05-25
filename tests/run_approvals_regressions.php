@@ -16,11 +16,18 @@ $suites = [
     'Runtime checks' => $baseDir . '/regression_approvals_runtime.php',
 ];
 
+$skipRuntime = getenv('VEHISCAN_SKIP_DB_RUNTIME') === '1';
+
 $failed = 0;
 
 echo "=== Approvals Regression Runner ===\n\n";
 
 foreach ($suites as $label => $path) {
+    if ($skipRuntime && $label === 'Runtime checks') {
+        echo "[SKIP] {$label} (database unavailable in current environment)\n\n";
+        continue;
+    }
+
     if (!is_file($path)) {
         echo "[FAIL] {$label}: missing file {$path}\n\n";
         $failed++;

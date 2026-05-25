@@ -18,15 +18,63 @@ $suites = [
     'DB integrity audit' => $baseDir . '/db_integrity_audit.php',
 ];
 
+$runtimeDbSuites = [
+    'Visitor pass runtime regression',
+    'DB integrity audit',
+];
+
+/**
+ * Detect whether DB is reachable in this environment.
+ * If unavailable, DB-dependent runtime suites are skipped to keep static policy
+ * checks actionable during local/CI runs without database access.
+ */
+function vehiscanDbAvailable(): bool
+{
+    try {
+        require_once dirname(__DIR__) . '/config.php';
+
+        $dsn = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+            DB_HOST,
+            DB_PORT,
+            DB_NAME,
+            DB_CHARSET
+        );
+
+        $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_TIMEOUT => 3,
+        ]);
+
+        $pdo->query('SELECT 1');
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+$dbAvailable = vehiscanDbAvailable();
+
 $failed = 0;
 
 echo "=== Hardening Checks Runner ===\n\n";
 
 foreach ($suites as $label => $path) {
+    if (!$dbAvailable && in_array($label, $runtimeDbSuites, true)) {
+        echo "[SKIP] {$label} (database unavailable in current environment)\n\n";
+        continue;
+    }
+
     if (!is_file($path)) {
         echo "[FAIL] {$label}: missing file {$path}\n\n";
         $failed++;
         continue;
+    }
+
+    if (!$dbAvailable && $label === 'Approvals regressions') {
+        putenv('VEHISCAN_SKIP_DB_RUNTIME=1');
+    } else {
+        putenv('VEHISCAN_SKIP_DB_RUNTIME');
     }
 
     $cmd = escapeshellarg($php) . ' ' . escapeshellarg($path);
