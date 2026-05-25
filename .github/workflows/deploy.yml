@@ -59,7 +59,15 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/deploy-logs
           RSYNC_SSH="ssh -i ~/.ssh/private_key -p 65002 -o StrictHostKeyChecking=yes"
-          rsync -avz --delete --dry-run -e "$RSYNC_SSH" ./ u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/ > $GITHUB_WORKSPACE/deploy-logs/rsync_dryrun.out 2>&1 || true
+          rsync -avz --delete --dry-run \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude=".env" \
+            --exclude=".env.hosting" \
+            --exclude=".env.production" \
+            --exclude="node_modules" \
+            --exclude="vendor" \
+            -e "$RSYNC_SSH" ./ u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/ > $GITHUB_WORKSPACE/deploy-logs/rsync_dryrun.out 2>&1 || true
 
       - name: Upload deploy diagnostics
         uses: actions/upload-artifact@v4
@@ -72,7 +80,15 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/deploy-logs
           RSYNC_SSH="ssh -i ~/.ssh/private_key -p 65002 -o StrictHostKeyChecking=yes -o ConnectTimeout=20"
-          rsync -avz --delete -e "$RSYNC_SSH" ./ u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/ > $GITHUB_WORKSPACE/deploy-logs/rsync_real.out 2>&1 || true
+          rsync -avz --delete \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude=".env" \
+            --exclude=".env.hosting" \
+            --exclude=".env.production" \
+            --exclude="node_modules" \
+            --exclude="vendor" \
+            -e "$RSYNC_SSH" ./ u321426185@145.79.28.1:/home/u321426185/domains/mysamplesystem.site/vehiscan/ > $GITHUB_WORKSPACE/deploy-logs/rsync_real.out 2>&1 || true
 
       - name: Upload rsync real output
         uses: actions/upload-artifact@v4
@@ -89,6 +105,8 @@ jobs:
             --exclude=".git" \
             --exclude=".github" \
             --exclude=".env" \
+            --exclude=".env.hosting" \
+            --exclude=".env.production" \
             --exclude="node_modules" \
             --exclude="vendor" \
             -e "ssh -i ~/.ssh/private_key -p 65002" \
