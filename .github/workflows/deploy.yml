@@ -26,6 +26,29 @@ jobs:
 
           ssh-keyscan -p 65002 145.79.28.1 >> ~/.ssh/known_hosts
 
+      - name: Validate SSH private key (diagnostic)
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/deploy-logs
+          echo "=== private key check ===" > $GITHUB_WORKSPACE/deploy-logs/key_check.out
+          if [ ! -s ~/.ssh/private_key ]; then
+            echo "PRIVATE_KEY_MISSING_OR_EMPTY" >> $GITHUB_WORKSPACE/deploy-logs/key_check.out
+            echo "Ensure the repository secret HOSTINGER_SSH_KEY is set and contains the full private key with BEGIN/END lines." >> $GITHUB_WORKSPACE/deploy-logs/key_check.out
+            exit 2
+          fi
+          if ! grep -E "BEGIN (RSA|OPENSSH) PRIVATE KEY" ~/.ssh/private_key >/dev/null 2>&1; then
+            echo "PRIVATE_KEY_MISSING_HEADER" >> $GITHUB_WORKSPACE/deploy-logs/key_check.out
+            echo "The private key appears malformed or missing BEGIN/END header. Use printf '%s\n' \"\${{ secrets.HOSTINGER_SSH_KEY }}\" to preserve newlines when setting the secret." >> $GITHUB_WORKSPACE/deploy-logs/key_check.out
+            exit 2
+          fi
+          echo "PRIVATE_KEY_OK" >> $GITHUB_WORKSPACE/deploy-logs/key_check.out
+
+      - name: Upload key check artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: key-check
+          path: deploy-logs/key_check.out
+
       - name: SSH connectivity test (diagnostic)
         run: |
           mkdir -p $GITHUB_WORKSPACE/deploy-logs
